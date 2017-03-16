@@ -1,0 +1,9 @@
+{
+  "name": "hours",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "dateformat": "^2.0.0",
+    "node-fetch": "^1.6.3"
+  }
+}
