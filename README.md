@@ -5,6 +5,7 @@ This is useful for repetitive time entry into the Teamwork system.
 
 Javascript is not my strength so please tell me what I am doing wrong in this. Particularly how to better store the teamwork API key...
 
+Note everything I have done below is in ubuntu which uses 'nodejs' instead of 'node'. 
 
 
 ## Installation
