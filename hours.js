@@ -37,7 +37,8 @@ const printTimeLogged = () => {
   const workday_count = (start,end) => {
     let count = 0;
     let day = new Date(start);
-    while (day.getDate() < end.getDate()) {
+    let month = day.getMonth();
+    while (day.getDate() <= end.getDate() && month === day.getMonth()) {
       if (day.getDay() !== 6 && day.getDay() !== 0) {
         ++count;
       }
@@ -50,10 +51,10 @@ const printTimeLogged = () => {
   const calcTime = (json, since) => {
 
     const today = new Date();
-    const requiredHours = 8 * (1 + workday_count(since, today));
+    const requiredHours = 8 * (workday_count(since, today));
 
     let lastDayOfMonth = new Date(today.getFullYear(), (today.getMonth() + 1) % 12, 0);
-    const leftInMonth = 8 * workday_count(today, lastDayOfMonth);
+    const leftInMonth = 8 * (workday_count(today, lastDayOfMonth) - 1);
 
     let holiday = 0;
     let billable = 0;
