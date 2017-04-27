@@ -85,3 +85,5 @@ If you are on Linux/Mac you can make the script executable and it will probably 
 
 ## Recommendations
 You should put commonly used entries inside bash or batch scripts so you can easily edit yesterday's and run it. Personally I have a list in a text file and run them from vim <3
+
+To get started run the --tasks option to see a list of tasks that you have logged to this year.
