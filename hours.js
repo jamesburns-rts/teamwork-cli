@@ -7,7 +7,7 @@ const versionNo = "0.9.9";
 
 const dateFormat = require('dateformat');
 const functions = require('./common-functions.js');
-const { interactiveMode } = require('./interactive-mode.js');
+const { interactiveMode, usage } = require('./interactive-mode.js');
 
 
 /**
@@ -99,6 +99,9 @@ const printUsage = () => {
         Same as above but using letters instead
         `
     );
+
+    console.log('\nINTERACTIVE MODE\n')
+    usage();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -7,11 +7,12 @@ const functions = require('./common-functions.js');
  * Interactive Mode
  ************************************************************************************/
 
-const EXIT_COMMANDS = [ 'exit', 'quit', 'q', ':q' ];
-const HELP_COMMANDS = [ 'help', 'h', 'please' ];
-const CD_COMMANDS = [ 'cd', 'select', 'sel', 'c', ':e', 'enter', 'dir' ];
-const LS_COMMANDS = [ 'ls', 'l', 'list' ];
+const EXIT_COMMANDS = [ 'exit', 'quit', 'q', ':q', ':wq', 'leave' ];
+const HELP_COMMANDS = [ 'help', 'h', 'pls', 'halp' ];
+const CD_COMMANDS = [ 'select', 'sel', 'cd', 'c', ':e', 'enter', 'dir' ];
+const LS_COMMANDS = [  'list', 'ls', 'l' ];
 const ENTRY_COMMANDS = [ 'entry', 'log', 'record' ];
+const CREATE_COMMANDS = [ 'create', 'mkdir', 'touch', 'make', 'edit', 'add' ];
 
 Array.prototype.contains = function ( item ) {
     return this.find(i => i === item) !== undefined;
@@ -206,28 +207,30 @@ const cd = (state, args) => {
  * @param rl readline terminal handle
  * @param logTimeState logTime terminal sub-state
  */
-const logTime = (rl, logTimeState) => {
+const logTime = (logTimeState) => {
 
-    switch (logTimeState.step) {
+    const { rl, step } = logTimeState; 
+
+    switch (step) {
         case 'description':
             rl.question('Description []: ', answer => {
                 logTimeState.description = answer;
                 logTimeState.step = 'hours';
-                logTime(rl, logTimeState);
+                logTime(logTimeState);
             });
             break;
         case 'hours':
             rl.question('Hours [1]: ', answer => {
                 logTimeState.hours = answer.length > 0 ? Number(answer) : 1;
                 logTimeState.step = 'minutes';
-                logTime(rl, logTimeState);
+                logTime(logTimeState);
             });
             break;
         case 'minutes':
             rl.question('Minutes [0]: ', answer => {
                 logTimeState.minutes = answer.length > 0 ? Number(answer) : 0;
                 logTimeState.step = 'date';
-                logTime(rl, logTimeState);
+                logTime(logTimeState);
             });
             break;
         case 'date':
@@ -235,14 +238,14 @@ const logTime = (rl, logTimeState) => {
             rl.question('Date [' + dateStr + ']: ', answer => {
                 logTimeState.date = answer.length > 0 ? answer : dateStr;
                 logTimeState.step = 'billable';
-                logTime(rl, logTimeState);
+                logTime(logTimeState);
             });
             break;
         case 'billable':
             rl.question('Is Billable [1]: ', answer => {
                 logTimeState.isBillable = answer.length > 0 ? Number(answer) : 1;
                 logTimeState.step = 'done';
-                logTime(rl, logTimeState);
+                logTime(logTimeState);
             });
             break;
         case 'done':
@@ -251,6 +254,62 @@ const logTime = (rl, logTimeState) => {
             logTimeState.exit();
             break;
     }
+}
+
+const addItem = (addItemState) => {
+
+    const { rl, step, level, state } = addItemState;
+
+    switch (step) {
+        case 'description':
+            rl.question('Description: ', answer => {
+                if (answer.length > 0) {
+                    addItemState.description = answer;
+                    addItemState.step = 'done';
+                }
+                addItem(addItemState);
+            });
+            break;
+        case 'done':
+        default:
+            if (level === 'tasklist') {
+                const tasklistId = state.selected.tasklist.id;
+                const resp = teamwork.addTask(tasklistId, addItemState.description);
+                console.log(resp);
+                state.data.tasks = teamwork.getTasks(tasklistId);
+            }
+            addItemState.exit();
+            break;
+    }
+
+}
+
+const usage = () => {
+
+    console.log('This mode creates a quasi-terminal with a directory structure setup like teamwork. There is a top level "teamwork" directory containing a folder for each project, each project contains tasklists, and each tasklist contains tasks.');
+    
+    console.log('\nOnce in a task you can log time. You can also create tasks/tasklists.');
+
+    console.log('\n\tHELP: ' + HELP_COMMANDS.join(', '));
+    console.log('\tDisplay this information.');
+
+    console.log('\n\tEXIT: ' + EXIT_COMMANDS.join(', '));
+    console.log('\tExit interactive mode.');
+
+    console.log('\n\tSELECT: ' + CD_COMMANDS.join(', '));
+    console.log('\tSelect a project, tasklist, or task - aka change directory.');
+
+    console.log('\n\tLIST: ' + LS_COMMANDS.join(', '));
+    console.log('\tList the contents of the item - a projects tasklists for example.');
+
+    console.log('\n\tCREATE: ' + CREATE_COMMANDS.join(', '));
+    console.log('\tCreate a new item in the entity (new task, tasklist, etc.)');
+
+    console.log('\n\tLOG TIME: ' + ENTRY_COMMANDS.join(', '));
+    console.log('\tLog time while in a given task');
+
+    console.log('\n\tPRINT: print hours, print logged, print on <date>');
+    console.log('\tDisplay infromation about time already logged');
 }
 
 /**
@@ -304,12 +363,26 @@ const interactiveMode = () => {
                     functions.printDateEntries(args[2]);
                 }
             } else if (ENTRY_COMMANDS.contains(cmd) && getDirLevel(state) === 'task') {
-                const logTimeState = {
+                logTime({
+                    rl,
                     step: 'description',
                     exit: () => showPrompt(state),
                     taskId: state.selected.task.id, 
+                });
+            } else if (CREATE_COMMANDS.contains(cmd)) {
+                const level = getDirLevel(state);
+
+                if (level === 'tasklist') {
+                    const description = args.length > 1 ? args.slice(1).join(' ') : null;
+                    addItem({
+                        rl,
+                        state,
+                        description,
+                        level,
+                        step: description === null ? "description" : "done",
+                        exit: () => showPrompt(state)
+                    });
                 }
-                logTime(rl, logTimeState);
             }
 
             refreshPrompt(state)
@@ -321,5 +394,6 @@ const interactiveMode = () => {
 }
 
 module.exports = {
-    interactiveMode
+    interactiveMode,
+    usage
 }

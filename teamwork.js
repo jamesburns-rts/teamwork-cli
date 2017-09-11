@@ -83,6 +83,23 @@ const getTasks = (tasklistId) => {
 }
 
 /**
+ * Add a task to the tasklist
+ *
+ * @param tasklistId ID of task list to add task to
+ * @param content Description of task
+ */
+const addTask = (tasklistId, content) => {
+
+    const todoItem = {
+        "todo-item": {
+            content
+        }
+    }
+
+    return teamworkPOST(`/tasklists/${tasklistId}/tasks.json`, todoItem);
+}
+
+/**
  * Get user's time entries between the given dates
  */
 const getTimeEntries = (fromDate, toDate) => {
@@ -133,6 +150,7 @@ module.exports = {
     getProjects,
     getTasklists,
     getTasks,
+    addTask,
     getTimeEntries,
     sendTimeEntry
 }
