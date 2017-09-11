@@ -10,8 +10,11 @@ const functions = require('./common-functions.js');
 const { interactiveMode } = require('./interactive-mode.js');
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Parses the arguments provided to the program
+/**
+ * Parses the arguments provided to the program
+ *
+ * @param args Array of program arguments
+ */
 const parseProgramArguments = (args) => {
 
     // parse arguments
@@ -60,14 +63,16 @@ const parseProgramArguments = (args) => {
     return argList;
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Prints Version of utility
+/**
+ * Prints Version of program
+ */
 const printVersionInfo = () => {
     console.log(`hours ${versionNo}\n`);
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Print Usage for the utility
+/**
+ * Print Usage for the utility
+ */
 const printUsage = () => {
 
     printVersionInfo();

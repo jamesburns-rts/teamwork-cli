@@ -17,6 +17,11 @@ Array.prototype.contains = function ( item ) {
     return this.find(i => i === item) !== undefined;
 }
 
+/**
+ * Refreshes prompt stored in state based on selected items
+ *
+ * @param state Current state of the terminal
+ */
 const refreshPrompt = (state) => {
 
     const { project, tasklist, task } = state.selected;
@@ -37,6 +42,11 @@ const refreshPrompt = (state) => {
     state.prompt = prompt + ' > ';
 }
 
+/**
+ * Utility function that gets the current directory level of the state (project, task, etc.)
+ *
+ * @param state Current state of the terminal
+ */
 const getDirLevel = (state) => {
     const { project, tasklist, task } = state.selected;
     if (task) { return 'task'; }
@@ -45,6 +55,12 @@ const getDirLevel = (state) => {
     return 'top';
 }
 
+/**
+ * Lists the current contents of the 'directory' (tasks in tasklist, etc)
+ *
+ * @param state Current state of the terminal
+ * @param args Array of arguments with the first item being the command
+ */
 const ls = (state, args) => {
 
     let originalDir = '/';
@@ -87,6 +103,13 @@ const ls = (state, args) => {
     }
 }
 
+/**
+ * Utility function that finds an item in the list given the argument. 
+ * First by array index, then by id, then by... ?
+ *
+ * @param list List to search through
+ * @param arg Search parameter
+ */
 const findDirItem = (list, arg) => {
     if (!isNaN(arg)) {
         if (Number(arg) < list.length) {
@@ -103,6 +126,12 @@ const findDirItem = (list, arg) => {
     return undefined;
 }
 
+/**
+ * Changes 'directory' of terminal
+ * 
+ * @param state Current state of the terminal
+ * @param args Array of arguments with first being the command
+ */
 const cd = (state, args) => {
 
     const DELIM = '/';
@@ -171,6 +200,12 @@ const cd = (state, args) => {
     });
 }
 
+/**
+ * Overrides the terminal to create an time entry
+ *
+ * @param rl readline terminal handle
+ * @param logTimeState logTime terminal sub-state
+ */
 const logTime = (rl, logTimeState) => {
 
     switch (logTimeState.step) {
@@ -218,8 +253,9 @@ const logTime = (rl, logTimeState) => {
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// interactive mode
+/**
+ * Creates an interactive terminal to view and modify teamwork data
+ */
 const interactiveMode = () => {
     const rl = readline.createInterface({
         input: process.stdin,
@@ -283,7 +319,6 @@ const interactiveMode = () => {
 
     showPrompt(state);
 }
-
 
 module.exports = {
     interactiveMode

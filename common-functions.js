@@ -5,8 +5,9 @@ const teamwork = require('./teamwork.js');
  * teamwork-cli functions
  ************************************************************************************/
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Prints the time logged summary for the year
+/**
+ * Prints the time logged summary for the year
+ */
 const printTimeLogged = () => {
 
     // calculates number of work days between two dates
@@ -81,8 +82,9 @@ const printTimeLogged = () => {
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Print tasks for the current year
+/**
+ * Print tasks for the current year
+ */
 const printPreviousTasks = () => {
 
     let date = new Date();
@@ -98,8 +100,9 @@ const printPreviousTasks = () => {
     new Set(descriptions).forEach( t => console.log(t) );
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Prints the entries for the given date
+/**
+ * Prints the entries for the given date
+ */
 const printDateEntries = (date) => {
 
     const timeEntries = teamwork.getTimeEntries(date, date);
@@ -114,8 +117,9 @@ const printDateEntries = (date) => {
             `));
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// send time entry request
+/**
+ * send time entry request
+ */
 const sendTimeEntry = (entry) => {
     return teamwork.sendTimeEntry(entry);
 }
