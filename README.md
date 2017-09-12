@@ -33,44 +33,44 @@ hours 0.9.9
 
 OPTIONS
 
-	-h, --help 
-	Print this help Screen
+    -h, --help 
+    Print this help Screen
 
-	-v, --version 
-	Print version info
+    -v, --version 
+    Print version info
 
-	-i, --interactive 
-	Enter interactive mode
+    -i, --interactive 
+    Enter interactive mode
 
-	-l, --time-logged 
-	Print time logged
+    -l, --time-logged 
+    Print time logged
 
-	-p, --tasks 
-	Print a list of previous entered tasks for the year
+    -p, --tasks 
+    Print a list of previous entered tasks for the year
 
-	-q, --entries 
-	Print entries of today or date specified
+    -q, --entries 
+    Print entries of today or date specified
 
-	-e, --entry 
-	Enter time with below options
+    -e, --entry 
+    Enter time with below options
 
-	-b, --billable [0/1]
-	If billable time (default 1)
+    -b, --billable [0/1]
+    If billable time (default 1)
 
-	-H, --hours [hours]
-	Set hours to log (default 0)
+    -H, --hours [hours]
+    Set hours to log (default 0)
 
-	-M, --minutes [minutes]
-	Set minutes to log (default 0)
+    -M, --minutes [minutes]
+    Set minutes to log (default 0)
 
-	-d, --date [yyyymmdd]
-	Set date to log for (default today)
+    -d, --date [yyyymmdd]
+    Set date to log for (default today)
 
-	-m, --description [message]
-	Set description to log (default empty)
+    -m, --description [message]
+    Set description to log (default empty)
 
-	-t, --task [taskId]
-	Set the taskId to log to (see --tasks)
+    -t, --task [taskId]
+    Set the taskId to log to (see --tasks)
 
 EXAMPLES
 
@@ -87,26 +87,26 @@ This mode creates a quasi-terminal with a directory structure setup like teamwor
 
 Once in a task you can log time. You can also create tasks/tasklists.
 
-	HELP: help, h, pls, halp
-	Display this information.
+    HELP: help, h, pls, halp
+    Display this information.
 
-	EXIT: exit, quit, q, :q, :wq, leave
-	Exit interactive mode.
+    EXIT: exit, quit, q, :q, :wq, leave
+    Exit interactive mode.
 
-	SELECT: select, sel, cd, c, :e, enter, dir
-	Select a project, tasklist, or task - aka change directory.
+    SELECT: select, sel, cd, c, :e, enter, dir
+    Select a project, tasklist, or task - aka change directory.
 
-	LIST: list, ls, l
-	List the contents of the item - a projects tasklists for example.
+    LIST: list, ls, l
+    List the contents of the item - a projects tasklists for example.
 
-	CREATE: create, mkdir, touch, make, edit, add
-	Create a new item in the entity (new task, tasklist, etc.)
+    CREATE: create, mkdir, touch, make, edit, add
+    Create a new item in the entity (new task, tasklist, etc.)
 
-	LOG TIME: entry, log, record
-	Log time while in a given task
+    LOG TIME: entry, log, record
+    Log time while in a given task
 
-	PRINT: print hours, print logged, print on <date>
-	Display infromation about time already logged
+    PRINT: print hours, print logged, print on <date>
+    Display infromation about time already logged
 ```
 
 ## Recommendations
