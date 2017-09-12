@@ -243,7 +243,7 @@ const logTime = (logTimeState) => {
             break;
         case 'billable':
             rl.question('Is Billable [1]: ', answer => {
-                logTimeState.isBillable = answer.length > 0 ? Number(answer) : 1;
+                logTimeState.isbillable = answer.length > 0 ? Number(answer) : 1;
                 logTimeState.step = 'done';
                 logTime(logTimeState);
             });
