@@ -3,10 +3,7 @@ Command line interface for Teamwork
 
 This is useful for repetitive time entry into the Teamwork system. 
 
-Javascript is not my strength so please tell me what I am doing wrong in this. Particularly how to better store the teamwork API key...
-
-Note everything I have done below is in ubuntu which uses 'nodejs' instead of 'node'. 
-
+Javascript is not my strength so please tell me what I am doing wrong in this.
 
 ## Installation
 
@@ -20,12 +17,12 @@ This also depends on _your_ teamwork API key which can be found by:
 4. View the 'API & Mobile' tab in the popup.
 5. Click 'Show Your Token'
 
-Paste this token into the 'key' variable at the top of the hours.js script.
+Set the environment variable `TEAMWORK_KEY` to your api key.
 
 ```
 cd teamwork-cli
 npm install
-nodejs hours.js -h
+node hours.js -h
 ```
 
 ## Usage
@@ -36,54 +33,83 @@ hours 0.9.9
 
 OPTIONS
 
-   -h, --help 
-        Print this help Screen
+	-h, --help 
+	Print this help Screen
 
-   -v, --version 
-        Print version info
+	-v, --version 
+	Print version info
 
-   -l, --time-logged 
-        Print time logged
+	-i, --interactive 
+	Enter interactive mode
 
-   -p, --tasks 
-        Print a list of previous entered tasks for the year
+	-l, --time-logged 
+	Print time logged
 
-   -q, --entries 
-        Print entries of today or date specified
+	-p, --tasks 
+	Print a list of previous entered tasks for the year
 
-   -e, --entry 
-        Enter time with below options
+	-q, --entries 
+	Print entries of today or date specified
 
-   -b, --billable [0/1]
-        If billable time (default 1)
+	-e, --entry 
+	Enter time with below options
 
-   -H, --hours [hours]
-        Set hours to log (default 0)
+	-b, --billable [0/1]
+	If billable time (default 1)
 
-   -M, --minutes [minutes]
-        Set minutes to log (default 0)
+	-H, --hours [hours]
+	Set hours to log (default 0)
 
-   -d, --date [yyyymmdd]
-        Set date to log for (default today)
+	-M, --minutes [minutes]
+	Set minutes to log (default 0)
 
-   -m, --description [message]
-        Set description to log (default empty)
+	-d, --date [yyyymmdd]
+	Set date to log for (default today)
 
-   -t, --task [taskId]
-        Set the taskId to log to (see --tasks)
+	-m, --description [message]
+	Set description to log (default empty)
+
+	-t, --task [taskId]
+	Set the taskId to log to (see --tasks)
 
 EXAMPLES
 
     nodejs hours.js --entry --task 6905921 --hours 1 --minutes 30 --billable 0 --description "Friday Standup"
-      Logs an hour and a half for a long Friday standup
+    Logs an hour and a half for a long Friday standup
 
     nodejs hours.js -e -t 6905921 -H 1 -M 30 -b 0 -m "Friday Standup"
-      Same as above but using letters instead
-```
+    Same as above but using letters instead
+        
 
-If you are on Linux/Mac you can make the script executable and it will probably work. I haven't tested this on Mac, but you will likely need to change the first line to point to node 'instead' of 'nodejs'.
+INTERACTIVE MODE
+
+This mode creates a quasi-terminal with a directory structure setup like teamwork. There is a top level "teamwork" directory containing a folder for each project, each project contains tasklists, and each tasklist contains tasks.
+
+Once in a task you can log time. You can also create tasks/tasklists.
+
+	HELP: help, h, pls, halp
+	Display this information.
+
+	EXIT: exit, quit, q, :q, :wq, leave
+	Exit interactive mode.
+
+	SELECT: select, sel, cd, c, :e, enter, dir
+	Select a project, tasklist, or task - aka change directory.
+
+	LIST: list, ls, l
+	List the contents of the item - a projects tasklists for example.
+
+	CREATE: create, mkdir, touch, make, edit, add
+	Create a new item in the entity (new task, tasklist, etc.)
+
+	LOG TIME: entry, log, record
+	Log time while in a given task
+
+	PRINT: print hours, print logged, print on <date>
+	Display infromation about time already logged
+```
 
 ## Recommendations
 You should put commonly used entries inside bash or batch scripts so you can easily edit yesterday's and run it. Personally I have a list in a text file and run them from vim <3
 
-To get started run the --tasks option to see a list of tasks that you have logged to this year.
+To get started run the --interactive option to navigate through your projects and tasks to get the task IDs you need.
