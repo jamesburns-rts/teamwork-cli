@@ -220,8 +220,8 @@ const logTime = (logTimeState) => {
             });
             break;
         case 'hours':
-            rl.question('Hours [1]: ', answer => {
-                logTimeState.hours = answer.length > 0 ? Number(answer) : 1;
+            rl.question('Hours [8]: ', answer => {
+                logTimeState.hours = answer.length > 0 ? Number(answer) : 8;
                 logTimeState.step = 'minutes';
                 logTime(logTimeState);
             });
@@ -346,7 +346,7 @@ const interactiveMode = () => {
                 return;
 
             } else if (HELP_COMMANDS.contains(cmd)) {
-                console.log('print help');
+                usage();
 
             } else if (CD_COMMANDS.contains(cmd)) {
                 cd(state, args);

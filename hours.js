@@ -126,11 +126,14 @@ else {
 
         if (argList['entry'].provided) {
 
-            const entry = argList;
-            entry.taskId = entry.task;
-            entry.isbillable = entry.billable;
-
-            const resp = functions.sendTimeEntry(entry);
+            const resp = functions.sendTimeEntry({
+                taskId: argList['task'].value,
+                description: argList['description'].value,
+                date: argList['date'].value,
+                hours: argList['hours'].value,
+                minutes: argList['minutes'].value,
+                isbillable: argList['billable'].value,
+            });
             console.log(resp);
         }
         else if (argList['tasks'].provided) {
