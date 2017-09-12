@@ -27,7 +27,7 @@ node hours.js -h
 
 ## Usage
 
-```bash
+```
 $ nodejs hours.js -h
 hours 0.9.9
 
