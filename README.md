@@ -27,7 +27,7 @@ node hours.js -h
 
 ## Usage
 
-```bash
+```
 $ nodejs hours.js -h
 hours 0.9.9
 
@@ -74,7 +74,8 @@ OPTIONS
 
 EXAMPLES
 
-    nodejs hours.js --entry --task 6905921 --hours 1 --minutes 30 --billable 0 --description "Friday Standup"
+    nodejs hours.js --entry --task 6905921 --hours 1 --minutes 30 \ 
+                    --billable 0 --description "Friday Standup"
     Logs an hour and a half for a long Friday standup
 
     nodejs hours.js -e -t 6905921 -H 1 -M 30 -b 0 -m "Friday Standup"
@@ -83,7 +84,9 @@ EXAMPLES
 
 INTERACTIVE MODE
 
-This mode creates a quasi-terminal with a directory structure setup like teamwork. There is a top level "teamwork" directory containing a folder for each project, each project contains tasklists, and each tasklist contains tasks.
+This mode creates a quasi-terminal with a directory structure setup like teamwork. There 
+is a top level "teamwork" directory containing a folder for each project, each project 
+contains tasklists, and each tasklist contains tasks.
 
 Once in a task you can log time. You can also create tasks/tasklists.
 
