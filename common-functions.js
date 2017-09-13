@@ -106,15 +106,21 @@ const printPreviousTasks = () => {
 const printDateEntries = (date) => {
 
     const timeEntries = teamwork.getTimeEntries(date, date);
-    timeEntries.forEach( t => console.log(`
-            ${t.description}
+    let total = 0;
+    timeEntries.forEach( t => {
 
-            Project: ${t['project-name']} 
-            TaskName: ${t['todo-item-name']} 
-            TaskId: ${t['todo-item-id']}
-            Billable: ${t.isbillable == 1 ? "Yes" : "No"}
-            Hours: ${(t.hours*1.0 + t.minutes/60.0).toFixed(2)}
-            `));
+        const hours = (t.hours*1.0 + t.minutes/60.0);
+
+        console.log('\n  ' + t.description);
+        console.log(`    Project: ${t['project-name']}`); 
+        console.log(`    TaskName: ${t['todo-item-name']}`); 
+        console.log(`    TaskId: ${t['todo-item-id']}`); 
+        console.log(`    Billable: ${t.isbillable == 1 ? "Yes" : "No"}`); 
+        console.log(`    Hours: ${hours.toFixed(2)}`); 
+        total = total + hours;
+    });
+
+    console.log('  \nTotal today: ' + total.toFixed(2));
 }
 
 /**

@@ -408,6 +408,8 @@ const printInfo = (args) => {
             functions.printTimeLogged();
         } else if (args[1] === 'logged'){
             functions.printPreviousTasks()
+        } else if (args[1] === 'today'){
+            functions.printDateEntries(dateFormat(new Date(), 'yyyymmdd'));
         } else if (args.length > 2 && args[1] === 'on') {
             functions.printDateEntries(args[2]);
         }
@@ -577,6 +579,12 @@ const commands = [
         aliases: [ 'copy', 'cp', 'duplicate', 'dup' ],
         action: copyItem,
         description: 'Copy the specified item.'
+    },
+    {
+        name: 'today',
+        aliases: [ 'today' ],
+        action: (args) => printInfo(['print', 'today']),
+        description: 'Show logged today'
     },
 ];
 
