@@ -81,6 +81,28 @@ const getDirLevel = () => {
 }
 
 /**
+ * Utility function that gets teh current directory
+ */
+const getCurrentDir = () => {
+
+    const { selected } = state;
+    let dir = DELIM;
+
+    if (selected.project) {
+        dir = dir + selected.project.id;
+
+        if (selected.tasklist) {
+            dir = dir + DELIM + selected.tasklist.id;
+
+            if (selected.task) {
+                dir = dir + DELIM + selected.task.id;
+            }
+        } 
+    }
+    return dir;
+}
+
+/**
  * Lists the current contents of the 'directory' (tasks in tasklist, etc)
  *
  * @param args Array of arguments with the first item being the command
@@ -93,18 +115,7 @@ const ls = (args) => {
     let originalDir = '.';
 
     if (differentDir) {
-        originalDir = DELIM;
-        if (selected.project) {
-            originalDir = originalDir + selected.project.id;
-
-            if (selected.tasklist) {
-                originalDir = originalDir + DELIM + selected.tasklist.id;
-
-                if (selected.task) {
-                    originalDir = originalDir + DELIM + selected.task.id;
-                }
-            } 
-        } 
+        originalDir = getCurrentDir();
 
         if (args[1] === '*') {
             // TODO 
@@ -150,7 +161,7 @@ const findDirItem = (list, arg) => {
         if (Number(arg) < list.length) {
             return list[Number(arg)];
         } else {
-            const proj = list.find(p => p.id === arg);
+            const proj = list.find(p => p.id == arg);
             if (proj) {
                 return proj;
             }
@@ -182,7 +193,7 @@ const cd = (args) => {
 
     if (path.startsWith(DELIM)) {
         path = path.substr(1);
-        cd([])
+        cd(['cd'])
     }
     if (path.endsWith(DELIM)) {
         path = path.substr(0, path.length - 1);
@@ -236,10 +247,20 @@ const cd = (args) => {
 }
 
 /**
+ * Wrapper around 'cd' that allows going back
+ */
+let lastDir = '/';
+const reversableCd = (args) => {
+
+    const goBack = args && args.length > 1 && args[1] === '-';
+    const cdArgs = goBack ? ['cd', lastDir.slice()] : args;
+
+    lastDir = getCurrentDir();
+    cd(cdArgs);
+}
+
+/**
  * Overrides the terminal to create an time entry
- *
- * @param rl readline terminal handle
- * @param logTimeState logTime terminal sub-state
  */
 const logTime = (args) => {
 
@@ -265,6 +286,9 @@ const logTime = (args) => {
     }
 }
 
+/**
+ * Add item to the current directory
+ */
 const addItem = (args) => {
 
     let description = args.length > 1 ? args.slice(1).join(' ') : null;
@@ -291,7 +315,10 @@ const addItem = (args) => {
     }
 }
 
-const usage = () => {
+/**
+ * Print usage
+ */
+const usage = (args) => {
 
     console.log('This mode creates a quasi-terminal with a directory structure setup like teamwork. There is a top level "teamwork" directory containing a folder for each project, each project contains tasklists, and each tasklist contains tasks.');
     
@@ -333,7 +360,7 @@ const commands = [
     {
         name: 'select',
         aliases: [ 'select', 'sel', 'cd', 'c', ':e', 'enter', 'dir' ],
-        action: cd,
+        action: reversableCd,
         description: 'Select a project, tasklist, or task - aka change directory.'
     },
     {
@@ -377,7 +404,7 @@ const commands = [
 const interactiveMode = (startingPath) => {
 
     if (startingPath) {
-        cd(['cd', startingPath]);
+        reversableCd(['cd', startingPath]);
     }
 
     while(1) {

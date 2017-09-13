@@ -70,8 +70,12 @@ const teamworkDELETE = (endpoint) => {
 /**
  * Get teamwork user information from API key
  */
+let ME = undefined;
 const getMe = () => {
-    return teamworkGET('/me.json');
+    if (!ME) {
+        ME = teamworkGET('/me.json');
+    }
+    return ME;
 }
 
 /**
