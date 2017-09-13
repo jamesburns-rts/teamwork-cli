@@ -1,4 +1,4 @@
-const readline = require('readline');
+const readline = require('readline-sync');
 const dateFormat = require('dateformat');
 const teamwork = require('./teamwork.js');
 const functions = require('./common-functions.js');
@@ -8,14 +8,40 @@ const functions = require('./common-functions.js');
  ************************************************************************************/
 
 const EXIT_COMMANDS = [ 'exit', 'quit', 'q', ':q', ':wq', 'leave' ];
-const HELP_COMMANDS = [ 'help', 'h', 'pls', 'halp' ];
-const CD_COMMANDS = [ 'select', 'sel', 'cd', 'c', ':e', 'enter', 'dir' ];
-const LS_COMMANDS = [  'list', 'ls', 'l' ];
-const ENTRY_COMMANDS = [ 'entry', 'log', 'record' ];
-const CREATE_COMMANDS = [ 'create', 'mkdir', 'touch', 'make', 'edit', 'add' ];
+const DELIM = '/';
 
 Array.prototype.contains = function ( item ) {
     return this.find(i => i === item) !== undefined;
+}
+
+const state = {
+    data: {
+        projects: teamwork.getProjects(),
+        tasklists: undefined,
+        tasks: undefined
+    },
+    selected: {
+        project: null,
+        tasklist: null,
+        task: null
+    }
+};
+
+/**
+ * Utility function to prompt the user for a value 
+ * If no default value: '_prompt_: ', else '_prompt_[_defaultValue_]: '
+ *
+ * @param prompt Text to present to the user
+ * @param defaultValue returned if user has no input - also is displayed after prompt
+ */
+const ask = (prompt, defaultValue) => {
+
+    if (defaultValue) {
+        const val = readline.question(`${prompt}[${defaultValue}]: `);
+        return val.length > 0 ? val : defaultValue;
+    } else {
+        return readline.question(prompt + ': ');
+    }
 }
 
 /**
@@ -23,32 +49,30 @@ Array.prototype.contains = function ( item ) {
  *
  * @param state Current state of the terminal
  */
-const refreshPrompt = (state) => {
+const getPromptText = () => {
 
     const { project, tasklist, task } = state.selected;
 
     let prompt = '\nteamwork'
 
     if (project) {
-        prompt = prompt +  '/' + project.name;
+        prompt = prompt +  DELIM + project.name;
 
         if (tasklist) {
-            prompt = prompt +  '/' + tasklist.name;
+            prompt = prompt +  DELIM + tasklist.name;
 
             if (task) {
-                prompt = prompt +  '/' + task.content;
+                prompt = prompt +  DELIM + task.content;
             }
         } 
     } 
-    state.prompt = prompt + ' > ';
+    return '\x1b[1m' + prompt + ' > \x1b[0m';
 }
 
 /**
  * Utility function that gets the current directory level of the state (project, task, etc.)
- *
- * @param state Current state of the terminal
  */
-const getDirLevel = (state) => {
+const getDirLevel = () => {
     const { project, tasklist, task } = state.selected;
     if (task) { return 'task'; }
     if (tasklist) { return 'tasklist'; }
@@ -59,34 +83,35 @@ const getDirLevel = (state) => {
 /**
  * Lists the current contents of the 'directory' (tasks in tasklist, etc)
  *
- * @param state Current state of the terminal
  * @param args Array of arguments with the first item being the command
  */
-const ls = (state, args) => {
+const ls = (args) => {
 
-    let originalDir = '/';
-    if (state.selected.project) {
-        originalDir = originalDir + state.selected.project.id;
+    const { data, selected } = state;
 
-        if (state.selected.tasklist) {
-            originalDir = originalDir + '/' + state.selected.tasklist.id;
+    const differentDir = args.length > 1;
+    let originalDir = '.';
 
-            if (state.selected.task) {
-                originalDir = originalDir + '/' + state.selected.task.id;
-            }
+    if (differentDir) {
+        originalDir = DELIM;
+        if (selected.project) {
+            originalDir = originalDir + selected.project.id;
+
+            if (selected.tasklist) {
+                originalDir = originalDir + DELIM + selected.tasklist.id;
+
+                if (selected.task) {
+                    originalDir = originalDir + DELIM + selected.task.id;
+                }
+            } 
         } 
-    } 
-
-    if (args.length > 1) {
 
         if (args[1] === '*') {
             // TODO 
         } else {
-            cd(state, args);
+            cd(args);
         }
     }
-
-    const { data, selected } = state;
 
     if (!selected.project) {
 
@@ -108,8 +133,8 @@ const ls = (state, args) => {
         data.timeEntries.forEach((t,idx) => console.log(`${idx}) ${t.id}: ${dateFormat(new Date(t.date), 'mm/dd/yyyy')} ${t.hours}h ${t.minutes}m - ${t.description}`));
     }
 
-    if (args.length > 1) {
-        cd(state, ['cd', originalDir]);
+    if (differentDir) {
+        cd(['cd', originalDir]);
     }
 }
 
@@ -142,11 +167,9 @@ const findDirItem = (list, arg) => {
  * @param state Current state of the terminal
  * @param args Array of arguments with first being the command
  */
-const cd = (state, args) => {
+const cd = (args) => {
 
-    const DELIM = '/';
-
-    if (args.length < 2) {
+    if (args.length < 2 || args[1] === DELIM || args[1] === '~') {
         state.selected = {
             project: null,
             tasklist: null,
@@ -159,7 +182,7 @@ const cd = (state, args) => {
 
     if (path.startsWith(DELIM)) {
         path = path.substr(1);
-        cd(state, [])
+        cd([])
     }
     if (path.endsWith(DELIM)) {
         path = path.substr(0, path.length - 1);
@@ -218,81 +241,54 @@ const cd = (state, args) => {
  * @param rl readline terminal handle
  * @param logTimeState logTime terminal sub-state
  */
-const logTime = (logTimeState) => {
+const logTime = (args) => {
 
-    const { rl, step } = logTimeState; 
+    switch(getDirLevel()) {
+        case "task":
 
-    switch (step) {
-        case 'description':
-            rl.question('Description []: ', answer => {
-                logTimeState.description = answer;
-                logTimeState.step = 'hours';
-                logTime(logTimeState);
-            });
-            break;
-        case 'hours':
-            rl.question('Hours [8]: ', answer => {
-                logTimeState.hours = answer.length > 0 ? Number(answer) : 8;
-                logTimeState.step = 'minutes';
-                logTime(logTimeState);
-            });
-            break;
-        case 'minutes':
-            rl.question('Minutes [0]: ', answer => {
-                logTimeState.minutes = answer.length > 0 ? Number(answer) : 0;
-                logTimeState.step = 'date';
-                logTime(logTimeState);
-            });
-            break;
-        case 'date':
+            const taskId = state.selected.task.id; 
             const dateStr = dateFormat(new Date(), "yyyymmdd");
-            rl.question('Date [' + dateStr + ']: ', answer => {
-                logTimeState.date = answer.length > 0 ? answer : dateStr;
-                logTimeState.step = 'billable';
-                logTime(logTimeState);
-            });
+
+            const description = ask('Description', '');
+            const hours = ask('Hours', '8');
+            const minutes = ask('Minutes', '0');
+            const date = ask('Date', dateStr );
+            const isbillable = ask('Is Billable', '1');
+
+            functions.sendTimeEntry({ taskId, description, date, hours, minutes, isbillable });
+            cd('.');
             break;
-        case 'billable':
-            rl.question('Is Billable [1]: ', answer => {
-                logTimeState.isbillable = answer.length > 0 ? Number(answer) : 1;
-                logTimeState.step = 'done';
-                logTime(logTimeState);
-            });
-            break;
-        case 'done':
+
         default:
-            functions.sendTimeEntry(logTimeState);
-            logTimeState.exit();
+            console.log('not supported');
             break;
     }
 }
 
-const addItem = (addItemState) => {
+const addItem = (args) => {
 
-    const { rl, step, level, state } = addItemState;
+    let description = args.length > 1 ? args.slice(1).join(' ') : null;
 
-    switch (step) {
-        case 'description':
-            rl.question('Description: ', answer => {
-                if (answer.length > 0) {
-                    addItemState.description = answer;
-                    addItemState.step = 'done';
-                }
-                addItem(addItemState);
-            });
-            break;
-        case 'done':
-        default:
-            if (level === 'tasklist') {
-                const tasklistId = state.selected.tasklist.id;
-                const resp = teamwork.addTask(tasklistId, addItemState.description);
-                console.log(resp);
-                state.data.tasks = teamwork.getTasks(tasklistId);
-            }
-            addItemState.exit();
-            break;
+    if (!description) {
+        description = readline.question('Description: ');
+        if (!description) {
+            console.log('description required. Returning to prompt.');
+            return;
+        }
     }
 
+    switch(getDirLevel()) {
+        case "tasklist":
+            const tasklistId = state.selected.tasklist.id;
+            const resp = teamwork.addTask(tasklistId, addItemState.description);
+            console.log(resp);
+
+            state.data.tasks = teamwork.getTasks(tasklistId);
+            break;
+        default:
+            console.log('not supported');
+            break;
+    }
 }
 
 const usage = () => {
@@ -301,27 +297,77 @@ const usage = () => {
     
     console.log('\nOnce in a task you can log time. You can also create tasks/tasklists.');
 
-    console.log('\n\tHELP: ' + HELP_COMMANDS.join(', '));
-    console.log('\tDisplay this information.');
-
-    console.log('\n\tEXIT: ' + EXIT_COMMANDS.join(', '));
-    console.log('\tExit interactive mode.');
-
-    console.log('\n\tSELECT: ' + CD_COMMANDS.join(', '));
-    console.log('\tSelect a project, tasklist, or task - aka change directory.');
-
-    console.log('\n\tLIST: ' + LS_COMMANDS.join(', '));
-    console.log('\tList the contents of the item - a projects tasklists for example.');
-
-    console.log('\n\tCREATE: ' + CREATE_COMMANDS.join(', '));
-    console.log('\tCreate a new item in the entity (new task, tasklist, etc.)');
-
-    console.log('\n\tLOG TIME: ' + ENTRY_COMMANDS.join(', '));
-    console.log('\tLog time while in a given task');
-
-    console.log('\n\tPRINT: print hours, print logged, print on <date>');
-    console.log('\tDisplay infromation about time already logged');
+    commands.forEach(cmd => {
+        console.log(`\n    ${cmd.name.toUpperCase()}: ${cmd.aliases.join(', ')}`);
+        console.log('    ' + cmd.description);
+    });
 }
+
+const printInfo = (args) => {
+    if (args && args.length > 1) {
+        if (args[1] === 'hours') {
+            functions.printTimeLogged();
+        } else if (args[1] === 'logged'){
+            functions.printPreviousTasks()
+        } else if (args.length > 2 && args[1] === 'on') {
+            functions.printDateEntries(args[2]);
+        }
+    } else {
+        functions.printTimeLogged();
+    }
+}
+
+const commands = [
+    {
+        name: 'exit',
+        aliases: EXIT_COMMANDS,
+        action: (args) => {},
+        description: 'Exit interactive mode.'
+    },
+    {
+        name: 'list',
+        aliases: [ 'list', 'ls', 'l', 'll' ],
+        action: ls,
+        description: 'List the contents of the item - a projects tasklists for example.'
+    },
+    {
+        name: 'select',
+        aliases: [ 'select', 'sel', 'cd', 'c', ':e', 'enter', 'dir' ],
+        action: cd,
+        description: 'Select a project, tasklist, or task - aka change directory.'
+    },
+    {
+        name: 'help',
+        aliases: [ 'help', 'h', 'pls', 'halp' ],
+        action: usage,
+        description: 'Display this information.'
+    },
+    {
+        name: 'log time',
+        aliases: [ 'log', 'entry', 'record' ],
+        action: logTime,
+        description: 'Log time while in a given task'
+    },
+    {
+        name: 'create',
+        aliases: [ 'create', 'mkdir', 'touch', 'make', 'edit', 'add' ],
+        action: addItem,
+        description: 'Create a new item in the entity (new task, tasklist, etc.)'
+    },
+    {
+        name: 'hours',
+        aliases: [ 'hours' ],
+        action: (args) => printInfo(),
+        description: 'Display infromation about time already logged'
+    },
+    {
+        name: 'print info',
+        aliases: [ 'print' ],
+        action: printInfo,
+        description: 'Display infromation about time already logged'
+    }
+
+];
 
 /**
  * Creates an interactive terminal to view and modify teamwork data
@@ -329,86 +375,26 @@ const usage = () => {
  * @param startingPath Immediately executes 'cd' on this argument
  */
 const interactiveMode = (startingPath) => {
-    const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-    });
-
-    const state = {
-        prompt: '\nteamwork > ',
-        data: {
-            projects: teamwork.getProjects(),
-            tasklists: undefined,
-            tasks: undefined
-        },
-        selected: {
-            project: null,
-            tasklist: null,
-            task: null
-        }
-    };
 
     if (startingPath) {
-        cd(state, ['cd', startingPath]);
-        refreshPrompt(state)
+        cd(['cd', startingPath]);
     }
 
-    const showPrompt = (state) => {
-        rl.question(state.prompt, answer => {
+    while(1) {
+        
+        const answer = readline.question(getPromptText());
+        const args = answer.split(' ');
+        const cmd = args[0].toLowerCase();
 
-            const args = answer.split(' ');
-            const cmd = args[0].toLowerCase();
+        const command = commands.find(c => c.aliases.contains(cmd));
+        if (command) {
+            command.action(args);
+        }
 
-            if (EXIT_COMMANDS.contains(cmd)) {
-                rl.close();
-                return;
-
-            } else if (HELP_COMMANDS.contains(cmd)) {
-                usage();
-
-            } else if (CD_COMMANDS.contains(cmd)) {
-                cd(state, args);
-
-            } else if (LS_COMMANDS.contains(cmd)) {
-                ls(state, args);
-
-            } else if (cmd === 'print' && args.length > 1) {
-                if (args[1] === 'hours') {
-                    functions.printTimeLogged();
-                } else if (args[1] === 'logged'){
-                    functions.printPreviousTasks()
-                } else if (args.length > 2 && args[1] === 'on') {
-                    functions.printDateEntries(args[2]);
-                }
-            } else if (ENTRY_COMMANDS.contains(cmd) && getDirLevel(state) === 'task') {
-                logTime({
-                    rl,
-                    step: 'description',
-                    exit: () => showPrompt(state),
-                    taskId: state.selected.task.id, 
-                });
-            } else if (CREATE_COMMANDS.contains(cmd)) {
-                const level = getDirLevel(state);
-
-                if (level === 'tasklist') {
-                    const description = args.length > 1 ? args.slice(1).join(' ') : null;
-                    addItem({
-                        rl,
-                        state,
-                        description,
-                        level,
-                        step: description === null ? "description" : "done",
-                        exit: () => showPrompt(state)
-                    });
-                }
-            }
-
-            refreshPrompt(state)
-            showPrompt(state);
-        });
+        if (EXIT_COMMANDS.contains(cmd)) {
+            break;
+        } 
     }
-
-    showPrompt(state);
 }
 
 module.exports = {
