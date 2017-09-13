@@ -147,8 +147,18 @@ const addTask = (tasklistId, content) => {
     return teamworkPOST(`/tasklists/${tasklistId}/tasks.json`, todoItem);
 }
 
+/**
+ * Deletes the task
+ */
 const deleteTask = (taskId) => {
     teamworkDELETE(`/tasks/${taskId}.json`);
+}
+
+/**
+ * Deletes the time entry
+ */
+const deleteTimeEntry = (entryId) => {
+    teamworkDELETE(`/time_entries/${entryId}.json`);
 }
 
 /**
@@ -228,6 +238,7 @@ module.exports = {
     getTaskEntries,
     addTask,
     deleteTask,
+    deleteTimeEntry,
     getTimeEntries,
     sendTimeEntry,
     updateTimeEntry

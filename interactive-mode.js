@@ -203,7 +203,8 @@ const cd = (args) => {
         state.selected = {
             project: null,
             tasklist: null,
-            task: null
+            task: null,
+            timeEntry: null
         }
         return;
     }
@@ -372,8 +373,8 @@ const addItem = (args) => {
                 }
             }
             const tasklistId = state.selected.tasklist.id;
-            const resp = teamwork.addTask(tasklistId, addItemState.description);
-            console.log(resp);
+            const resp = teamwork.addTask(tasklistId, description);
+            prettyJson(resp);
 
             state.data.tasks = teamwork.getTasks(tasklistId);
             break;
@@ -427,6 +428,44 @@ const echoItem = (args) => {
     } else {
         prettyJson(state.selected[getDirLevel()]);
     }
+}
+
+const sureDelete = (description) => {
+    const confirmation = ask('Are you sure you want to delete "' + description + '" [y/N]? ').toLowerCase();
+    return confirmation === 'y' || confirmation === 'yes';
+}
+
+const deleteItem = (args) => {
+
+    if (!args || args.length < 2) {
+        console.log('Removing requires arguments.');
+        return;
+    }
+
+    switch (getDirLevel()) {
+        case 'tasklist':
+            const task = findDirItem(state.data.tasks, args[1]);
+            if (!task) {
+                console.log('Task not found.');
+
+            } else if (sureDelete(task.content)) {
+                teamwork.deleteTask(task.id);
+            }
+            break;
+        case 'task':
+            const entry = findDirItem(state.data.timeEntries, args[1]);
+            if (!entry) {
+                console.log('Entry not found.');
+
+            } else if (sureDelete(entry.description)) {
+                teamwork.deleteTimeEntry(entry.id);
+            }
+            break;
+        default:
+            console.log('unsupported');
+            return;
+    }
+    cd(['cd', '.']);
 }
 
 const commands = [
@@ -495,7 +534,13 @@ const commands = [
         aliases: [ 'echo', 'cat', 'show', 'display' ],
         action: echoItem,
         description: 'Display the json of the item'
-    }
+    },
+    {
+        name: 'remove',
+        aliases: [ 'remove', 'rm', 'delete', 'del' ],
+        action: deleteItem,
+        description: 'Delete the specified item.'
+    },
 
 ];
 
