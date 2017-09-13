@@ -99,7 +99,9 @@ const getTasks = (tasklistId) => {
  * Get collection of time entries for the given task
  */
 const getTaskEntries = (taskId) => {
-    return teamworkGET(`/todo_items/${taskId}/time_entries.json`)['time-entries'];
+    const userId = getMe().person.id;
+    return teamworkGET(`/todo_items/${taskId}/time_entries.json`)['time-entries']
+        .filter(entry => entry['person-id'] === userId);
 }
 
 /**
