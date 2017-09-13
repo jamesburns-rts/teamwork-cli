@@ -78,7 +78,12 @@ const ls = (state, args) => {
     } 
 
     if (args.length > 1) {
-        cd(state, args);
+
+        if (args[1] === '*') {
+            // TODO 
+        } else {
+            cd(state, args);
+        }
     }
 
     const { data, selected } = state;
@@ -97,6 +102,10 @@ const ls = (state, args) => {
 
         console.log('\nTasks:');
         data.tasks.forEach((t,idx) => console.log(`${idx}) ${t.id}: ${t.content}`));
+    } else {
+
+        console.log('\nTime Entires:');
+        data.timeEntries.forEach((t,idx) => console.log(`${idx}) ${t.id}: ${dateFormat(new Date(t.date), 'mm/dd/yyyy')} ${t.hours}h ${t.minutes}m - ${t.description}`));
     }
 
     if (args.length > 1) {
@@ -194,6 +203,8 @@ const cd = (state, args) => {
                     data.tasks = teamwork.getTasks(selected.tasklist.id);
                     break;
                 case 'task':
+                    data.timeEntries = teamwork.getTaskEntries(selected.task.id);
+                    break;
                 default:
                     break;
             }

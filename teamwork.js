@@ -96,6 +96,13 @@ const getTasks = (tasklistId) => {
 }
 
 /**
+ * Get collection of time entries for the given task
+ */
+const getTaskEntries = (taskId) => {
+    return teamworkGET(`/todo_items/${taskId}/time_entries.json`)['time-entries'];
+}
+
+/**
  * Add a task to the tasklist
  *
  * @param tasklistId ID of task list to add task to
@@ -167,7 +174,9 @@ module.exports = {
     getProjects,
     getTasklists,
     getTasks,
+    getTaskEntries,
     addTask,
+    deleteTask,
     getTimeEntries,
     sendTimeEntry
 }
