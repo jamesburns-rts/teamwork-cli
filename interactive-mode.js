@@ -468,6 +468,37 @@ const deleteItem = (args) => {
     cd(['cd', '.']);
 }
 
+const copyItem = (args) => {
+
+    if (!args || args.length < 2) {
+        console.log('Copying requires arguments.');
+        return;
+    }
+
+    switch (getDirLevel()) {
+        case 'task':
+            const entry = findDirItem(state.data.timeEntries, args[1]);
+            if (!entry) {
+                console.log('Entry not found.');
+
+            } else {
+                functions.sendTimeEntry({ 
+                    taskId: state.selected.task.id, 
+                    description: entry.description, 
+                    date: dateFormat(new Date(), 'yyyymmdd'), 
+                    hours: entry.hours, 
+                    minutes: entry.minutes,
+                    isbillable: entry.isbillable 
+                });
+            }
+            break;
+        default:
+            console.log('unsupported');
+            return;
+    }
+    cd(['cd', '.']);
+}
+
 const commands = [
     {
         name: 'exit',
@@ -541,7 +572,12 @@ const commands = [
         action: deleteItem,
         description: 'Delete the specified item.'
     },
-
+    {
+        name: 'copy',
+        aliases: [ 'copy', 'cp', 'duplicate', 'dup' ],
+        action: copyItem,
+        description: 'Copty the specified item.'
+    },
 ];
 
 /**
