@@ -55,6 +55,28 @@ const teamworkPOST = (endpoint, body) => {
 };
 
 /**
+ * Make a PUT request to a teamwork API.
+ *
+ * @param endpoint Path to API (after base URL)
+ * @param body Object to attach to request
+ * @returns Object body of response
+ */
+const teamworkPUT = (endpoint, body) => {
+    let resp = request('PUT', TEAMWORK_URL + endpoint, {
+        headers: {
+            "Authorization": "BASIC " + BASIC_AUTH_TOKEN,
+            "Accept": "application/json"
+        },
+        json: body
+    }).getBody('utf8');
+    if (!resp) {
+        return;
+    } else {
+        return JSON.parse(resp);
+    }
+};
+
+/**
  * Make a DELETE request to a teamwork API.
  *
  * @param endpoint Path to API (after base URL)
@@ -141,6 +163,14 @@ const getTimeEntries = (fromDate, toDate) => {
     return teamworkGET('/time_entries.json?' + argStr)['time-entries'];
 }
 
+const prettyJson = (json) => {
+    if (json) {
+        console.log(JSON.stringify(json, null, 2));
+    } else {
+        console.log('undefined');
+    }
+}
+
 /**
  * Send a time entry to log
  *
@@ -169,8 +199,23 @@ const sendTimeEntry = (entry) => {
         }
     };
 
-    console.log(timeEntry);
+    prettyJson(timeEntry);
     return teamworkPOST(`/tasks/${entry.taskId}/time_entries.json`, timeEntry);
+}
+
+const updateTimeEntry = (entry) => {
+
+    const timeEntry = {
+        'time-entry': {
+            description: entry.description, 
+            date: entry.date, 
+            hours: entry.hours, 
+            minutes: entry.minutes, 
+            isbillable: entry.isbillable
+        }
+    };
+
+    return teamworkPUT(`/time_entries/${entry.id}.json`, timeEntry);
 }
 
 module.exports = {
@@ -184,5 +229,6 @@ module.exports = {
     addTask,
     deleteTask,
     getTimeEntries,
-    sendTimeEntry
+    sendTimeEntry,
+    updateTimeEntry
 }

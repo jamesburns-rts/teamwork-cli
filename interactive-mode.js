@@ -14,16 +14,26 @@ Array.prototype.contains = function ( item ) {
     return this.find(i => i === item) !== undefined;
 }
 
+const prettyJson = (json) => {
+    if (json) {
+        console.log(JSON.stringify(json, null, 2));
+    } else {
+        console.log('undefined');
+    }
+}
+
 const state = {
     data: {
         projects: teamwork.getProjects(),
         tasklists: undefined,
-        tasks: undefined
+        tasks: undefined,
+        timeEntries: undefined
     },
     selected: {
         project: null,
         tasklist: null,
-        task: null
+        task: null,
+        timeEntry: null
     }
 };
 
@@ -51,7 +61,7 @@ const ask = (prompt, defaultValue) => {
  */
 const getPromptText = () => {
 
-    const { project, tasklist, task } = state.selected;
+    const { project, tasklist, task, timeEntry } = state.selected;
 
     let prompt = '\nteamwork'
 
@@ -63,6 +73,10 @@ const getPromptText = () => {
 
             if (task) {
                 prompt = prompt +  DELIM + task.content;
+
+                if (timeEntry) {
+                    prompt = prompt +  DELIM + timeEntry.description;
+                }
             }
         } 
     } 
@@ -73,7 +87,8 @@ const getPromptText = () => {
  * Utility function that gets the current directory level of the state (project, task, etc.)
  */
 const getDirLevel = () => {
-    const { project, tasklist, task } = state.selected;
+    const { project, tasklist, task, timeEntry } = state.selected;
+    if (timeEntry) { return 'timeEntry'; }
     if (task) { return 'task'; }
     if (tasklist) { return 'tasklist'; }
     if (project) { return 'project'; }
@@ -96,6 +111,10 @@ const getCurrentDir = () => {
 
             if (selected.task) {
                 dir = dir + DELIM + selected.task.id;
+
+                if (selected.timeEntry) {
+                    dir = dir + DELIM + selected.timeEntry.id;
+                }
             }
         } 
     }
@@ -138,11 +157,11 @@ const ls = (args) => {
 
         console.log('\nTasks:');
         data.tasks.forEach((t,idx) => console.log(`${idx}) ${t.id}: ${t.content}`));
-    } else {
+    } else if (!selected.timeEntry) {
 
         console.log('\nTime Entires:');
         data.timeEntries.forEach((t,idx) => console.log(`${idx}) ${t.id}: ${dateFormat(new Date(t.date), 'mm/dd/yyyy')} ${t.hours}h ${t.minutes}m - ${t.description}`));
-    }
+    } 
 
     if (differentDir) {
         cd(['cd', originalDir]);
@@ -205,7 +224,10 @@ const cd = (args) => {
 
         if (a === '..') {
 
-            if (selected.task) {
+            if (selected.timeEntry) {
+                selected.timeEntry = null;
+
+            } else if (selected.task) {
                 selected.task = null;
 
             } else if (selected.tasklist) {
@@ -224,6 +246,9 @@ const cd = (args) => {
 
             } else if (!selected.task) {
                 selected.task = findDirItem(data.tasks, a);
+
+            } else if (!selected.timeEntry) {
+                selected.timeEntry = findDirItem(data.timeEntries, a);
             }
 
             switch (getDirLevel(state)) {
@@ -277,7 +302,7 @@ const logTime = (args) => {
             const isbillable = ask('Is Billable', '1');
 
             functions.sendTimeEntry({ taskId, description, date, hours, minutes, isbillable });
-            cd('.');
+            cd(['cd', '.']);
             break;
 
         default:
@@ -287,27 +312,73 @@ const logTime = (args) => {
 }
 
 /**
+ * updates a time entry
+ */
+const updateTimeEntry = (args) => {
+
+    let entry;
+
+
+    switch(getDirLevel()) {
+
+        case "timeEntry":
+            entry = state.selected.timeEntry;
+            break;
+        case "task":
+
+            if (!args || args.length < 2) {
+                console.log('Provide entry id or index');
+                return;
+            }
+
+            entry = findDirItem(state.data.timeEntries, args[1]);
+            break;
+        default:
+            console.log('not supported');
+            return;
+    }
+
+    if (!entry) {
+        console.log('item not found');
+        return;
+    }
+    const dateStr = dateFormat(new Date(entry.date), "yyyymmdd");
+
+    entry.description = ask('Description', entry.description);
+    entry.hours = ask('Hours', entry.hours);
+    entry.minutes = ask('Minutes', entry.minutes);
+    entry.date = ask('Date', dateStr);
+    entry.isbillable = ask('Is Billable', entry.isbillable);
+
+    teamwork.updateTimeEntry(entry);
+    cd(['cd', '.']);
+}
+    
+/**
  * Add item to the current directory
  */
 const addItem = (args) => {
 
-    let description = args.length > 1 ? args.slice(1).join(' ') : null;
-
-    if (!description) {
-        description = readline.question('Description: ');
-        if (!description) {
-            console.log('description required. Returning to prompt.');
-            return;
-        }
-    }
-
     switch(getDirLevel()) {
         case "tasklist":
+
+            let description = args.length > 1 ? args.slice(1).join(' ') : null;
+
+            if (!description) {
+                description = readline.question('Description: ');
+                if (!description) {
+                    console.log('description required. Returning to prompt.');
+                    return;
+                }
+            }
             const tasklistId = state.selected.tasklist.id;
             const resp = teamwork.addTask(tasklistId, addItemState.description);
             console.log(resp);
 
             state.data.tasks = teamwork.getTasks(tasklistId);
+            break;
+        case "task":
+            logTime(args);
             break;
         default:
             console.log('not supported');
@@ -344,6 +415,20 @@ const printInfo = (args) => {
     }
 }
 
+const echoItem = (args) => {
+
+    if (args.length > 1) {
+
+        const originalDir = getCurrentDir();
+        cd(args);
+        echoItem([]);
+        cd(['cd', originalDir]);
+
+    } else {
+        prettyJson(state.selected[getDirLevel()]);
+    }
+}
+
 const commands = [
     {
         name: 'exit',
@@ -362,6 +447,12 @@ const commands = [
         aliases: [ 'select', 'sel', 'cd', 'c', ':e', 'enter', 'dir' ],
         action: reversableCd,
         description: 'Select a project, tasklist, or task - aka change directory.'
+    },
+    {
+        name: 'edit',
+        aliases: [ 'edit' ],
+        action: updateTimeEntry,
+        description: 'Update a time entry'
     },
     {
         name: 'help',
@@ -392,6 +483,18 @@ const commands = [
         aliases: [ 'print' ],
         action: printInfo,
         description: 'Display infromation about time already logged'
+    },
+    {
+        name: 'path',
+        aliases: [ 'path', 'pwd' ],
+        action: (args) => console.log(getCurrentDir()),
+        description: 'Display the current path using the Ids.'
+    },
+    {
+        name: 'echo',
+        aliases: [ 'echo', 'cat', 'show', 'display' ],
+        action: echoItem,
+        description: 'Display the json of the item'
     }
 
 ];
