@@ -22,7 +22,7 @@ const parseProgramArguments = (args) => {
 
     // creates an object for the arglist object
     const getArgEntry = (letter, argument, description, defaultValue) => {
-        return { letter, description, argument, "provided":false, "value":defaultValue };
+        return { letter, argument, description, "provided":false, "value":defaultValue };
     }
 
     // help
@@ -30,7 +30,7 @@ const parseProgramArguments = (args) => {
     argList['version'] = getArgEntry('v',null,'Print version info', false);
 
     // interactive
-    argList['interactive'] = getArgEntry('i',null,'Enter interactive mode', false);
+    argList['interactive'] = getArgEntry('i','[path]','Enter interactive mode. Optionally add path to start in.', '.');
 
     // lists of info
     argList['time-logged'] = getArgEntry('l',null,'Print time logged', false);
@@ -153,7 +153,7 @@ else {
         }
 
         if (argList['interactive'].provided) {
-            interactiveMode();
+            interactiveMode(argList['interactive'].value);
         }
     }
 }

@@ -314,8 +314,10 @@ const usage = () => {
 
 /**
  * Creates an interactive terminal to view and modify teamwork data
+ *
+ * @param startingPath Immediately executes 'cd' on this argument
  */
-const interactiveMode = () => {
+const interactiveMode = (startingPath) => {
     const rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout
@@ -334,6 +336,11 @@ const interactiveMode = () => {
             task: null
         }
     };
+
+    if (startingPath) {
+        cd(state, ['cd', startingPath]);
+        refreshPrompt(state)
+    }
 
     const showPrompt = (state) => {
         rl.question(state.prompt, answer => {

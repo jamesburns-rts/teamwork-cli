@@ -55,6 +55,19 @@ const teamworkPOST = (endpoint, body) => {
 };
 
 /**
+ * Make a DELETE request to a teamwork API.
+ *
+ * @param endpoint Path to API (after base URL)
+ */
+const teamworkDELETE = (endpoint) => {
+    request('DELETE', TEAMWORK_URL + endpoint, {
+        headers: {
+            "Authorization": "BASIC " + BASIC_AUTH_TOKEN
+        }
+    });
+};
+
+/**
  * Get teamwork user information from API key
  */
 const getMe = () => {
@@ -97,6 +110,10 @@ const addTask = (tasklistId, content) => {
     }
 
     return teamworkPOST(`/tasklists/${tasklistId}/tasks.json`, todoItem);
+}
+
+const deleteTask = (taskId) => {
+    teamworkDELETE(`/tasks/${taskId}.json`);
 }
 
 /**
