@@ -576,7 +576,7 @@ const commands = [
         name: 'copy',
         aliases: [ 'copy', 'cp', 'duplicate', 'dup' ],
         action: copyItem,
-        description: 'Copty the specified item.'
+        description: 'Copy the specified item.'
     },
 ];
 
