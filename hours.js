@@ -92,11 +92,11 @@ const printUsage = () => {
 
     console.log('\nEXAMPLES');
     console.log(`
-        nodejs hours.js --entry --task 6905921 --hours 1 --minutes 30 --billable 0 --description "Friday Standup"
-        Logs an hour and a half for a long Friday standup
+    nodejs hours.js --entry --task 6905921 --hours 1 --minutes 30 --billable 0 --description "Friday Standup"
+    Logs an hour and a half for a long Friday standup
 
-        nodejs hours.js -e -t 6905921 -H 1 -M 30 -b 0 -m "Friday Standup"
-        Same as above but using letters instead
+    nodejs hours.js -e -t 6905921 -H 1 -M 30 -b 0 -m "Friday Standup"
+    Same as above but using letters instead
         `
     );
 
