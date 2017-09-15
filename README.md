@@ -73,13 +73,16 @@ OPTIONS
 	-t, --task [taskId]
 	Set the taskId to log to (see --tasks)
 
+    -T --start-time [hh:mm]
+    Set the start time to log (default "09:00")
+
 EXAMPLES
 
-    nodejs hours.js --entry --task 6905921 --hours 1 --minutes 30 
+    nodejs hours.js --entry --task 6905921 --start-time "09:00" --hours 1 --minutes 30 
                     --billable 0 --description "Friday Standup"
     Logs an hour and a half for a long Friday standup
 
-    nodejs hours.js -e -t 6905921 -H 1 -M 30 -b 0 -m "Friday Standup"
+    nodejs hours.js -e -t 6905921 -T "09:00" -H 1 -M 30 -b 0 -m "Friday Standup"
     Same as above but using letters instead
         
 
