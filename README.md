@@ -73,8 +73,8 @@ OPTIONS
 	-t, --task [taskId]
 	Set the taskId to log to (see --tasks)
 
-    -T --start-time [hh:mm]
-    Set the start time to log (default "09:00")
+	-T --start-time [hh:mm]
+	Set the start time to log (default "09:00")
 
 EXAMPLES
 
