@@ -189,6 +189,7 @@ const prettyJson = (json) => {
  * @param entry.hours Number of hours to log
  * @param entry.minutes Number of minutes to log
  * @param entry.isbillable 1 if time is billable
+ * @param entry.time The start time of the entry
  */
 const sendTimeEntry = (entry) => {
 
@@ -203,7 +204,7 @@ const sendTimeEntry = (entry) => {
             minutes: entry.minutes, 
             isbillable: entry.isbillable,
             'person-id': me.person.id,
-            time: '9:00',
+            time: entry.time,
             'tags': ''
         }
     };

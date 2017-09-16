@@ -45,6 +45,7 @@ const parseProgramArguments = (args) => {
     argList['date'] = getArgEntry('d','[yyyymmdd]','Set date to log for (default today)', dateFormat(new Date(), "yyyymmdd"));
     argList['description'] = getArgEntry('m','[message]','Set description to log (default empty)', '');
     argList['task'] = getArgEntry('t','[taskId]','Set the taskId to log to (see --tasks)', '');
+    argList['start-time'] = getArgEntry('T', '[hh:mm]', 'Set the start time to log (default 09:00)', '09:00');
 
     if (args !== undefined) {
         Object.keys(argList).forEach( key => {
@@ -92,10 +93,10 @@ const printUsage = () => {
 
     console.log('\nEXAMPLES');
     console.log(`
-    nodejs hours.js --entry --task 6905921 --hours 1 --minutes 30 --billable 0 --description "Friday Standup"
+    nodejs hours.js --entry --task 6905921 --start-time "09:00" --hours 1 --minutes 30 --billable 0 --description "Friday Standup"
     Logs an hour and a half for a long Friday standup
 
-    nodejs hours.js -e -t 6905921 -H 1 -M 30 -b 0 -m "Friday Standup"
+    nodejs hours.js -e -t 6905921 -T "09:00" -H 1 -M 30 -b 0 -m "Friday Standup"
     Same as above but using letters instead
         `
     );
@@ -133,6 +134,7 @@ else {
                 hours: argList['hours'].value,
                 minutes: argList['minutes'].value,
                 isbillable: argList['billable'].value,
+                time: argList['start-time'].value
             });
             console.log(resp);
         }
