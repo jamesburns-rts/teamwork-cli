@@ -7,7 +7,7 @@ const versionNo = "0.9.9";
 
 const dateFormat = require('dateformat');
 const functions = require('./common-functions.js');
-const { interactiveMode, usage } = require('./interactive-mode.js');
+const { interactiveMode, logTimeInteractive, usage } = require('./interactive-mode.js');
 
 
 /**
@@ -38,6 +38,7 @@ const parseProgramArguments = (args) => {
     argList['entries'] = getArgEntry('q',null,'Print entries of today or date specified', false);
 
     // time logging
+    argList['interactive-entry'] = getArgEntry('E','[taskId]' ,'Enter time through questions for specified task', '');
     argList['entry'] = getArgEntry('e',null,'Enter time with below options', false);
     argList['billable'] = getArgEntry('b','[0/1]','If billable time (default 1)', true);
     argList['hours'] = getArgEntry('H','[hours]','Set hours to log (default 0)', 0);
@@ -93,10 +94,10 @@ const printUsage = () => {
 
     console.log('\nEXAMPLES');
     console.log(`
-    nodejs hours.js --entry --task 6905921 --start-time "09:00" --hours 1 --minutes 30 --billable 0 --description "Friday Standup"
+    node hours.js --entry --task 6905921 --start-time "09:00" --hours 1 --minutes 30 --billable 0 --description "Friday Standup"
     Logs an hour and a half for a long Friday standup
 
-    nodejs hours.js -e -t 6905921 -T "09:00" -H 1 -M 30 -b 0 -m "Friday Standup"
+    node hours.js -e -t 6905921 -T "09:00" -H 1 -M 30 -b 0 -m "Friday Standup"
     Same as above but using letters instead
         `
     );
@@ -125,7 +126,11 @@ else {
     }
     else {
 
-        if (argList['entry'].provided) {
+        if (argList['interactive-entry'].provided) {
+            const resp = logTimeInteractive(argList['interactive-entry'].value);
+            console.log(resp);
+        }
+        else if (argList['entry'].provided) {
 
             const resp = functions.sendTimeEntry({
                 taskId: argList['task'].value,

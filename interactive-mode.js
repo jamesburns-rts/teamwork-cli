@@ -285,6 +285,18 @@ const reversableCd = (args) => {
     cd(cdArgs);
 }
 
+const logTimeInteractive = (taskId) => {
+    const dateStr = dateFormat(new Date(), "yyyymmdd");
+
+    const description = ask('Description', '');
+    const hours = ask('Hours', '8');
+    const minutes = ask('Minutes', '0');
+    const date = ask('Date', dateStr );
+    const isbillable = ask('Is Billable', '1');
+
+    return functions.sendTimeEntry({ taskId, description, date, hours, minutes, isbillable });
+}
+
 /**
  * Overrides the terminal to create an time entry
  */
@@ -292,17 +304,7 @@ const logTime = (args) => {
 
     switch(getDirLevel()) {
         case "task":
-
-            const taskId = state.selected.task.id; 
-            const dateStr = dateFormat(new Date(), "yyyymmdd");
-
-            const description = ask('Description', '');
-            const hours = ask('Hours', '8');
-            const minutes = ask('Minutes', '0');
-            const date = ask('Date', dateStr );
-            const isbillable = ask('Is Billable', '1');
-
-            functions.sendTimeEntry({ taskId, description, date, hours, minutes, isbillable });
+            logTimeInteractive(state.selected.task.id);
             cd(['cd', '.']);
             break;
 
@@ -618,5 +620,6 @@ const interactiveMode = (startingPath) => {
 
 module.exports = {
     interactiveMode,
+    logTimeInteractive,
     usage
 }
