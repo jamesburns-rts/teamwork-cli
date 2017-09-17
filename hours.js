@@ -7,6 +7,7 @@ const versionNo = "0.9.9";
 
 const dateFormat = require('dateformat');
 const functions = require('./common-functions.js');
+const userData = require('./user-data.js');
 const { interactiveMode, logTimeInteractive, usage } = require('./interactive-mode.js');
 
 
@@ -46,7 +47,13 @@ const parseProgramArguments = (args) => {
     argList['date'] = getArgEntry('d','[yyyymmdd]','Set date to log for (default today)', dateFormat(new Date(), "yyyymmdd"));
     argList['description'] = getArgEntry('m','[message]','Set description to log (default empty)', '');
     argList['task'] = getArgEntry('t','[taskId]','Set the taskId to log to (see --tasks)', '');
-    argList['start-time'] = getArgEntry('T', '[hh:mm]', 'Set the start time to log (default 09:00)', '09:00');
+    argList['start-time'] = getArgEntry('T', '[HH:MM]', 'Set the start time to log (default 09:00)', '09:00');
+
+    // persistence
+    argList['key'] = getArgEntry('k', '[key]', 'Set teamwork API key to use in the future', '');
+    argList['url'] = getArgEntry('u', '[url]', 'Set teamwork URL to use in the future', '');
+    argList['arrived'] = getArgEntry('a', '[HH:MM]', 'Record the time as when you arrived (default to now)', new Date());
+    argList['start'] = getArgEntry('s', '[taskId]', 'Record the time you started a task', '');
 
     if (args !== undefined) {
         Object.keys(argList).forEach( key => {
@@ -56,7 +63,9 @@ const parseProgramArguments = (args) => {
             if (index > -1) {
                 if (args.length > index) {
                     argList[key].provided = true;
-                    argList[key].value = args[index+1];
+                    if (args.length > index + 1 && !args[index+1].startsWith('-')) {
+                        argList[key].value = args[index+1];
+                    }
                 }
             }
         });
@@ -106,11 +115,41 @@ const printUsage = () => {
     usage();
 }
 
+const persistKey = (key) => {
+    if (typeof key === 'string' && key.length > 0) {
+        userData.get().teamwork.key = key;
+        userData.save();
+    }
+}
+
+const persistUrl = (url) => {
+    if (typeof url === 'string' && url.length > 0) {
+        userData.get().teamwork.url = url;
+        userData.save();
+    }
+}
+
+const persistStartTime = (time) => {
+    if (typeof time === 'string' && time !== 'now') {
+        const overrides = time.split(':');
+        const date = new Date();
+        date.setHours(overrides[0]);
+        date.setMinutes(overrides[1]);
+
+        userData.get().arrived = date;
+    } else {
+        userData.get().arrived = time;
+    }
+    console.log('Marking that you arrived at ' + data.arrived);
+    userData.save();
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // "Main"
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const args = process.argv;
+const data = userData.get();
 
 // if no arguments, just print time logged
 if (args.length < 3) {
@@ -125,6 +164,18 @@ else {
         printUsage();
     }
     else {
+
+        if (argList['key'].provided) {
+            persistKey(argList['key'].value);
+        }
+
+        if (argList['url'].provided) {
+            persistUrl(argList['url'].value);
+        }
+
+        if (argList['arrived'].provided) {
+            persistStartTime(argList['arrived'].value);
+        }
 
         if (argList['interactive-entry'].provided) {
             const resp = logTimeInteractive(argList['interactive-entry'].value);
@@ -164,3 +215,5 @@ else {
         }
     }
 }
+
+userData.save(data);

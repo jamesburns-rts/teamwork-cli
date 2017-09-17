@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "dateformat": "^2.0.0",
+    "js-yaml": "^3.10.0",
     "readline-sync": "^1.4.7",
     "sync-request": "^4.1.0"
   }

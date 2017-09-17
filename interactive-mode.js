@@ -1,6 +1,7 @@
 const readline = require('readline-sync');
 const dateFormat = require('dateformat');
 const teamwork = require('./teamwork.js');
+const userData = require('./user-data.js');
 const functions = require('./common-functions.js');
 
 /************************************************************************************
@@ -270,6 +271,9 @@ const cd = (args) => {
             }
         }
     });
+
+    userData.get().currentDir = getCurrentDir();
+    userData.save();
 }
 
 /**
@@ -597,9 +601,15 @@ const commands = [
  */
 const interactiveMode = (startingPath) => {
 
+    const { currentDir } = userData.get();
+
+    if (currentDir) {
+        cd(['cd', currentDir]);
+    }
+
     if (startingPath) {
         reversableCd(['cd', startingPath]);
-    }
+    } 
 
     while(1) {
         

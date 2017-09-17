@@ -1,16 +1,62 @@
 const request = require('sync-request');
+const userData = require('./user-data.js');
 
 /************************************************************************************
  * Teamwork API function wrappers
  ************************************************************************************/
 
-const key = process.env.TEAMWORK_KEY;
-if (typeof key !== 'string' || key.length === 0) {
-    console.log("ERROR: You need to set the TEAMWORK_KEY environment variable to use these scripts.");
+
+let TEAMWORK_URL;
+let BASIC_AUTH_TOKEN;
+
+const init = () => {
+
+    const persistedData = userData.get();
+    let { key, url } = persistedData.teamwork;
+
+    // DEPRECATED
+    if (!key && process.env.TEAMWORK_KEY) {
+        key = process.env.TEAMWORK_KEY;
+    }
+    if (!url) {
+        url = 'https://rtslabs.teamwork.com';
+    }
+
+    persistedData.teamwork = { key, url };
+    userData.save();
+    // end DEPRECATED
+
+
+    if (typeof key !== 'string' || key.length === 0) {
+        console.log("ERROR: You need to set the teamwork.key in " + userData.getFileName() + " to use these scripts.");
+    }
+
+    if (typeof url !== 'string' || url.length === 0) {
+        console.log("ERROR: You need to set the teamwork.url in " + userData.getFileName() + " to use these scripts.");
+    }
+
+    if (url.startsWith('http')) {
+        TEAMWORK_URL = url;
+    } else {
+        TEAMWORK_URL = 'https://' + url;
+    }
+    BASIC_AUTH_TOKEN = new Buffer(key + ":xxx").toString("base64");
 }
 
-const TEAMWORK_URL = 'https://rtslabs.teamwork.com';
-const BASIC_AUTH_TOKEN = new Buffer(key + ":xxx").toString("base64");
+const getAuthHeader = () => {
+    if (!BASIC_AUTH_TOKEN) { 
+        init();
+    }
+    return "BASIC " + BASIC_AUTH_TOKEN; 
+}
+
+const getTeamworkUrl = () => {
+    if (!TEAMWORK_URL) { 
+        init();
+    }
+    return TEAMWORK_URL; 
+}
+
 
 /**
  * Make a GET request to a teamwork API.
@@ -19,9 +65,9 @@ const BASIC_AUTH_TOKEN = new Buffer(key + ":xxx").toString("base64");
  * @returns Object body of response
  */
 const teamworkGET = (endpoint) => {
-    let body = request('GET', TEAMWORK_URL + endpoint, {
+    let body = request('GET', getTeamworkUrl() + endpoint, {
         headers: {
-            "Authorization": "BASIC " + BASIC_AUTH_TOKEN,
+            "Authorization": getAuthHeader(),
             "Accept": "application/json"
         }
     }).getBody('utf8');
@@ -39,9 +85,9 @@ const teamworkGET = (endpoint) => {
  * @returns Object body of response
  */
 const teamworkPOST = (endpoint, body) => {
-    let resp = request('POST', TEAMWORK_URL + endpoint, {
+    let resp = request('POST', getTeamworkUrl() + endpoint, {
         headers: {
-            "Authorization": "BASIC " + BASIC_AUTH_TOKEN,
+            "Authorization": getAuthHeader(),
             "Accept": "application/json"
         },
         json: body
@@ -61,9 +107,9 @@ const teamworkPOST = (endpoint, body) => {
  * @returns Object body of response
  */
 const teamworkPUT = (endpoint, body) => {
-    let resp = request('PUT', TEAMWORK_URL + endpoint, {
+    let resp = request('PUT', getTeamworkUrl() + endpoint, {
         headers: {
-            "Authorization": "BASIC " + BASIC_AUTH_TOKEN,
+            "Authorization": getAuthHeader(),
             "Accept": "application/json"
         },
         json: body
@@ -81,9 +127,9 @@ const teamworkPUT = (endpoint, body) => {
  * @param endpoint Path to API (after base URL)
  */
 const teamworkDELETE = (endpoint) => {
-    request('DELETE', TEAMWORK_URL + endpoint, {
+    request('DELETE', getTeamworkUrl() + endpoint, {
         headers: {
-            "Authorization": "BASIC " + BASIC_AUTH_TOKEN
+            "Authorization": getAuthHeader()
         }
     });
 };

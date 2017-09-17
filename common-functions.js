@@ -1,9 +1,23 @@
 const dateFormat = require('dateformat');
 const teamwork = require('./teamwork.js');
+const userData = require('./user-data.js');
 
 /************************************************************************************
  * teamwork-cli functions
  ************************************************************************************/
+
+const getTimeArrivedString = (time) => {
+    const now = new Date();
+    if (time && time.getDate() === now.getDate()){
+        const minuteDiff = (now - time)/1000/60;
+        const hours = Math.floor(minuteDiff/60);
+        const minutes = Math.floor(minuteDiff) % 60;
+        const hourStr = hours > 0 ? `${hours} h ` : '';
+        return `${dateFormat(time, "HH:MM")} (${hourStr}${minutes}m ago)`;
+    } else {
+        return 'not set';
+    }
+}
 
 /**
  * Prints the time logged summary for the year
@@ -62,6 +76,8 @@ const printTimeLogged = () => {
     }
     );
 
+    const timeStarted = getTimeArrivedString(userData.get().arrived);
+
     const total = billable + nonbillable + holiday;
     const nonPercent = Math.round(1000.0*nonbillable/total) / 10.0; console.log(`
     Month Required Hours: ${requiredHours + leftInMonth}
@@ -72,6 +88,7 @@ const printTimeLogged = () => {
     Remaining Monthly Hours: ${requiredHours + leftInMonth - total}
 
     Total today: ${todayHours}
+    Time Started: ${timeStarted}
             `);
 
     if (total > requiredHours) {
