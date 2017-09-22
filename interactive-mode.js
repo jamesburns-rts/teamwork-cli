@@ -604,7 +604,7 @@ const interactiveMode = (startingPath) => {
     const { currentDir } = userData.get();
 
     if (currentDir) {
-        cd(['cd', currentDir]);
+        reversableCd(['cd', currentDir]);
     }
 
     if (startingPath) {

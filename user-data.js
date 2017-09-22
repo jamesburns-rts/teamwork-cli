@@ -4,6 +4,11 @@ const fs = require('fs');
 
 /************************************************************************************
  * Persist and read user data
+ *
+ * The data is read from the data.yml file and stored in a global variable.
+ * The variable and its data can be accessed through the get() command and then
+ * saved with the save() command.
+ *
  ************************************************************************************/
 
 
@@ -25,6 +30,9 @@ const get = () => {
             data = yaml.safeLoad(fs.readFileSync(USER_DATA_FILE, 'utf8'));
             if (!data.teamwork) {
                 data.teamwork = {};
+            } 
+            if (!data.timers) {
+                data.timers = {};
             }
             return data;
         }

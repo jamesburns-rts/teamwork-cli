@@ -167,6 +167,13 @@ const getTasks = (tasklistId) => {
 }
 
 /**
+ * Get collection of tasks for the given task list
+ */
+const getTask = (taskId) => {
+    return teamworkGET(`/tasks/${taskId}.json`)['todo-item'];
+}
+
+/**
  * Get collection of time entries for the given task
  */
 const getTaskEntries = (taskId) => {
@@ -281,6 +288,7 @@ module.exports = {
     getProjects,
     getTasklists,
     getTasks,
+    getTask,
     getTaskEntries,
     addTask,
     deleteTask,

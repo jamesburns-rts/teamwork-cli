@@ -6,38 +6,58 @@ const userData = require('./user-data.js');
  * teamwork-cli functions
  ************************************************************************************/
 
-const getTimeArrivedString = (time) => {
+const isToday = (date) => {
+    return date && date.getDate() === (new Date()).getDate();
+}
+
+const getDurationString = (milliseconds) => {
+    const minuteDiff = (milliseconds)/1000/60;
+    const hours = Math.floor(minuteDiff/60);
+    const minutes = Math.floor(minuteDiff) % 60;
+    const hourStr = hours > 0 ? `${hours}h ` : '';
+    return `${hourStr}${minutes}m`;
+}
+
+const getTimeSinceString = (time) => {
     const now = new Date();
-    if (time && time.getDate() === now.getDate()){
-        const minuteDiff = (now - time)/1000/60;
-        const hours = Math.floor(minuteDiff/60);
-        const minutes = Math.floor(minuteDiff) % 60;
-        const hourStr = hours > 0 ? `${hours} h ` : '';
-        return `${dateFormat(time, "HH:MM")} (${hourStr}${minutes}m ago)`;
+    return getDurationString(now - time);
+}
+
+const getTimeArrivedString = (time) => {
+    if (isToday(time)){
+        return `${dateFormat(time, "H:MM")} (${getTimeSinceString(time)} ago)`;
     } else {
         return 'not set';
     }
+}
+
+const getTimerString = (id, timer) => {
+    if (timer.running) {
+        const duration = timer.duration + (new Date() - timer.started);
+        return `Timer: ${id} has been running for ${getDurationString(duration)}`;
+    } else {
+        return `Timer: ${id} ran for for ${getDurationString(timer.duration)}`;
+    }
+}
+
+// calculates number of work days between two dates
+const workday_count = (start,end) => {
+    let count = 0;
+    let day = new Date(start);
+    let month = day.getMonth();
+    while (day.getDate() <= end.getDate() && month === day.getMonth()) {
+        if (day.getDay() !== 6 && day.getDay() !== 0) {
+            ++count;
+        }
+        day.setDate(day.getDate() + 1);
+    }
+    return count;
 }
 
 /**
  * Prints the time logged summary for the year
  */
 const printTimeLogged = () => {
-
-    // calculates number of work days between two dates
-    const workday_count = (start,end) => {
-        let count = 0;
-        let day = new Date(start);
-        let month = day.getMonth();
-        while (day.getDate() <= end.getDate() && month === day.getMonth()) {
-            if (day.getDay() !== 6 && day.getDay() !== 0) {
-                ++count;
-            }
-            day.setDate(day.getDate() + 1);
-        }
-        return count;
-    }
-
 
     let date = new Date();
     date.setDate(1);
@@ -76,26 +96,35 @@ const printTimeLogged = () => {
     }
     );
 
-    const timeStarted = getTimeArrivedString(userData.get().arrived);
+    const { arrived, timers } = userData.get();
 
     const total = billable + nonbillable + holiday;
-    const nonPercent = Math.round(1000.0*nonbillable/total) / 10.0; console.log(`
-    Month Required Hours: ${requiredHours + leftInMonth}
-    Logged Total Hours: ${billable + nonbillable}
+    const nonPercent = Math.round(1000.0*nonbillable/total) / 10.0; 
+    
+    console.log(`    \nMonth Required Hours: ${requiredHours + leftInMonth}`);
+    console.log(`    Logged Total Hours: ${billable + nonbillable}\n`);
 
-    Logged Billable Hours: ${billable}
-    Logged NonBillable Hours: ${nonbillable} (${nonPercent}%)
-    Remaining Monthly Hours: ${requiredHours + leftInMonth - total}
+    console.log(`    Logged Billable Hours: ${billable}`);
+    console.log(`    Logged NonBillable Hours: ${nonbillable} (${nonPercent}%)`);
+    console.log(`    Remaining Monthly Hours: ${requiredHours + leftInMonth - total}\n`);
 
-    Total today: ${todayHours}
-    Time Started: ${timeStarted}
-            `);
+    console.log(`    Total today: ${todayHours}`);
+    console.log(`    Time Started: ${getTimeArrivedString(arrived)}`);
+
+    Object.keys(timers)
+        .forEach(id => {
+            if(isToday(timers[id].started)) {
+                console.log('    ' + getTimerString(id, timers[id]));
+            } else {
+                delete timers[id];
+            }
+        })
 
     if (total > requiredHours) {
-        console.log(`You are ${total - requiredHours} over for today.`);
+        console.log(`\nYou are ${total - requiredHours} over for today.`);
     }
     else {
-        console.log(`You are ${requiredHours- total } short for today.`);
+        console.log(`\nYou are ${requiredHours- total } short for today.`);
     }
 }
 
@@ -147,9 +176,39 @@ const sendTimeEntry = (entry) => {
     return teamwork.sendTimeEntry(entry);
 }
 
+const startTimer = (id) => {
+    const timers = userData.get().timers;
+    const timer = timers[id];
+    if (!timer || !isToday(timer.started)) {
+        timers[id] = {
+            started: new Date(),
+            running: true,
+            duration: 0
+        }
+    } else if (!timer.running) {
+        timer.started = new Date();
+        timer.running = true;
+    }
+    userData.save();
+}
+
+const stopTimer = (id) => {
+    const timers = userData.get().timers;
+    const timer = timers[id];
+    if (timer && timer.running && isToday(timer.started)) {
+
+        timer.duration = timer.duration + (new Date() - timer.started);
+        timer.running = false;
+        userData.save();
+    }
+}
+
+
 module.exports = {
     sendTimeEntry,
     printDateEntries,
     printPreviousTasks,
-    printTimeLogged
+    printTimeLogged,
+    startTimer,
+    stopTimer
 }

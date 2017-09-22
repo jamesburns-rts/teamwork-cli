@@ -22,13 +22,15 @@ Set the environment variable `TEAMWORK_KEY` to your api key.
 ```
 cd teamwork-cli
 npm install
+node hours.js --url <teamwork base url>
+node hours.js --key <teamwork api key>
 node hours.js -h
 ```
 
 ## Usage
 
 ```
-$ nodejs hours.js -h
+$ node hours.js -h
 
 hours 0.9.9
 
@@ -76,14 +78,33 @@ OPTIONS
 	-T --start-time [hh:mm]
 	Set the start time to log (default "09:00")
 
+	-k, --key [key]
+	Set teamwork API key to use in the future
+
+	-u, --url [url]
+	Set teamwork URL to use in the future
+
+	-a, --arrived [HH:MM]
+	Record the time as when you arrived (default to now)
+
+	-s, --start [taskId]
+	Record the time you started a task
+
+
 EXAMPLES
 
-    nodejs hours.js --entry --task 6905921 --start-time "09:00" --hours 1 --minutes 30 
+    node hours.js --entry --task 6905921 --start-time "09:00" --hours 1 --minutes 30 
                     --billable 0 --description "Friday Standup"
-    Logs an hour and a half for a long Friday standup
+    > Logs an hour and a half for a long Friday standup
 
-    nodejs hours.js -e -t 6905921 -T "09:00" -H 1 -M 30 -b 0 -m "Friday Standup"
-    Same as above but using letters instead
+    node hours.js -e -t 6905921 -T "09:00" -H 1 -M 30 -b 0 -m "Friday Standup"
+    > Same as above but using letters instead
+
+    node hours.js -a
+    > Persists the current time as when you arrived
+
+    node hours.js
+    > Summarize hours for month and today - including time since arrived
         
 
 INTERACTIVE MODE

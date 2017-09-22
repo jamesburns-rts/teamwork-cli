@@ -53,7 +53,8 @@ const parseProgramArguments = (args) => {
     argList['key'] = getArgEntry('k', '[key]', 'Set teamwork API key to use in the future', '');
     argList['url'] = getArgEntry('u', '[url]', 'Set teamwork URL to use in the future', '');
     argList['arrived'] = getArgEntry('a', '[HH:MM]', 'Record the time as when you arrived (default to now)', new Date());
-    argList['start'] = getArgEntry('s', '[taskId]', 'Record the time you started a task', '');
+    argList['start'] = getArgEntry('s', '[timer]', 'Start a timer', '');
+    argList['stop'] = getArgEntry('r', '[timer]', 'Stop a timer', '');
 
     if (args !== undefined) {
         Object.keys(argList).forEach( key => {
@@ -175,6 +176,24 @@ else {
 
         if (argList['arrived'].provided) {
             persistStartTime(argList['arrived'].value);
+        }
+
+        if (argList['start'].provided) {
+
+            const id = argList['start'].value;
+            functions.startTimer(id);
+
+            const { started } = userData.get().timers[id];
+            console.log(`Recorded start time for ${id} as ${started}.`);
+        }
+
+        if (argList['stop'].provided) {
+
+            const id = argList['stop'].value;
+            functions.stopTimer(id);
+
+            const { duration } = userData.get().timers[id];
+            console.log(`Timer ${id} stopped at ${duration}.`);
         }
 
         if (argList['interactive-entry'].provided) {
