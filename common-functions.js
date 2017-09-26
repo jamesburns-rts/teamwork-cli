@@ -101,7 +101,7 @@ const printTimeLogged = () => {
     const total = billable + nonbillable + holiday;
     const nonPercent = Math.round(1000.0*nonbillable/total) / 10.0; 
     
-    console.log(`    \nMonth Required Hours: ${requiredHours + leftInMonth}`);
+    console.log(`\n    Month Required Hours: ${requiredHours + leftInMonth}`);
     console.log(`    Logged Total Hours: ${billable + nonbillable}\n`);
 
     console.log(`    Logged Billable Hours: ${billable}`);
