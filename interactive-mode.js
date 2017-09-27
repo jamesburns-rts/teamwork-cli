@@ -25,7 +25,7 @@ const prettyJson = (json) => {
 
 const state = {
     data: {
-        projects: teamwork.getProjects(),
+        projects: userData.get().key ? teamwork.getProjects() : undefined,
         tasklists: undefined,
         tasks: undefined,
         timeEntries: undefined

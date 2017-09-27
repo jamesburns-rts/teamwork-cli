@@ -39,7 +39,8 @@ const get = () => {
     } catch (e) {
         console.log(e);
     }
-    return { teamwork: {}};
+    
+    return data = { teamwork: {}};
 }
 
 const save = () => {
