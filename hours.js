@@ -193,7 +193,8 @@ else {
             functions.stopTimer(id);
 
             const { duration } = userData.get().timers[id];
-            console.log(`Timer ${id} stopped at ${duration}.`);
+            const length = functions.getDurationString(duration);
+            console.log(`Timer ${id} stopped at ${length}.`);
         }
 
         if (argList['interactive-entry'].provided) {

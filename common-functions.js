@@ -210,5 +210,6 @@ module.exports = {
     printPreviousTasks,
     printTimeLogged,
     startTimer,
-    stopTimer
+    stopTimer,
+    getDurationString
 }
