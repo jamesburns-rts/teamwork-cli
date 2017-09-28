@@ -47,7 +47,7 @@ const state = {
  */
 const ask = (prompt, defaultValue) => {
 
-    if (defaultValue) {
+    if (defaultValue !== null && defaultValue !== undefined) {
         const val = readline.question(`${prompt}[${defaultValue}]: `);
         return val.length > 0 ? val : defaultValue;
     } else {
@@ -326,14 +326,51 @@ const reversableCd = (args) => {
     cd(cdArgs);
 }
 
-const logTimeInteractive = (taskId) => {
-    const dateStr = dateFormat(new Date(), "yyyymmdd");
+const checkForLogTimeDefaults = (task) => {
 
-    const description = ask('Description', '');
-    const hours = ask('Hours', '8');
-    const minutes = ask('Minutes', '0');
-    const date = ask('Date', dateStr );
-    const isbillable = ask('Is Billable', '1');
+    const defaults = { 
+        description: '',
+        hours: 8, 
+        minutes: 0,
+        date: dateFormat(new Date(), "yyyymmdd"),
+        isbillable: 1
+    }
+
+    // check for a timer - hours/minutes
+    const timer = userData.get().timers[task];
+    if (timer) {
+        const timerLength = (timer.duration)/1000/60;
+        const timerHours = Math.floor(timerLength/60);
+        const timerMinutes = Math.round((timerLength % 60) / 15)*15;
+
+        if (timerMinutes === 60) {
+            defaults.hours = timerHours + 1;
+        } else {
+            defaults.hours = timerHours;
+            defaults.minutes = timerMinutes;
+        }
+    } 
+
+    // check if billable
+    let taskId = task;
+    if (isNaN(task)) {
+        taskId = userData.get().favorites[task];
+    }
+    const tmTask = teamwork.getTask(taskId);
+    defaults.isbillable = tmTask['project-name'].startsWith('RTS') ? 0 : 1;
+
+    return defaults;
+}
+
+const logTimeInteractive = (taskId) => {
+
+    const defaults = checkForLogTimeDefaults(taskId);
+
+    const description = ask('Description', defaults.description);
+    const hours = ask('Hours', defaults.hours);
+    const minutes = ask('Minutes', defaults.minutes);
+    const date = ask('Date', defaults.date);
+    const isbillable = ask('Is Billable', defaults.isbillable);
 
     return functions.sendTimeEntry({ taskId, description, date, hours, minutes, isbillable });
 }

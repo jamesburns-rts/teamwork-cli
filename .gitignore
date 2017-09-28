@@ -3,3 +3,4 @@ data.yml
 node_modules
 *.swp
 *.vim
+.vimrc

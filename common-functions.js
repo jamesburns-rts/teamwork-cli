@@ -170,9 +170,15 @@ const printDateEntries = (date) => {
 }
 
 /**
- * send time entry request
+ * send time entry request - if taskID is not a number then it checks
+ * if it is a favorite
  */
 const sendTimeEntry = (entry) => {
+
+    if (isNaN(entry.taskId)) {
+        entry.taskId = userData.get().favorites[entry.taskId];
+    }
+
     return teamwork.sendTimeEntry(entry);
 }
 
@@ -203,7 +209,7 @@ const stopTimer = (id) => {
     }
 }
 
-const listFavorites = (args) => {
+const listFavorites = () => {
   const { favorites } = userData.get();
   Object.keys(favorites).forEach(name => {
     const taskId = favorites[name];
