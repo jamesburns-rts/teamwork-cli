@@ -203,6 +203,14 @@ const stopTimer = (id) => {
     }
 }
 
+const listFavorites = (args) => {
+  const { favorites } = userData.get();
+  Object.keys(favorites).forEach(name => {
+    const taskId = favorites[name];
+    const task = teamwork.getTask(taskId);
+    console.log(`${name}: ${taskId} - ${task['project-name']} / ${task['todo-list-name']} / ${task.content}`);
+  });
+}
 
 module.exports = {
     sendTimeEntry,
@@ -211,5 +219,6 @@ module.exports = {
     printTimeLogged,
     startTimer,
     stopTimer,
-    getDurationString
+    getDurationString,
+    listFavorites
 }

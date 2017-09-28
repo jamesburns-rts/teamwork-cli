@@ -37,6 +37,7 @@ const parseProgramArguments = (args) => {
     argList['time-logged'] = getArgEntry('l',null,'Print time logged', false);
     argList['tasks'] = getArgEntry('p',null,'Print a list of previous entered tasks for the year', '');
     argList['entries'] = getArgEntry('q',null,'Print entries of today or date specified', false);
+    argList['favorites'] = getArgEntry('f',null,'Print the list of your favorites (saved in interactive mod)', false);
 
     // time logging
     argList['interactive-entry'] = getArgEntry('E','[taskId]' ,'Enter time through questions for specified task', '');
@@ -228,6 +229,10 @@ else {
 
         if (argList['entries'].provided) {
             functions.printDateEntries(argList['date'].value);
+        }
+
+        if (argList['favorites'].provided) {
+            functions.listFavorites();
         }
 
         if (argList['interactive'].provided) {

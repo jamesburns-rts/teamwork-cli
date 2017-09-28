@@ -25,7 +25,7 @@ const prettyJson = (json) => {
 
 const state = {
     data: {
-        projects: userData.get().key ? teamwork.getProjects() : undefined,
+        projects: userData.get().teamwork.key ? teamwork.getProjects() : undefined,
         tasklists: undefined,
         tasks: undefined,
         timeEntries: undefined
@@ -169,6 +169,42 @@ const ls = (args) => {
     }
 }
 
+const favorite = (args) => {
+
+    if (!args || args.length < 2) {
+      console.log('At least one argument required')
+      return;
+    }
+
+    const { selected } = state;
+    const differentDir = args.length > 2;
+    let originalDir = '.';
+    let name;
+
+    if (differentDir) {
+        originalDir = getCurrentDir();
+        cd(['cd', args[1]]);
+        name = args[2];
+    } else {
+        name = args[1];
+    }
+
+    switch (getDirLevel()) {
+        case 'task':
+            userData.get().favorites[name] = selected.task.id;
+            userData.save();
+            break;
+        default:
+            console.log('unsupported');
+            return;
+    }
+
+
+    if (differentDir) {
+        cd(['cd', originalDir]);
+    }
+}
+
 /**
  * Utility function that finds an item in the list given the argument. 
  * First by array index, then by id, then by... ?
@@ -286,6 +322,7 @@ const reversableCd = (args) => {
     const cdArgs = goBack ? ['cd', lastDir.slice()] : args;
 
     lastDir = getCurrentDir();
+
     cd(cdArgs);
 }
 
@@ -591,6 +628,18 @@ const commands = [
         aliases: [ 'today' ],
         action: (args) => printInfo(['print', 'today']),
         description: 'Show logged today'
+    },
+    {
+        name: 'favorite',
+        aliases: [ 'favorite', 'fav' ],
+        action: favorite,
+        description: 'Mark task as favorite: fav [PATH] name'
+    },
+    {
+        name: 'favorites',
+        aliases: [ 'favorites', 'favs', 'faves' ],
+        action: functions.listFavorites,
+        description: 'List favorites'
     },
 ];
 

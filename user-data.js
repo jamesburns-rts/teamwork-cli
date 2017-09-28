@@ -19,6 +19,21 @@ const getFileName = () => {
     return USER_DATA_FILE;
 }
 
+const checkData = () => {
+  if (!data) {
+    data = {};
+  }
+  if (!data.teamwork) {
+    data.teamwork = {};
+  } 
+  if (!data.timers) {
+    data.timers = {};
+  }
+  if (!data.favorites) {
+    data.favorites = {};
+  }
+}
+
 const get = () => {
 
     if (data) {
@@ -28,19 +43,15 @@ const get = () => {
     try {
         if (fs.existsSync(USER_DATA_FILE)) {
             data = yaml.safeLoad(fs.readFileSync(USER_DATA_FILE, 'utf8'));
-            if (!data.teamwork) {
-                data.teamwork = {};
-            } 
-            if (!data.timers) {
-                data.timers = {};
-            }
+            checkData();
             return data;
         }
     } catch (e) {
         console.log(e);
     }
     
-    return data = { teamwork: {}};
+    checkData();
+    return data;
 }
 
 const save = () => {
