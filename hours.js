@@ -192,10 +192,15 @@ else {
 
             const id = argList['stop'].value;
             functions.stopTimer(id);
+            const timer = userData.get().timers[id];
 
-            const { duration } = userData.get().timers[id];
-            const length = functions.getDurationString(duration);
-            console.log(`Timer ${id} stopped at ${length}.`);
+            if (timer) {
+                const { duration } = timer;
+                const length = functions.getDurationString(duration);
+                console.log(`Timer ${id} stopped at ${length}.`);
+            } else {
+                console.log(`Timer ${id} does not exist.`);
+            }
         }
 
         if (argList['interactive-entry'].provided) {
