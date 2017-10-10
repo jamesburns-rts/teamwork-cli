@@ -678,6 +678,12 @@ const commands = [
         action: functions.listFavorites,
         description: 'List favorites'
     },
+    {
+        name: 'clear',
+        aliases: [ 'clear', 'cle' ],
+        action: () => process.stdout.write('\033c'),
+        description: 'Clear screen'
+    },
 ];
 
 /**
