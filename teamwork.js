@@ -14,19 +14,6 @@ const init = () => {
     const persistedData = userData.get();
     let { key, url } = persistedData.teamwork;
 
-    // DEPRECATED
-    if (!key && process.env.TEAMWORK_KEY) {
-        key = process.env.TEAMWORK_KEY;
-    }
-    if (!url) {
-        url = 'https://rtslabs.teamwork.com';
-    }
-
-    persistedData.teamwork = { key, url };
-    userData.save();
-    // end DEPRECATED
-
-
     if (typeof key !== 'string' || key.length === 0) {
         console.log("ERROR: You need to set the teamwork.key in " + userData.getFileName() + " to use these scripts.");
     }
