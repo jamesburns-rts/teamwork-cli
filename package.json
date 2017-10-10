@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Command-line-interface for the Teamwork (https://www.teamwork.com/time-tracking) time entry system.",
   "keywords": ["teamwork", "time", "cli", "commandline", "terminal", "command", "prompt"],
-
   "bugs": {
       "url": "https://github.com/jamesburns-rts/teamwork-cli/issues"
   },
@@ -13,6 +12,7 @@
       "hours" : "./hours.js",
       "teamwork-cli" : "./hours.js" 
   },
+  "main": "teamwork.js",
   "repository" : { 
       "type" : "git", 
       "url" : "https://github.com/jamesburns-rts/teamwork-cli.git"
