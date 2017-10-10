@@ -1,14 +1,14 @@
 # Teamwork CLI
 Command line interface for Teamwork
 
-This is useful for repetitive time entry into the Teamwork system. 
+This is useful for repetitive time entry into the Teamwork system: https://www.teamwork.com/time-tracking 
 
 ## Installation
 
-Clearly this depends on nodejs and npm. After that, clone this repo and run npm install.
+Clearly this depends on nodejs and npm. After that, either clone this repo and run `npm install`, or run `npm install teamwork-cli`.
 
 This also depends on _your_ teamwork API key and URL. The url is the base of your teamwork
-website, for example https://rtslabs.teamwork.com. The API key can be found by:
+website, for example https://mycompany.teamwork.com. The API key can be found by:
 
 1. Go to Teamwork
 2. View your profile
