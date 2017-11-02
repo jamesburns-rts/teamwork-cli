@@ -271,6 +271,8 @@ const updateTimeEntry = (entry) => {
 module.exports = {
     teamworkGET,
     teamworkPOST,
+    teamworkPUT,
+    teamworkDELETE,
     getMe,
     getProjects,
     getTasklists,

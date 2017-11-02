@@ -55,7 +55,7 @@ const workday_count = (start,end) => {
 }
 
 /**
- * Prints the time logged summary for the year
+ * Prints the time logged summary for the month
  */
 const printTimeLogged = () => {
 
@@ -170,6 +170,80 @@ const printDateEntries = (date) => {
 }
 
 /**
+ * @param data must be n x m array
+ */
+const logTable = (data) => {
+
+    if (data.length === 0) {
+        return;
+    }
+
+
+    const lengths = data[0].map(d => 0);
+    data.forEach(row => {
+        row.forEach((col, idx) => {
+            if (lengths[idx] < col.length) {
+                lengths[idx] = col.length;
+            }
+        });
+    });
+
+    data.forEach((row, ridx) => {
+        const rowStr = row.reduce((str, col, idx) => {
+            const padding = ' '.repeat(lengths[idx] - col.length + 2);
+            return str + col + padding;
+        }, '');
+        console.log(rowStr);
+    });
+}
+
+const getDate = (date) => {
+    if (!date || date.toLowerCase() === 'week') {
+        const sunday = new Date();
+        sunday.setDate(sunday.getDate() - sunday.getDay());
+        return dateFormat(sunday, 'yyyymmdd');
+    } else if (date.toLowerCase() === 'month') {
+        const theFirst = new Date();
+        theFirst.setDate(1);
+        return dateFormat(theFirst, 'yyyymmdd');
+    } else {
+        return date;
+    }
+}
+
+const printPercentages = (date) => {
+
+    const timeEntries = teamwork.getTimeEntries(
+        getDate(date), dateFormat(new Date(), 'yyyymmdd'));
+
+    const projects = {};
+    timeEntries.forEach(entry => {
+        const currentHours = projects[entry['project-id']];
+        let hours = currentHours ? currentHours : 0;
+
+        hours += Number(entry.hours);
+        hours += Number(entry.minutes) / 60.0;
+
+        projects[entry['project-id']] = hours;
+    });
+
+    const total = Object.keys(projects).reduce((t,key) => t + projects[key], 0);
+    const twProjects = teamwork.getProjects();
+
+    const data = Object.keys(projects).map(proj => {
+        const twp = twProjects.find(p => p.id === proj);
+
+        return [twp ? twp.name : proj, projects[proj].toFixed(1) + 'h', (100*projects[proj]/total).toFixed(1) + '%'];
+    });
+
+    console.log('');
+    logTable([
+        ['Project', 'Total', 'Percent'], 
+        ...data, 
+        ['Total', total.toFixed(1) + 'h', '100.0%']]);
+}
+
+/**
  * send time entry request - if taskID is not a number then it checks
  * if it is a favorite
  */
@@ -227,6 +301,7 @@ module.exports = {
     printDateEntries,
     printPreviousTasks,
     printTimeLogged,
+    printPercentages,
     startTimer,
     stopTimer,
     getDurationString,
