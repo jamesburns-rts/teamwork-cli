@@ -213,8 +213,9 @@ const getDate = (date) => {
 
 const printPercentages = (date) => {
 
+    const sinceDate = getDate(date);
     const timeEntries = teamwork.getTimeEntries(
-        getDate(date), dateFormat(new Date(), 'yyyymmdd'));
+        sinceDate, dateFormat(new Date(), 'yyyymmdd'));
 
     const projects = {};
     timeEntries.forEach(entry => {
@@ -236,7 +237,10 @@ const printPercentages = (date) => {
         return [twp ? twp.name : proj, projects[proj].toFixed(1) + 'h', (100*projects[proj]/total).toFixed(1) + '%'];
     });
 
-    console.log('');
+
+    const month = sinceDate.substr(4,2);
+    const day = sinceDate.substr(6,2);
+    console.log(`\nProject totals since ${month}/${day}\n`);
     logTable([
         ['Project', 'Total', 'Percent'], 
         ...data, 
