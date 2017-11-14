@@ -55,8 +55,7 @@ const parseProgramArguments = (args) => {
     argList['key'] = getArgEntry('k', '[key]', 'Set teamwork API key to use in the future', '');
     argList['url'] = getArgEntry('u', '[url]', 'Set teamwork URL to use in the future', '');
     argList['arrived'] = getArgEntry('a', '[HH:MM]', 'Record the time as when you arrived (default to now)', new Date());
-    argList['start'] = getArgEntry('s', '[timer]', 'Start a timer', '');
-    argList['stop'] = getArgEntry('r', '[timer]', 'Stop a timer', '');
+    argList['startstop'] = getArgEntry('s', '[timer]', 'Start or stop a timer', '');
 
     if (args !== undefined) {
         Object.keys(argList).forEach( key => {
@@ -180,27 +179,18 @@ else {
             persistStartTime(argList['arrived'].value);
         }
 
-        if (argList['start'].provided) {
+        if (argList['startstop'].provided) {
 
-            const id = argList['start'].value;
-            functions.startTimer(id);
-
-            const { started } = userData.get().timers[id];
-            console.log(`Recorded start time for ${id} as ${started}.`);
-        }
-
-        if (argList['stop'].provided) {
-
-            const id = argList['stop'].value;
-            functions.stopTimer(id);
+            const id = argList['startstop'].value;
             const timer = userData.get().timers[id];
-
-            if (timer) {
-                const { duration } = timer;
-                const length = functions.getDurationString(duration);
+            if (timer && timer.running) {
+                functions.stopTimer(id);
+                const length = functions.getDurationString(timer.duration);
                 console.log(`Timer ${id} stopped at ${length}.`);
             } else {
-                console.log(`Timer ${id} does not exist.`);
+                functions.startTimer(id);
+                const { started } = userData.get().timers[id];
+                console.log(`Recorded start time for ${id} as ${started}.`);
             }
         }
 
