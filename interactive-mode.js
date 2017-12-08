@@ -434,6 +434,39 @@ const updateTimeEntry = (args) => {
     teamwork.updateTimeEntry(entry);
     cd(['cd', '.']);
 }
+
+/**
+ * moves a time entry
+ */
+const moveTimeEntry = (args) => {
+
+    let entry, task;
+
+
+    switch(getDirLevel()) {
+        case "task":
+
+            if (!args || args.length < 3) {
+                console.log('Provide entry id or index and a task to move to');
+                return;
+            }
+
+            entry = findDirItem(state.data.timeEntries, args[1]);
+            taskId = args[2];
+            break;
+        default:
+            console.log('not supported');
+            return;
+    }
+
+    if (!entry) {
+        console.log('item not found');
+        return;
+    }
+
+    functions.moveTimeEntry(entry);
+    cd(['cd', '.']);
+}
     
 /**
  * Add item to the current directory
@@ -605,6 +638,12 @@ const commands = [
         aliases: [ 'edit' ],
         action: updateTimeEntry,
         description: 'Update a time entry'
+    },
+    {
+        name: 'move',
+        aliases: [ 'move', 'mv' ],
+        action: moveTimeEntry,
+        description: 'Move a time entry to another task'
     },
     {
         name: 'help',

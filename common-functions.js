@@ -247,6 +247,18 @@ const printPercentages = (date) => {
         ['Total', total.toFixed(1) + 'h', '100.0%']]);
 }
 
+const moveTimeEntry = (entry, taskId) => {
+    sendTimeEntry({ 
+        taskId,
+        description: entry.description, 
+        date: dateFormat(new Date(entry.date), 'yyyymmdd'), 
+        hours: entry.hours, 
+        minutes: entry.minutes,
+        isbillable: entry.isbillable 
+    });
+    teamwork.deleteTimeEntry(entry.id);
+}
+
 /**
  * send time entry request - if taskID is not a number then it checks
  * if it is a favorite
@@ -302,6 +314,7 @@ const listFavorites = () => {
 
 module.exports = {
     sendTimeEntry,
+    moveTimeEntry,
     printDateEntries,
     printPreviousTasks,
     printTimeLogged,

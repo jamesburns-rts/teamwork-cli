@@ -212,6 +212,10 @@ const getTimeEntries = (fromDate, toDate) => {
     return teamworkGET('/time_entries.json?' + argStr)['time-entries'];
 }
 
+const getTimeEntry = (entryId) => {
+    return teamworkGET(`/time_entries/${entryId}.json`)['time-entry'];
+}
+
 const prettyJson = (json) => {
     if (json) {
         console.log(JSON.stringify(json, null, 2));
@@ -282,6 +286,7 @@ module.exports = {
     addTask,
     deleteTask,
     deleteTimeEntry,
+    getTimeEntry,
     getTimeEntries,
     sendTimeEntry,
     updateTimeEntry

@@ -8,6 +8,7 @@ const versionNo = "0.9.9";
 const dateFormat = require('dateformat');
 const functions = require('./common-functions.js');
 const userData = require('./user-data.js');
+const teamwork = require('./teamwork.js');
 const { interactiveMode, logTimeInteractive, usage } = require('./interactive-mode.js');
 
 
@@ -50,6 +51,7 @@ const parseProgramArguments = (args) => {
     argList['description'] = getArgEntry('m','[message]','Set description to log (default empty)', '');
     argList['task'] = getArgEntry('t','[taskId]','Set the taskId to log to (see --tasks)', '');
     argList['start-time'] = getArgEntry('T', '[HH:MM]', 'Set the start time to log (default 09:00)', '09:00');
+    argList['move'] = getArgEntry('c', '[EntryId]', 'Move the time entry to the task specified by --task', null);
 
     // persistence
     argList['key'] = getArgEntry('k', '[key]', 'Set teamwork API key to use in the future', '');
@@ -213,6 +215,10 @@ else {
         }
         else if (argList['tasks'].provided) {
             functions.printPreviousTasks();
+
+        } else if (argList['move'].provided && argList['task'].provided) {
+            const entry = teamwork.getTimeEntry(argList['move'].value);
+            functions.moveTimeEntry(entry, argList['task'].value);
         }
 
         if (argList['time-logged'].provided) {
