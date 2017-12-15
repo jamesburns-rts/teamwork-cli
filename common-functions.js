@@ -197,7 +197,7 @@ const logTable = (data) => {
     });
 }
 
-const getDate = (date) => {
+const getSinceDate = (date) => {
     if (!date || date.toLowerCase() === 'week') {
         const sunday = new Date();
         sunday.setDate(sunday.getDate() - sunday.getDay());
@@ -213,7 +213,7 @@ const getDate = (date) => {
 
 const printPercentages = (date) => {
 
-    const sinceDate = getDate(date);
+    const sinceDate = getSinceDate(date);
     const timeEntries = teamwork.getTimeEntries(
         sinceDate, dateFormat(new Date(), 'yyyymmdd'));
 
@@ -335,5 +335,6 @@ module.exports = {
     stopTimer,
     getDurationString,
     listFavorites,
+    getSinceDate,
     parseDateYYYYMMDD
 }

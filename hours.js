@@ -38,7 +38,7 @@ const parseProgramArguments = (args) => {
     argList['time-logged'] = getArgEntry('l',null,'Print time logged', false);
     argList['tasks'] = getArgEntry('p',null,'Print a list of previous entered tasks for the year', '');
     argList['entries'] = getArgEntry('q',null,'Print entries of today or date specified', dateFormat(new Date(), "yyyymmdd"));
-    argList['since'] = getArgEntry('Q',null,'Print entries since date specified', dateFormat(new Date(), "yyyymmdd"));
+    argList['since'] = getArgEntry('Q',null,'Print entries since date specified', 'week');
     argList['favorites'] = getArgEntry('f',null,'Print the list of your favorites (saved in interactive mod)', false);
     argList['percentages'] = getArgEntry('w',null,'Print percentages of time logged', 'week');
 
@@ -239,10 +239,11 @@ else {
         }
 
         if (argList['since'].provided) {
-            const date = functions.parseDateYYYYMMDD(argList['since'].value);
+            const dateStr = functions.getSinceDate(argList['since'].value);
+            const date = functions.parseDateYYYYMMDD(dateStr);
             const today = new Date();
             while (date < today) {
-                console.log('Date: ' + date);
+                console.log('\n\nDate: ' + date);
                 functions.printDateEntries(dateFormat(date, "yyyymmdd"));
                 date.setDate(date.getDate() + 1);
             }
