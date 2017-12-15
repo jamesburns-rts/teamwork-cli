@@ -166,7 +166,7 @@ const printDateEntries = (date) => {
         total = total + hours;
     });
 
-    console.log('  \nTotal today: ' + total.toFixed(2));
+    console.log('  \nTotal: ' + total.toFixed(2));
 }
 
 /**
@@ -312,6 +312,18 @@ const listFavorites = () => {
     });
 }
 
+const parseDateYYYYMMDD = (str) => {
+    if (!str || str.length !== 8) {
+        return null;
+    }
+
+    const year = Number(str.substr(0, 4));
+    const month = Number(str.substr(4, 2));
+    const day = Number(str.substr(6, 2));
+
+    return new Date(year, month - 1, day);
+}
+
 module.exports = {
     sendTimeEntry,
     moveTimeEntry,
@@ -322,5 +334,6 @@ module.exports = {
     startTimer,
     stopTimer,
     getDurationString,
-    listFavorites
+    listFavorites,
+    parseDateYYYYMMDD
 }
