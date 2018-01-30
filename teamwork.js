@@ -8,11 +8,12 @@ const userData = require('./user-data.js');
 
 let TEAMWORK_URL;
 let BASIC_AUTH_TOKEN;
+let USER_ID;
 
 const init = () => {
 
     const persistedData = userData.get();
-    let { key, url } = persistedData.teamwork;
+    let { key, url, userId } = persistedData.teamwork;
 
     if (typeof key !== 'string' || key.length === 0) {
         console.log("ERROR: You need to set the teamwork.key in " + userData.getFileName() + " to use these scripts.");
@@ -28,6 +29,7 @@ const init = () => {
         TEAMWORK_URL = 'https://' + url;
     }
     BASIC_AUTH_TOKEN = new Buffer(key + ":xxx").toString("base64");
+    USER_ID = userId;
 }
 
 const getAuthHeader = () => {
@@ -124,12 +126,20 @@ const teamworkDELETE = (endpoint) => {
 /**
  * Get teamwork user information from API key
  */
-let ME = undefined;
 const getMe = () => {
-    if (!ME) {
-        ME = teamworkGET('/me.json');
+    return teamworkGET('/me.json');
+}
+
+/**
+ * Get teamwork user id from API key
+ */
+const getUserId = () => {
+    if (!USER_ID) {
+        const me = getMe();
+        USER_ID = me.person.id;
+        userData.get().teamwork.userId = USER_ID;
     }
-    return ME;
+    return USER_ID;
 }
 
 /**
@@ -164,7 +174,7 @@ const getTask = (taskId) => {
  * Get collection of time entries for the given task
  */
 const getTaskEntries = (taskId) => {
-    const userId = getMe().person.id;
+    const userId = getUserId();
     return teamworkGET(`/todo_items/${taskId}/time_entries.json`)['time-entries']
         .filter(entry => entry['person-id'] === userId);
 }
@@ -204,7 +214,7 @@ const deleteTimeEntry = (entryId) => {
  * Get user's time entries between the given dates
  */
 const getTimeEntries = (fromDate, toDate) => {
-    const userId = getMe().person.id;
+    const userId = getUserId();
 
     const args = { userId, fromDate, toDate };
     const argStr = Object.keys(args).filter(k => args[k]).map(k => k + '=' + args[k]).join('&')
@@ -237,7 +247,6 @@ const prettyJson = (json) => {
  */
 const sendTimeEntry = (entry) => {
 
-    const me = getMe();
 
     const timeEntry = {
         'time-entry': {
@@ -247,7 +256,7 @@ const sendTimeEntry = (entry) => {
             hours: entry.hours, 
             minutes: entry.minutes, 
             isbillable: entry.isbillable,
-            'person-id': me.person.id,
+            'person-id': getUserId(),
             time: entry.time,
             'tags': ''
         }

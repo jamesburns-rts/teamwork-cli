@@ -324,6 +324,50 @@ const parseDateYYYYMMDD = (str) => {
     return new Date(year, month - 1, day);
 }
 
+const BREAKS = ['break', 'lunch'];
+
+const printItem = (str) => {
+    if (!str) {
+        str = 'time-worked';
+    }
+
+    const { arrived, timers } = userData.get();
+
+    switch (str.toLowerCase()) {
+        case 'time-worked':
+            if (arrived) {
+                let breaks = 0;
+                if (timers) {
+                    Object.keys(timers)
+                        .filter(key => BREAKS.indexOf(key.toLowerCase()) >= 0)
+                        .forEach(key => {
+                            const timer = timers[key];
+                            breaks = breaks + timer.duration;
+                            if (timer.running) {
+                                breaks = breaks + (new Date() - timer.started);
+                            } 
+                        });
+                }
+                console.log(getDurationString((new Date() - arrived) - breaks));
+            }
+            break;
+        case 'timers':
+            if (timers) {
+                console.log(
+                    Object.keys(timers)
+                    .filter(key => timers[key].running)
+                    .map(key => {
+                        const timer = timers[key];
+                        const duration = timer.duration + (new Date() - timer.started);
+                        return `${key}: ${getDurationString(duration)}`;
+                    }).join(', ')
+                );
+            }
+            break;
+
+    }
+}
+
 module.exports = {
     sendTimeEntry,
     moveTimeEntry,
@@ -336,5 +380,6 @@ module.exports = {
     getDurationString,
     listFavorites,
     getSinceDate,
-    parseDateYYYYMMDD
+    parseDateYYYYMMDD,
+    printItem
 }

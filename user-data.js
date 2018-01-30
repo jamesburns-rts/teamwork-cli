@@ -1,5 +1,5 @@
 const dateFormat = require('dateformat');
-const yaml = require('js-yaml');
+//const yaml = require('js-yaml');
 const fs = require('fs');
 
 /************************************************************************************
@@ -12,7 +12,7 @@ const fs = require('fs');
  ************************************************************************************/
 
 
-const USER_DATA_FILE = __dirname + '/data.yml';
+const USER_DATA_FILE = __dirname + '/data.json';
 let data;
 
 const getFileName = () => {
@@ -28,9 +28,17 @@ const checkData = () => {
   } 
   if (!data.timers) {
     data.timers = {};
+  } else {
+      Object.keys(data.timers).forEach(key => {
+          const timer = data.timers[key];
+          timer.started = new Date(timer.started);
+      });
   }
   if (!data.favorites) {
     data.favorites = {};
+  }
+  if (data.arrived) {
+      data.arrived = new Date(data.arrived);
   }
 }
 
@@ -42,7 +50,7 @@ const get = () => {
 
     try {
         if (fs.existsSync(USER_DATA_FILE)) {
-            data = yaml.safeLoad(fs.readFileSync(USER_DATA_FILE, 'utf8'));
+            data = JSON.parse(fs.readFileSync(USER_DATA_FILE, 'utf8'));
             checkData();
             return data;
         }
@@ -56,8 +64,8 @@ const get = () => {
 
 const save = () => {
     try {
-        const yml = yaml.safeDump(data);
-        fs.writeFileSync(USER_DATA_FILE, yml);
+        const json = JSON.stringify(data, null, 2);
+        fs.writeFileSync(USER_DATA_FILE, json);
     } catch (e) {
         console.log(e);
     }

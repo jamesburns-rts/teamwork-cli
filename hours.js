@@ -41,6 +41,7 @@ const parseProgramArguments = (args) => {
     argList['since'] = getArgEntry('Q',null,'Print entries since date specified', 'week');
     argList['favorites'] = getArgEntry('f',null,'Print the list of your favorites (saved in interactive mod)', false);
     argList['percentages'] = getArgEntry('w',null,'Print percentages of time logged', 'week');
+    argList['get'] = getArgEntry('g',null,'Print a peice of data', 'time-worked');
 
     // time logging
     argList['interactive-entry'] = getArgEntry('E','[taskId]' ,'Enter time through questions for specified task', '');
@@ -252,6 +253,12 @@ else {
 
         if (argList['percentages'].provided) {
             functions.printPercentages(argList['percentages'].value);
+        }
+
+        if (argList['get'].provided) {
+            functions.printItem(argList['get'].value);
+            // escape for saving data
+            return;
         }
 
         if (argList['version'].provided) {
