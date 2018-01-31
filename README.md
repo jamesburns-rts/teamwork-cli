@@ -40,8 +40,7 @@ Try out running `hours` or `hours -i` and check out the suggestions at the botto
 ## Usage
 
 ```
-
-hours 1.1.2
+hours 1.1.3
 
 OPTIONS
 
