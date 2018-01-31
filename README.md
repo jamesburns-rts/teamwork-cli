@@ -41,7 +41,7 @@ Try out running `hours` or `hours -i` and check out the suggestions at the botto
 
 ```
 
-hours 1.1.1
+hours 1.1.2
 
 OPTIONS
 

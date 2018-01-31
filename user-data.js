@@ -12,7 +12,7 @@ const fs = require('fs');
  ************************************************************************************/
 
 
-const USER_DATA_FILE = '~/teamwork-data.json';
+const USER_DATA_FILE = process.env.HOME + '/.teamwork-data.json';
 let data;
 
 const getFileName = () => {
