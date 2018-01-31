@@ -3,7 +3,7 @@
 /************************************************************************************
  * Main script - parses arguments
  ************************************************************************************/
-const versionNo = "0.9.9";
+const versionNo = "1.1.0";
 
 const dateFormat = require('dateformat');
 const functions = require('./common-functions.js');
