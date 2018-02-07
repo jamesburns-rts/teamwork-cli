@@ -186,25 +186,35 @@ else {
 
         if (argList['startstop'].provided) {
 
+            const timers = userData.get().timers;
+
             const id = argList['startstop'].value;
-            const timer = userData.get().timers[id];
-            if (timer && timer.running) {
-                functions.stopTimer(id);
-                const length = functions.getDurationString(timer.duration);
-                console.log(`Timer ${id} stopped at ${length}.`);
+            if (id && id.length > 0) {
+                const timer = userData.get().timers[id];
+                if (timer && timer.running) {
+                    functions.stopTimer(id);
+                    const length = functions.getDurationString(timer.duration);
+                    console.log(`Timer ${id} stopped at ${length}.`);
+                } else {
+                    functions.startTimer(id);
+                    const { started } = userData.get().timers[id];
+                    console.log(`Recorded start time for ${id} as ${started}.`);
+                }
             } else {
-                functions.startTimer(id);
-                const { started } = userData.get().timers[id];
-                console.log(`Recorded start time for ${id} as ${started}.`);
+                // stop all timers
+                Object.keys(timers).forEach(t => {
+                    if (timers[t].running) {
+                        functions.stopTimer(t);
+                        const tlength = functions.getDurationString(timers[t].duration);
+                        console.log(`Timer ${t} stopped at ${tlength}.`);
+                    }
+                });
             }
         }
 
         if (argList['switch'].provided) {
 
-            const id = argList['switch'].value;
             const timers = userData.get().timers;
-            const timer = timers[id];
-            const isRunning = timer && timer.running;
 
             // stop all timers
             Object.keys(timers).forEach(t => {
@@ -215,10 +225,15 @@ else {
                 }
             });
 
-            if (!isRunning) {
-                functions.startTimer(id);
-                const { started } = userData.get().timers[id];
-                console.log(`Recorded start time for ${id} as ${started}.`);
+            const id = argList['switch'].value;
+            if (id && id.length > 0) {
+                const timer = timers[id];
+                const isRunning = timer && timer.running;
+                if (!isRunning) {
+                    functions.startTimer(id);
+                    const { started } = userData.get().timers[id];
+                    console.log(`Recorded start time for ${id} as ${started}.`);
+                }
             }
         }
 
