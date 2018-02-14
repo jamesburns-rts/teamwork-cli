@@ -395,44 +395,67 @@ const logTime = (args) => {
 /**
  * updates a time entry
  */
-const updateTimeEntry = (args) => {
+const editItem = (args) => {
 
     let entry;
+    let task;
 
+    const hasArg = args && args.length > 1;
 
     switch(getDirLevel()) {
-
         case "timeEntry":
             entry = state.selected.timeEntry;
             break;
+
         case "task":
-
-            if (!args || args.length < 2) {
-                console.log('Provide entry id or index');
-                return;
+            if (hasArg) {
+                entry = findDirItem(state.data.timeEntries, args[1]);
+            } else {
+                task = state.selected.task;
             }
-
-            entry = findDirItem(state.data.timeEntries, args[1]);
             break;
+
+        case "tasklist":
+            if (hasArg) {
+                task = findDirItem(state.data.tasks, args[1]);
+            }
+            break;
+
         default:
             console.log('not supported');
             return;
     }
 
-    if (!entry) {
+    if (task) {
+
+        const alteredTask = askForTaskInfo(task);
+
+        if (!alteredTask.content) {
+            console.log('Title required. Returning to prompt.');
+            return;
+        }
+
+        const resp = teamwork.editTask(task.id, alteredTask);
+
+        prettyJson(resp);
+    }
+
+    else if (entry) {
+        const dateStr = dateFormat(new Date(entry.date), "yyyymmdd");
+
+        entry.description = ask('Description', entry.description);
+        entry.hours = ask('Hours', entry.hours);
+        entry.minutes = ask('Minutes', entry.minutes);
+        entry.date = ask('Date', dateStr);
+        entry.isbillable = ask('Is Billable', entry.isbillable);
+
+        teamwork.updateTimeEntry(entry);
+        cd(['cd', '.']);
+
+    } else {
         console.log('item not found');
         return;
     }
-    const dateStr = dateFormat(new Date(entry.date), "yyyymmdd");
-
-    entry.description = ask('Description', entry.description);
-    entry.hours = ask('Hours', entry.hours);
-    entry.minutes = ask('Minutes', entry.minutes);
-    entry.date = ask('Date', dateStr);
-    entry.isbillable = ask('Is Billable', entry.isbillable);
-
-    teamwork.updateTimeEntry(entry);
-    cd(['cd', '.']);
 }
 
 /**
@@ -467,6 +490,114 @@ const moveTimeEntry = (args) => {
     functions.moveTimeEntry(entry);
     cd(['cd', '.']);
 }
+
+const parseTimeEstimate = (str) => {
+    if (str.length === 0) {
+        return null;
+    }
+    // if only number, assume hours
+    let weeks = 0, days = 0, hours = 0, minutes = 0;
+    if (!isNaN(str)) {
+        hours = Number(str);
+    } else {
+        let res = /(\d+)w/.exec(str);
+        if (res) {
+            weeks = Number(res[1]);
+        }
+        res = /(\d+)d/.exec(str);
+        if (res) {
+            days = Number(res[1]);
+        }
+        res = /(\d+)h/.exec(str);
+        if (res) {
+            hours = Number(res[1]);
+        }
+        res = /(\d+)m/.exec(str);
+        if (res) {
+            minutes = Number(res[1]);
+        }
+    }
+    return minutes + (hours + (days + weeks*5)*8)*60;
+}
+
+const askForTaskInfo = (defaults) => {
+
+    const task = {};
+
+    const getDefault = (val) => {
+        const v = defaults ? defaults[val] : null;
+        return v ? v : '';
+    }
+
+    const content = ask('Title', getDefault('content'));
+    if (content) {
+        task.content = content;
+    }
+    const defEst = getDefault('estimatedMinutes');
+    const estimate = parseTimeEstimate(ask('Time estimate', defEst.length > 0 ? (defEst + 'm') : ''));
+    if (estimate) {
+        task.estimatedMinutes = estimate;
+    }
+    const description = ask('Description', getDefault('description'));
+    if (description.length > 0) {
+        task.description = description;
+    }
+    let parentTaskId = ask('Parent Task', getDefault('parentTaskId')); 
+    if (parentTaskId.length > 0) {
+        if (isNaN(parentTaskId)) {
+            parentTaskId = userData.get().favorites[parentTaskId];
+        } 
+        task.parentTaskId = parentTaskId;
+    }
+    const progress = ask('Progress % (0-90)', getDefault('progress')); 
+    if (progress.length > 0 && !isNaN(progress)) {
+        task.progress = Number(progress);
+    }
+    let owner = ask('Owner (id|me)', getDefault('owner'));
+    if (owner.length > 0) {
+        if (owner.toLowerCase() === 'me') {
+            owner = teamwork.getUserId();
+        } 
+        task.owner = owner;
+    }
+    const startDate = ask('Start Date(yyyymmdd)', getDefault('start-date'));
+    if (startDate.length > 0) {
+        task.startDate = startDate;
+    }
+    const dueDate = ask('Due Date(yyyymmdd)', getDefault('due-date'));
+    if (dueDate.length > 0) {
+        task.dueDate = dueDate;
+    }
+    const priority = ask('Priority(low|medium|high)', getDefault('priority'));
+    if (priority.length > 0) {
+        task.priority = priority;
+    }
+    const predecessors = ask('Predecessor Tasks(csv)', getDefault('predecessors'));
+    if (predecessors.length > 0) {
+        task.predecessors = predecessors.split(',')
+            .map(p => p.trim())
+            .map(p => isNaN(p) ? userData.get().favorites[p] : p)
+            .map(p => { 
+                return {
+                    id: p,
+                    type: 'complete'
+                }
+            });
+    }
+    const positionAfterTask = ask('Position(-1,0,id)', getDefault('positionAfterTask'));
+    if (positionAfterTask.length > 0) {
+        task.positionAfterTask = isNaN(positionAfterTask) ? userData.get().favorites[positionAfterTask] : positionAfterTask;
+    }
+    const defTags = getDefault('tags');
+    const tags = ask('Tags(csv)', defTags ? defTags.map(t => t.name).join(',') : '');
+    if (tags.length > 0) {
+        task.tags = tags.split(',')
+            .map(p => p.trim())
+            .join(',');
+    }
+
+    return task;
+}
     
 /**
  * Add item to the current directory
@@ -476,17 +607,16 @@ const addItem = (args) => {
     switch(getDirLevel()) {
         case "tasklist":
 
-            let description = args.length > 1 ? args.slice(1).join(' ') : null;
+            const newTask = askForTaskInfo();
 
-            if (!description) {
-                description = readline.question('Description: ');
-                if (!description) {
-                    console.log('description required. Returning to prompt.');
-                    return;
-                }
+            if (!newTask.content) {
+                console.log('Title required. Returning to prompt.');
+                return;
             }
+
             const tasklistId = state.selected.tasklist.id;
-            const resp = teamwork.addTask(tasklistId, description);
+            const resp = teamwork.addTask(tasklistId, newTask);
+
             prettyJson(resp);
 
             state.data.tasks = teamwork.getTasks(tasklistId);
@@ -499,6 +629,7 @@ const addItem = (args) => {
             break;
     }
 }
+    
 
 /**
  * Print usage
@@ -636,7 +767,7 @@ const commands = [
     {
         name: 'edit',
         aliases: [ 'edit' ],
-        action: updateTimeEntry,
+        action: editItem,
         description: 'Update a time entry'
     },
     {
@@ -659,7 +790,7 @@ const commands = [
     },
     {
         name: 'create',
-        aliases: [ 'create', 'mkdir', 'touch', 'make', 'edit', 'add' ],
+        aliases: [ 'create', 'mkdir', 'touch', 'make', 'add' ],
         action: addItem,
         description: 'Create a new item in the entity (new task, tasklist, etc.)'
     },

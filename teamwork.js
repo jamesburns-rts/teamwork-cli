@@ -183,17 +183,87 @@ const getTaskEntries = (taskId) => {
  * Add a task to the tasklist
  *
  * @param tasklistId ID of task list to add task to
- * @param content Description of task
+ * @param newTask.content Name of task - required
+ * @param newTask.estimatedMinutes Estimated minutes
+ * @param newTask.description Longer description of task
+ * @param newTask.parentTaskId ID of parent task
+ * @param newTask.progress Percent complete 0-90
+ * @param newTask.owner ID of assignees (csv)
+ * @param newTask.startDate Date to start on
+ * @param newTask.dueDate Date needs completed by
+ * @param newTask.priority (low, medium, high)
+ * @param newTask.predecessors tasks that need completed first
+ * @param newTask.positionAfterTask Position in list (-1 top, 0 bottom, taskId after)
+ * @param newTask.tags csv of tags
  */
-const addTask = (tasklistId, content) => {
+const addTask = (tasklistId, newTask) => {
+
+    const { content, description, parentTaskId, progress, priority, predecessors, positionAfterTask, tags,
+        estimatedMinutes, owner, startDate, dueDate } = newTask;
 
     const todoItem = {
         "todo-item": {
-            content
+            'estimated-minutes': estimatedMinutes,
+            'responsible-party-id': owner,
+            'start-date': startDate,
+            'due-date': dueDate,
+            content,
+            description,
+            parentTaskId,
+            progress,
+            priority,
+            predecessors,
+            positionAfterTask,
+            tags
         }
     }
 
+
+    console.log(newTask);
     return teamworkPOST(`/tasklists/${tasklistId}/tasks.json`, todoItem);
+}
+
+/**
+ * Edit a task 
+ *
+ * @param taskId ID of task to edit
+ * @param task.content Name of task - required
+ * @param task.estimatedMinutes Estimated minutes
+ * @param task.description Longer description of task
+ * @param task.parentTaskId ID of parent task
+ * @param task.progress Percent complete 0-90
+ * @param task.owner ID of assignees (csv)
+ * @param task.startDate Date to start on
+ * @param task.dueDate Date needs completed by
+ * @param task.priority (low, medium, high)
+ * @param task.predecessors tasks that need completed first
+ * @param task.positionAfterTask Position in list (-1 top, 0 bottom, taskId after)
+ * @param task.tags csv of tags
+ */
+const editTask = (taskId, task) => {
+
+    const { content, description, parentTaskId, progress, priority, predecessors, positionAfterTask, tags,
+        estimatedMinutes, owner, startDate, dueDate } = task;
+
+    const todoItem = {
+        "todo-item": {
+            'estimated-minutes': estimatedMinutes,
+            'responsible-party-id': owner,
+            'start-date': startDate,
+            'due-date': dueDate,
+            content,
+            description,
+            parentTaskId,
+            progress,
+            priority,
+            predecessors,
+            positionAfterTask,
+            tags
+        }
+    }
+
+    console.log(task);
+    return teamworkPUT(`/tasks/${taskId}.json`, todoItem);
 }
 
 /**
@@ -287,12 +357,14 @@ module.exports = {
     teamworkPUT,
     teamworkDELETE,
     getMe,
+    getUserId,
     getProjects,
     getTasklists,
     getTasks,
     getTask,
     getTaskEntries,
     addTask,
+    editTask,
     deleteTask,
     deleteTimeEntry,
     getTimeEntry,
