@@ -216,24 +216,26 @@ else {
 
             const timers = userData.get().timers;
 
+            const id = argList['switch'].value;
+            let wasRunning = false;
+
             // stop all timers
-            Object.keys(timers).forEach(t => {
-                if (timers[t].running) {
+            Object.keys(timers)
+                .filter(t => timers[t].running)
+                .forEach(t => {
                     functions.stopTimer(t);
                     const tlength = functions.getDurationString(timers[t].duration);
                     console.log(`Timer ${t} stopped at ${tlength}.`);
-                }
-            });
 
-            const id = argList['switch'].value;
-            if (id && id.length > 0) {
-                const timer = timers[id];
-                const isRunning = timer && timer.running;
-                if (!isRunning) {
-                    functions.startTimer(id);
-                    const { started } = userData.get().timers[id];
-                    console.log(`Recorded start time for ${id} as ${started}.`);
-                }
+                    if (t === id) {
+                        wasRunning = true;
+                    }
+                });
+
+            if (!wasRunning && id && id.length > 0) {
+                functions.startTimer(id);
+                const { started } = userData.get().timers[id];
+                console.log(`Recorded start time for ${id} as ${started}.`);
             }
         }
 
