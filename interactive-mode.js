@@ -487,7 +487,7 @@ const moveTimeEntry = (args) => {
         return;
     }
 
-    functions.moveTimeEntry(entry);
+    functions.moveTimeEntry(entry, taskId);
     cd(['cd', '.']);
 }
 
