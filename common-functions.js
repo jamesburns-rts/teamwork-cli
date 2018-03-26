@@ -260,6 +260,16 @@ const moveTimeEntry = (entry, taskId) => {
 }
 
 /**
+ * Search for tasks using given searchTerm
+ * @param searchTerm text to search for
+ * @param projectId (optional) limit search to project
+ * @param taskListId (optional) limit search to task list
+ */
+const searchForTask = (searchTerm, projectId, taskListId) => {
+    return teamwork.searchForTask(searchTerm, projectId, taskListId);
+}
+
+/**
  * send time entry request - if taskID is not a number then it checks
  * if it is a favorite
  */
@@ -381,5 +391,6 @@ module.exports = {
     listFavorites,
     getSinceDate,
     parseDateYYYYMMDD,
-    printItem
+    printItem,
+    searchForTask
 }

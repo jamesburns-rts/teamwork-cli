@@ -38,6 +38,18 @@ const state = {
     }
 };
 
+const projectName = (projectId) => {
+    const { projects } = state.data;
+    const matches = projects.filter(proj => proj.id === projectId);
+    return matches.length > 0 ? matches[0].name : '';
+}
+
+const taskListName = (tasklistId) => {
+    const { tasklists } = state.data;
+    const matches = tasklists.filter(tasklist => tasklist.id === tasklistId);
+    return matches.length > 0 ? matches[0].name : teamwork.getTasklist(tasklistId).name;
+}
+
 /**
  * Utility function to prompt the user for a value 
  * If no default value: '_prompt_: ', else '_prompt_[_defaultValue_]: '
@@ -202,6 +214,44 @@ const favorite = (args) => {
 
     if (differentDir) {
         cd(['cd', originalDir]);
+    }
+}
+
+const search = (args) => {
+    if (!args || args.length < 2) {
+      console.log('At least one argument required')
+      return;
+    }
+
+    const { project, tasklist } = state.selected;
+    const searchTerm = args.slice(1).join(' ');
+    const projectId = project ? project.id : null;
+    const tasklistId = tasklist ? tasklist.id : null;
+
+    const results = functions.searchForTask(searchTerm, projectId, tasklistId);
+
+    switch (getDirLevel()) {
+        case 'top':
+            (new Set(results.map(t => t.taskListId))).forEach(tl => {
+                const taskList = teamwork.getTasklist(tl);
+                console.log(`\n${projectName(taskList.projectId)} / ${taskList.name}:`);
+                results.filter(t => t.taskListId === tl)
+                    .forEach(t => console.log(`${t.projectId}/${t.taskListId}/${t.id}: ${t.name}`));
+            });
+            break;
+        case 'project':
+            (new Set(results.map(t => t.taskListId))).forEach(tl => {
+                console.log(`\n${taskListName(tl)}:`);
+                results.filter(t => t.taskListId === tl)
+                    .forEach(t => console.log(`${t.taskListId}/${t.id}: ${t.name}`));
+            });
+            break;
+        case 'tasklist':
+            results.forEach(t => console.log(`${t.id}: ${t.name}`));
+            break;
+        default:
+            console.log('unsupported');
+            return;
     }
 }
 
@@ -853,6 +903,12 @@ const commands = [
         aliases: [ 'clear', 'cle' ],
         action: () => process.stdout.write('\033c'),
         description: 'Clear screen'
+    },
+    {
+        name: 'search',
+        aliases: [ 'search', '/', '?', 'find' ],
+        action: search,
+        description: 'Searches for a task'
     },
 ];
 

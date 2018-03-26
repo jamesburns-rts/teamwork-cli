@@ -21,21 +21,31 @@ website, for example https://mycompany.teamwork.com. The API key can be found by
 ### Cloning
 
 ```
-$ git clone https://github.com/jamesburns-rts/teamwork-cli.git
-$ cd teamwork-cli
-$ npm install
-$ node hours.js --url <teamwork base url>
-$ node hours.js --key <teamwork api key>
+git clone https://github.com/jamesburns-rts/teamwork-cli.git
+cd teamwork-cli
+npm install
+node hours.js --url <teamwork base url>
+node hours.js --key <teamwork api key>
 ```
 
 ### NPM
 ```
-$ sudo npm install -g teamwork-cli
-$ hours --url <teamwork base url>
-$ hours --key <teamwork api key>
+sudo npm install -g teamwork-cli
+hours --url <teamwork base url>
+hours --key <teamwork api key>
 ```
 
-Try out running `hours` or `hours -i` and check out the suggestions at the bottom to get started.
+## Recommendations
+
+To get started run the `--interactive` (`-i`) option to navigate through your projects and tasks 
+to get the task IDs you need in a fake directory structure. Use `ls` to list subdirectory options
+and `cd` to move into them (using either the index or id as the argument).
+
+If in interactive mode you can use the `search` command to find tasks in subdirectories. 
+
+I highly suggest navigating to the task you want and then mark it as a favorite
+like `fav mytask` you can then use `mytask` anywhere you would normally use 
+a task ID, such as `hours -E mytask` to log time.
 
 ## Usage
 
@@ -153,15 +163,7 @@ Once in a task you can log time. You can also create tasks/tasklists.
     FAVORITES: favorites, favs, faves List favorites
 
     CLEAR: clear, cle Clear screen
+
+    SEARCH: search, /, ?, find
+    Searches for a task in subdirectories
 ```
-
-## Recommendations
-You should put commonly used entries inside bash or batch scripts so you can easily edit 
-yesterday's and run it. Personally I have a list in a text file and run them from vim <3
-
-To get started run the --interactive option to navigate through your projects and tasks 
-to get the task IDs you need. 
-
-I highly suggest navigating to the task you want and then mark it as a favorite
-like `fav mytask` you can then use `mytask` anywhere you would normally use 
-a task ID, such as `hours -E mytask` to log time.

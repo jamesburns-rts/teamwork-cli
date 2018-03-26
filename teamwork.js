@@ -157,6 +157,13 @@ const getTasklists = (projectId) => {
 }
 
 /**
+ * Get a single Task list
+ */
+const getTasklist = (taskListId) => {
+    return teamworkGET(`/tasklists/${taskListId}.json`)['todo-list'];
+}
+
+/**
  * Get collection of tasks for the given task list
  */
 const getTasks = (tasklistId) => {
@@ -292,6 +299,28 @@ const getTimeEntries = (fromDate, toDate) => {
     return teamworkGET('/time_entries.json?' + argStr)['time-entries'];
 }
 
+/**
+ * Search for tasks using given searchTerm
+ * @param searchTerm text to search for
+ * @param projectId (optional) limit search to project
+ * @param taskListId (optional) limit search to task list
+ */
+const searchForTask = (searchTerm, projectId, taskListId) => {
+
+    let args = 'searchTerm=' + searchTerm;
+    if (projectId) {
+        args += '&projectId=' + projectId;
+    }
+
+    let results = teamworkGET('/search.json?pageSize=100&searchFor=tasks&' + args).searchResult.tasks;
+    
+    if (taskListId) {
+        results = results.filter(r => r.taskListId === taskListId);
+    }
+
+    return results;
+}
+
 const getTimeEntry = (entryId) => {
     return teamworkGET(`/time_entries/${entryId}.json`)['time-entry'];
 }
@@ -360,6 +389,7 @@ module.exports = {
     getUserId,
     getProjects,
     getTasklists,
+    getTasklist,
     getTasks,
     getTask,
     getTaskEntries,
@@ -370,5 +400,6 @@ module.exports = {
     getTimeEntry,
     getTimeEntries,
     sendTimeEntry,
-    updateTimeEntry
+    updateTimeEntry,
+    searchForTask
 }
