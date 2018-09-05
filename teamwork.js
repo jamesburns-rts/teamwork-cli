@@ -321,6 +321,35 @@ const searchForTask = (searchTerm, projectId, taskListId) => {
     return results;
 }
 
+/**
+ * Get the total time spent on a project
+ * @param projectId ID of project
+ */
+const getProjectTime = (projectId) => {
+    return getTimeFrom(teamworkGET(`/projects/${projectId}/time/total.json`).projects[0]);
+}
+
+/**
+ * Get the total time spent on a task list
+ * @param taskListId ID of task list
+ */
+const getTaskListTime = (taskListId) => {
+    return getTimeFrom(teamworkGET(`/tasklists/${taskListId}/time/total.json`).projects[0].tasklist);
+}
+
+/**
+ * Get the total time spent on a task
+ * @param taskId ID of task
+ */
+const getTaskTime = (taskId) => {
+    return getTimeFrom(teamworkGET(`/tasks/${taskId}/time/total.json`).projects[0].tasklist.task);
+}
+
+const getTimeFrom = (response) => {
+    // maybe extend to return object
+    return response['time-totals']['total-hours-sum'];
+}
+
 const getTimeEntry = (entryId) => {
     return teamworkGET(`/time_entries/${entryId}.json`)['time-entry'];
 }
@@ -401,5 +430,8 @@ module.exports = {
     getTimeEntries,
     sendTimeEntry,
     updateTimeEntry,
-    searchForTask
+    searchForTask,
+    getProjectTime,
+    getTaskListTime,
+    getTaskTime
 }

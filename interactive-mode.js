@@ -255,6 +255,75 @@ const search = (args) => {
     }
 }
 
+const sumTime = (args) => {
+
+    // remove command
+    args = args.slice(1);
+
+    let total;
+    switch (getDirLevel()) {
+        case 'top':
+            if (args.length) {
+                total = getTotalTime(args, null, teamwork.getProjectTime);
+            } else {
+                const projects = state.data.projects.map(p => p.id);
+                total = getTotalTime(projects, null, teamwork.getProjectTime);
+            }
+            break;
+        case 'project':
+            total = getTotalTime(args, teamwork.getProjectTime, teamwork.getTaskListTime);
+            break;
+        case 'tasklist':
+            total = getTotalTime(args, teamwork.getTaskListTime, teamwork.getTaskTime);
+            break;
+        case 'task':
+            total = getTotalTime(args, teamwork.getTaskTime, getTimeEntryTime);
+            break;
+        case 'timeEntry':
+            total = getTotalTime(null, getTimeEntryTime, null);
+            break;
+        default:
+            console.log('unsupported');
+            return;
+    }
+
+    console.log(`Total time: ${total} hours`);
+}
+
+const getTotalTime = (args, curDirFunc, subDirFunc) => {
+    if (!args || args.length < 1) {
+        const selected = getSelected();
+        return selected && curDirFunc(selected.id);
+    }
+
+    let total = 0;
+    if (subDirFunc) {
+        args.forEach(arg => {
+            const item = findCurrentDirItem(arg);
+            if (item) {
+                total += Number(subDirFunc(item.id));
+            }
+        });
+    }
+
+    return total;
+}
+
+const getTimeEntryTime = (arg) => {
+    const item = findDirItem(state.data.timeEntries, arg);
+    let total = 0;
+    if (item) {
+        const { hours, minutes } = item;
+        if (hours) {
+            total += Number(hours);
+        }
+        if (minutes) {
+            total += Number(minutes) / 60;
+        }
+    } 
+    return total;
+}
+
 /**
  * Utility function that finds an item in the list given the argument. 
  * First by array index, then by id, then by... ?
@@ -278,6 +347,46 @@ const findDirItem = (list, arg) => {
     return undefined;
 }
 
+const findCurrentDirItem = (arg) => {
+
+    const { projects, tasklists, tasks, timeEntries } = state.data;
+
+    switch (getDirLevel()) {
+        case 'top':
+            return findDirItem(projects, arg);
+        case 'project':
+            return findDirItem(tasklists, arg);
+        case 'tasklist':
+            return findDirItem(tasks, arg);
+        case 'task':
+            return findDirItem(timeEntries, arg);
+        default:
+            console.log('unsupported');
+            return;
+    }
+}
+
+const getSelected = () => {
+
+    const { project, tasklist, task, timeEntry } = state.selected;
+
+    switch (getDirLevel()) {
+        case 'top':
+            return null;
+        case 'project':
+            return project;
+        case 'tasklist':
+            return tasklist;
+        case 'task':
+            return task;
+        case 'timeEntry':
+            return timeEntry;
+        default:
+            console.log('unsupported');
+            return;
+    }
+}
+
 /**
  * Changes 'directory' of terminal
  * 
@@ -293,70 +402,83 @@ const cd = (args) => {
             task: null,
             timeEntry: null
         }
-        return;
-    }
+    } else {
 
-    let path = args[1];
+        let path = args[1];
 
-    if (path.startsWith(DELIM)) {
-        path = path.substr(1);
-        cd(['cd'])
-    }
-    if (path.endsWith(DELIM)) {
-        path = path.substr(0, path.length - 1);
-    }
-
-    const { selected, data } = state;
-
-    path.split(DELIM).forEach(a => {
-
-        if (a === '..') {
-
-            if (selected.timeEntry) {
-                selected.timeEntry = null;
-
-            } else if (selected.task) {
-                selected.task = null;
-
-            } else if (selected.tasklist) {
-                selected.tasklist = null;
-
-            } else if (selected.project) {
-                selected.project = null;
-            }
-        } else {
-
-            if (!selected.project) {
-                selected.project = findDirItem(data.projects, a);
-
-            } else if (!selected.tasklist) {
-                selected.tasklist = findDirItem(data.tasklists, a);
-
-            } else if (!selected.task) {
-                selected.task = findDirItem(data.tasks, a);
-
-            } else if (!selected.timeEntry) {
-                selected.timeEntry = findDirItem(data.timeEntries, a);
-            }
-
-            switch (getDirLevel(state)) {
-                case 'top':
-                    data.projects = teamwork.getProjects();
-                    break;
-                case 'project':
-                    data.tasklists = teamwork.getTasklists(selected.project.id);
-                    break;
-                case 'tasklist':
-                    data.tasks = teamwork.getTasks(selected.tasklist.id);
-                    break;
-                case 'task':
-                    data.timeEntries = teamwork.getTaskEntries(selected.task.id);
-                    break;
-                default:
-                    break;
-            }
+        if (path.startsWith(DELIM)) {
+            path = path.substr(1);
+            cd(['cd'])
         }
-    });
+        if (path.endsWith(DELIM)) {
+            path = path.substr(0, path.length - 1);
+        }
+
+        const { selected, data } = state;
+
+        // is a favorite
+        if (path.indexOf('/') < 0 && isNaN(path)) {
+            const taskId = userData.get().favorites[path];
+            if (taskId) {
+                const tmTask = teamwork.getTask(taskId);
+                const projectId = tmTask['project-id'];
+                const taskListId = tmTask['todo-list-id'];
+                const p =`/${projectId}/${taskListId}/${taskId}`;
+                cd(['cd', p]);
+                return;
+            }
+        } 
+
+        path.split(DELIM).forEach(a => {
+
+            if (a === '..') {
+
+                if (selected.timeEntry) {
+                    selected.timeEntry = null;
+
+                } else if (selected.task) {
+                    selected.task = null;
+
+                } else if (selected.tasklist) {
+                    selected.tasklist = null;
+
+                } else if (selected.project) {
+                    selected.project = null;
+                }
+            } else {
+
+                if (!selected.project) {
+                    selected.project = findDirItem(data.projects, a);
+
+                } else if (!selected.tasklist) {
+                    selected.tasklist = findDirItem(data.tasklists, a);
+
+                } else if (!selected.task) {
+                    selected.task = findDirItem(data.tasks, a);
+
+                } else if (!selected.timeEntry) {
+                    selected.timeEntry = findDirItem(data.timeEntries, a);
+                }
+
+                switch (getDirLevel(state)) {
+                    case 'top':
+                        data.projects = teamwork.getProjects();
+                        break;
+                    case 'project':
+                        data.tasklists = teamwork.getTasklists(selected.project.id);
+                        break;
+                    case 'tasklist':
+                        data.tasks = teamwork.getTasks(selected.tasklist.id);
+                        break;
+                    case 'task':
+                        data.timeEntries = teamwork.getTaskEntries(selected.task.id);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+    }
 
     userData.get().currentDir = getCurrentDir();
     userData.save();
@@ -909,6 +1031,12 @@ const commands = [
         aliases: [ 'search', '/', '?', 'find' ],
         action: search,
         description: 'Searches for a task'
+    },
+    {
+        name: 'total',
+        aliases: [ 'total', 'time', 'sum' ],
+        action: sumTime,
+        description: 'Sums the time spent on an item or items'
     },
 ];
 
