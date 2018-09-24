@@ -1,28 +1,36 @@
 {
-  "name": "teamwork-cli",
-  "version": "1.1.5",
-  "description": "Command-line-interface for the Teamwork (https://www.teamwork.com/time-tracking) time entry system.",
-  "keywords": ["teamwork", "time", "cli", "commandline", "terminal", "command", "prompt"],
-  "bugs": {
-      "url": "https://github.com/jamesburns-rts/teamwork-cli/issues"
-  },
-  "license" : "MIT",
-  "private": false,
-  "bin": { 
-      "hours" : "./hours.js",
-      "teamwork-cli" : "./hours.js" 
-  },
-  "main": "teamwork.js",
-  "repository" : { 
-      "type" : "git", 
-      "url" : "https://github.com/jamesburns-rts/teamwork-cli.git"
-  },
-  "dependencies": {
-    "dateformat": "^2.0.0",
-    "readline-sync": "^1.4.7",
-    "sync-request": "^4.1.0"
-  },
-  "scripts": {
-      "start": "node hours.js --interactive"
-  }
+    "name": "teamwork-cli",
+    "version": "1.1.5",
+    "description": "Command-line-interface for the Teamwork (https://www.teamwork.com/time-tracking) time entry system.",
+    "keywords": [
+        "teamwork",
+        "time",
+        "cli",
+        "commandline",
+        "terminal",
+        "command",
+        "prompt"
+    ],
+    "bugs": {
+        "url": "https://github.com/jamesburns-rts/teamwork-cli/issues"
+    },
+    "license": "MIT",
+    "private": false,
+    "bin": {
+        "hours": "./hours.js",
+        "teamwork-cli": "./hours.js"
+    },
+    "main": "teamwork.js",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/jamesburns-rts/teamwork-cli.git"
+    },
+    "dependencies": {
+        "dateformat": "^2.0.0",
+        "readline-sync": "^1.4.7",
+        "sync-request": "^4.1.0"
+    },
+    "scripts": {
+        "start": "node hours.js --interactive"
+    }
 }

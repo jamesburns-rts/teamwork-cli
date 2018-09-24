@@ -191,10 +191,17 @@ else {
             const id = argList['startstop'].value;
             if (id && id.length > 0) {
                 const timer = userData.get().timers[id];
-                if (timer && timer.running) {
-                    functions.stopTimer(id);
-                    const length = functions.getDurationString(timer.duration);
-                    console.log(`Timer ${id} stopped at ${length}.`);
+                if (timer) {
+                    if (timer.running) {
+                        functions.stopTimer(id);
+                        const length = functions.getDurationString(timer.duration);
+                        console.log(`Timer ${id} stopped at ${length}.`);
+                    } else {
+                        functions.startTimer(id);
+                        const { started } = userData.get().timers[id];
+                        const length = functions.getDurationString(timer.duration);
+                        console.log(`Timer ${id} resumed from ${length} at ${started}.`);
+                    }
                 } else {
                     functions.startTimer(id);
                     const { started } = userData.get().timers[id];
@@ -234,8 +241,13 @@ else {
 
             if (!wasRunning && id && id.length > 0) {
                 functions.startTimer(id);
-                const { started } = userData.get().timers[id];
-                console.log(`Recorded start time for ${id} as ${started}.`);
+                const { started, duration } = userData.get().timers[id];
+                if (duration > 0) {
+                    const tlength = functions.getDurationString(duration);
+                    console.log(`Timer ${id} resumed from ${tlength} at ${started}.`);
+                } else {
+                    console.log(`Timer ${id} started at ${started}.`);
+                }
             }
         }
 
