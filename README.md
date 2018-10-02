@@ -50,67 +50,89 @@ a task ID, such as `hours -E mytask` to log time.
 ## Usage
 
 ```
-hours 1.1.3
+hours 1.1.7
 
 OPTIONS
 
-    -h, --help Print this help Screen
+	-h, --help 
+	Print this help Screen
 
-    -v, --version Print version info
+	-v, --version 
+	Print version info
 
-    -i, --interactive [path] Enter interactive mode. Optionally add path to
-    start in.
+	-i, --interactive [path]
+	Enter interactive mode. Optionally add path to start in.
 
-    -l, --time-logged Print time logged
+	-l, --time-logged 
+	Print time logged
 
-    -p, --tasks Print a list of previous entered tasks for the year
+	-p, --tasks 
+	Print a list of previous entered tasks for the year
 
-    -q, --entries Print entries of today or date specified
+	-q, --entries 
+	Print entries of today or date specified
 
-    -Q, --since Print entries since date specified
+	-Q, --since 
+	Print entries since date specified
 
-    -f, --favorites Print the list of your favorites (saved in interactive mod)
+	-f, --favorites 
+	Print the list of your favorites (saved in interactive mod)
 
-    -w, --percentages Print percentages of time logged
+	-w, --percentages 
+	Print percentages of time logged
 
-    -g, --get Print a peice of data
+	-g, --get 
+	Print a peice of data
 
-    -E, --interactive-entry [taskId] Enter time through questions for specified
-    task
+	-E, --interactive-entry [taskId]
+	Enter time through questions for specified task
 
-    -e, --entry Enter time with below options
+	-e, --entry 
+	Enter time with below options
 
-    -b, --billable [0/1] If billable time (default 1)
+	-b, --billable [0/1]
+	If billable time (default 1)
 
-    -H, --hours [hours] Set hours to log (default 0)
+	-H, --hours [hours]
+	Set hours to log (default 0)
 
-    -M, --minutes [minutes] Set minutes to log (default 0)
+	-M, --minutes [minutes]
+	Set minutes to log (default 0)
 
-    -d, --date [yyyymmdd] Set date to log for (default today)
+	-d, --date [yyyymmdd]
+	Set date to log for (default today)
 
-    -m, --description [message] Set description to log (default empty)
+	-m, --description [message]
+	Set description to log (default empty)
 
-    -t, --task [taskId] Set the taskId to log to (see --tasks)
+	-t, --task [taskId]
+	Set the taskId to log to (see --tasks)
 
-    -T, --start-time [HH:MM] Set the start time to log (default 09:00)
+	-T, --start-time [HH:MM]
+	Set the start time to log (default 09:00)
 
-    -c, --move [EntryId] Move the time entry to the task specified by --task
+	-c, --move [EntryId]
+	Move the time entry to the task specified by --task
 
-    -k, --key [key] Set teamwork API key to use in the future
+	-k, --key [key]
+	Set teamwork API key to use in the future
 
-    -u, --url [url] Set teamwork URL to use in the future
+	-u, --url [url]
+	Set teamwork URL to use in the future
 
-    -a, --arrived [HH:MM] Record the time as when you arrived (default to now)
+	-a, --arrived [HH:MM]
+	Record the time as when you arrived (default to now)
 
-    -s, --switch [timer] Switch to a different timer
+	-s, --switch [timer]
+	Switch to a different timer
 
-    -S, --startstop [timer] Start or stop a timer
+	-S, --startstop [timer]
+	Start or stop a timer
 
 EXAMPLES
 
-    node hours.js --entry --task 6905921 --start-time "09:00" --hours 1
-    --minutes 30 --billable 0 --description "Friday Standup" Logs an hour and a
-    half for a long Friday standup
+    node hours.js --entry --task 6905921 --start-time "09:00" --hours 1 --minutes 30 --billable 0 --description "Friday Standup"
+    Logs an hour and a half for a long Friday standup
 
     node hours.js -e -t 6905921 -T "09:00" -H 1 -M 30 -b 0 -m "Friday Standup"
     Same as above but using letters instead
@@ -118,52 +140,67 @@ EXAMPLES
 
 INTERACTIVE MODE
 
-This mode creates a quasi-terminal with a directory structure setup like
-teamwork. There is a top level "teamwork" directory containing a folder for
-each project, each project contains tasklists, and each tasklist contains
-tasks.
+This mode creates a quasi-terminal with a directory structure setup like teamwork. There is a top level "teamwork" directory containing a folder for each project, each project contains tasklists, and each tasklist contains tasks.
 
 Once in a task you can log time. You can also create tasks/tasklists.
 
-    EXIT: exit, quit, q, :q, :wq, leave Exit interactive mode.
+    EXIT: exit, quit, q, :q, :wq, leave
+    Exit interactive mode.
 
-    LIST: list, ls, l, ll List the contents of the item - a projects tasklists
-    for example.
+    LIST: list, ls, l, ll
+    List the contents of the item - a projects tasklists for example.
 
-    SELECT: select, sel, cd, c, :e, enter, dir Select a project, tasklist, or
-    task - aka change directory.
+    SELECT: select, sel, cd, c, :e, enter, dir
+    Select a project, tasklist, or task - aka change directory.
 
-    EDIT: edit Update a time entry
+    EDIT: edit
+    Update a time entry
 
-    MOVE: move, mv Move a time entry to another task
+    MOVE: move, mv
+    Move a time entry to another task
 
-    HELP: help, h, pls, halp Display this information.
+    HELP: help, h, pls, halp
+    Display this information.
 
-    LOG TIME: log, entry, record Log time while in a given task
+    LOG TIME: log, entry, record
+    Log time while in a given task
 
-    CREATE: create, mkdir, touch, make, edit, add Create a new item in the
-    entity (new task, tasklist, etc.)
+    CREATE: create, mkdir, touch, make, add
+    Create a new item in the entity (new task, tasklist, etc.)
 
-    HOURS: hours Display infromation about time already logged
+    HOURS: hours
+    Display infromation about time already logged
 
-    PRINT INFO: print Display infromation about time already logged
+    PRINT INFO: print
+    Display infromation about time already logged
 
-    PATH: path, pwd Display the current path using the Ids.
+    PATH: path, pwd
+    Display the current path using the Ids.
 
-    ECHO: echo, cat, show, display Display the json of the item
+    ECHO: echo, cat, show, display
+    Display the json of the item
 
-    REMOVE: remove, rm, delete, del Delete the specified item.
+    REMOVE: remove, rm, delete, del
+    Delete the specified item.
 
-    COPY: copy, cp, duplicate, dup Copy the specified item.
+    COPY: copy, cp, duplicate, dup
+    Copy the specified item.
 
-    TODAY: today Show logged today
+    TODAY: today
+    Show logged today
 
-    FAVORITE: favorite, fav Mark task as favorite: fav [PATH] name
+    FAVORITE: favorite, fav
+    Mark task as favorite: fav [PATH] name
 
-    FAVORITES: favorites, favs, faves List favorites
+    FAVORITES: favorites, favs, faves
+    List favorites
 
-    CLEAR: clear, cle Clear screen
+    CLEAR: clear, cle
+    Clear screen
 
     SEARCH: search, /, ?, find
-    Searches for a task in subdirectories
+    Searches for a task
+
+    TOTAL: total, time, sum
+    Sums the time spent on an item or items
 ```
