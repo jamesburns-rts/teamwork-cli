@@ -16,11 +16,11 @@ const init = () => {
     let { key, url, userId } = persistedData.teamwork;
 
     if (typeof key !== 'string' || key.length === 0) {
-        console.log("ERROR: You need to set the teamwork.key in " + userData.getFileName() + " to use these scripts.");
+        throw "Teamwork key is not defined! Use 'hours --key <key>' to save it."
     }
 
     if (typeof url !== 'string' || url.length === 0) {
-        console.log("ERROR: You need to set the teamwork.url in " + userData.getFileName() + " to use these scripts.");
+        throw "Teamwork url is not defined! Use 'hours --url <url>' to save it."
     }
 
     if (url.startsWith('http')) {

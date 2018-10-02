@@ -154,169 +154,173 @@ const persistStartTime = (time) => {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // "Main"
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+try {
 
-const args = process.argv;
-const data = userData.get();
+    const args = process.argv;
+    const data = userData.get();
 
-// if no arguments, just print time logged
-if (args.length < 3) {
-    functions.printTimeLogged();
-}
-else {
-
-    const argList = parseProgramArguments(args);
-
-    // do work
-    if (argList['help'].provided) {
-        printUsage();
+    // if no arguments, just print time logged
+    if (args.length < 3) {
+        functions.printTimeLogged();
     }
     else {
 
-        if (argList['key'].provided) {
-            persistKey(argList['key'].value);
+        const argList = parseProgramArguments(args);
+
+        // do work
+        if (argList['help'].provided) {
+            printUsage();
         }
+        else {
 
-        if (argList['url'].provided) {
-            persistUrl(argList['url'].value);
-        }
+            if (argList['key'].provided) {
+                persistKey(argList['key'].value);
+            }
 
-        if (argList['arrived'].provided) {
-            persistStartTime(argList['arrived'].value);
-        }
+            if (argList['url'].provided) {
+                persistUrl(argList['url'].value);
+            }
 
-        if (argList['startstop'].provided) {
+            if (argList['arrived'].provided) {
+                persistStartTime(argList['arrived'].value);
+            }
 
-            const timers = userData.get().timers;
+            if (argList['startstop'].provided) {
 
-            const id = argList['startstop'].value;
-            if (id && id.length > 0) {
-                const timer = userData.get().timers[id];
-                if (timer) {
-                    if (timer.running) {
-                        functions.stopTimer(id);
-                        const length = functions.getDurationString(timer.duration);
-                        console.log(`Timer ${id} stopped at ${length}.`);
+                const timers = userData.get().timers;
+
+                const id = argList['startstop'].value;
+                if (id && id.length > 0) {
+                    const timer = userData.get().timers[id];
+                    if (timer) {
+                        if (timer.running) {
+                            functions.stopTimer(id);
+                            const length = functions.getDurationString(timer.duration);
+                            console.log(`Timer ${id} stopped at ${length}.`);
+                        } else {
+                            functions.startTimer(id);
+                            const { started } = userData.get().timers[id];
+                            const length = functions.getDurationString(timer.duration);
+                            console.log(`Timer ${id} resumed from ${length} at ${started}.`);
+                        }
                     } else {
                         functions.startTimer(id);
                         const { started } = userData.get().timers[id];
-                        const length = functions.getDurationString(timer.duration);
-                        console.log(`Timer ${id} resumed from ${length} at ${started}.`);
+                        console.log(`Recorded start time for ${id} as ${started}.`);
                     }
                 } else {
-                    functions.startTimer(id);
-                    const { started } = userData.get().timers[id];
-                    console.log(`Recorded start time for ${id} as ${started}.`);
+                    // stop all timers
+                    Object.keys(timers).forEach(t => {
+                        if (timers[t].running) {
+                            functions.stopTimer(t);
+                            const tlength = functions.getDurationString(timers[t].duration);
+                            console.log(`Timer ${t} stopped at ${tlength}.`);
+                        }
+                    });
                 }
-            } else {
+            }
+
+            if (argList['switch'].provided) {
+
+                const timers = userData.get().timers;
+
+                const id = argList['switch'].value;
+                let wasRunning = false;
+
                 // stop all timers
-                Object.keys(timers).forEach(t => {
-                    if (timers[t].running) {
+                Object.keys(timers)
+                    .filter(t => timers[t].running)
+                    .forEach(t => {
                         functions.stopTimer(t);
                         const tlength = functions.getDurationString(timers[t].duration);
                         console.log(`Timer ${t} stopped at ${tlength}.`);
+
+                        if (t === id) {
+                            wasRunning = true;
+                        }
+                    });
+
+                if (!wasRunning && id && id.length > 0) {
+                    functions.startTimer(id);
+                    const { started, duration } = userData.get().timers[id];
+                    if (duration > 0) {
+                        const tlength = functions.getDurationString(duration);
+                        console.log(`Timer ${id} resumed from ${tlength} at ${started}.`);
+                    } else {
+                        console.log(`Timer ${id} started at ${started}.`);
                     }
-                });
-            }
-        }
-
-        if (argList['switch'].provided) {
-
-            const timers = userData.get().timers;
-
-            const id = argList['switch'].value;
-            let wasRunning = false;
-
-            // stop all timers
-            Object.keys(timers)
-                .filter(t => timers[t].running)
-                .forEach(t => {
-                    functions.stopTimer(t);
-                    const tlength = functions.getDurationString(timers[t].duration);
-                    console.log(`Timer ${t} stopped at ${tlength}.`);
-
-                    if (t === id) {
-                        wasRunning = true;
-                    }
-                });
-
-            if (!wasRunning && id && id.length > 0) {
-                functions.startTimer(id);
-                const { started, duration } = userData.get().timers[id];
-                if (duration > 0) {
-                    const tlength = functions.getDurationString(duration);
-                    console.log(`Timer ${id} resumed from ${tlength} at ${started}.`);
-                } else {
-                    console.log(`Timer ${id} started at ${started}.`);
                 }
             }
-        }
 
-        if (argList['interactive-entry'].provided) {
-            const resp = logTimeInteractive(argList['interactive-entry'].value);
-            console.log(resp);
-        }
-        else if (argList['entry'].provided) {
+            if (argList['interactive-entry'].provided) {
+                const resp = logTimeInteractive(argList['interactive-entry'].value);
+                console.log(resp);
+            }
+            else if (argList['entry'].provided) {
 
-            const resp = functions.sendTimeEntry({
-                taskId: argList['task'].value,
-                description: argList['description'].value,
-                date: argList['date'].value,
-                hours: argList['hours'].value,
-                minutes: argList['minutes'].value,
-                isbillable: argList['billable'].value,
-                time: argList['start-time'].value
-            });
-            console.log(resp);
-        }
-        else if (argList['tasks'].provided) {
-            functions.printPreviousTasks();
+                const resp = functions.sendTimeEntry({
+                    taskId: argList['task'].value,
+                    description: argList['description'].value,
+                    date: argList['date'].value,
+                    hours: argList['hours'].value,
+                    minutes: argList['minutes'].value,
+                    isbillable: argList['billable'].value,
+                    time: argList['start-time'].value
+                });
+                console.log(resp);
+            }
+            else if (argList['tasks'].provided) {
+                functions.printPreviousTasks();
 
-        } else if (argList['move'].provided && argList['task'].provided) {
-            const entry = teamwork.getTimeEntry(argList['move'].value);
-            functions.moveTimeEntry(entry, argList['task'].value);
-        }
+            } else if (argList['move'].provided && argList['task'].provided) {
+                const entry = teamwork.getTimeEntry(argList['move'].value);
+                functions.moveTimeEntry(entry, argList['task'].value);
+            }
 
-        if (argList['time-logged'].provided) {
-            functions.printTimeLogged();
-        }
+            if (argList['time-logged'].provided) {
+                functions.printTimeLogged();
+            }
 
-        if (argList['percentages'].provided) {
-            functions.printPercentages(argList['percentages'].value);
-        }
+            if (argList['percentages'].provided) {
+                functions.printPercentages(argList['percentages'].value);
+            }
 
-        if (argList['get'].provided) {
-            functions.printItem(argList['get'].value);
-            // escape for saving data
-            return;
-        }
+            if (argList['get'].provided) {
+                functions.printItem(argList['get'].value);
+                // escape for saving data
+                return;
+            }
 
-        if (argList['version'].provided) {
-            printVersionInfo();
-        }
+            if (argList['version'].provided) {
+                printVersionInfo();
+            }
 
-        if (argList['entries'].provided) {
-            functions.printDateEntries(argList['entries'].value);
-        }
+            if (argList['entries'].provided) {
+                functions.printDateEntries(argList['entries'].value);
+            }
 
-        if (argList['since'].provided) {
-            const dateStr = functions.getSinceDate(argList['since'].value);
-            const date = functions.parseDateYYYYMMDD(dateStr);
-            const today = new Date();
-            while (date < today) {
-                console.log('\n\nDate: ' + date);
-                functions.printDateEntries(dateFormat(date, "yyyymmdd"));
-                date.setDate(date.getDate() + 1);
+            if (argList['since'].provided) {
+                const dateStr = functions.getSinceDate(argList['since'].value);
+                const date = functions.parseDateYYYYMMDD(dateStr);
+                const today = new Date();
+                while (date < today) {
+                    console.log('\n\nDate: ' + date);
+                    functions.printDateEntries(dateFormat(date, "yyyymmdd"));
+                    date.setDate(date.getDate() + 1);
+                }
+            }
+
+            if (argList['favorites'].provided) {
+                functions.listFavorites();
+            }
+
+            if (argList['interactive'].provided) {
+                interactiveMode(argList['interactive'].value);
             }
         }
-
-        if (argList['favorites'].provided) {
-            functions.listFavorites();
-        }
-
-        if (argList['interactive'].provided) {
-            interactiveMode(argList['interactive'].value);
-        }
     }
-}
 
-userData.save(data);
+    userData.save(data);
+} catch(e) {
+    console.log(e);
+}
