@@ -137,15 +137,17 @@ const persistUrl = (url) => {
 }
 
 const persistStartTime = (time) => {
+
+    const data = userData.get();
     if (typeof time === 'string' && time !== 'now') {
         const overrides = time.split(':');
         const date = new Date();
         date.setHours(overrides[0]);
         date.setMinutes(overrides[1]);
 
-        userData.get().arrived = date;
+        data.arrived = date;
     } else {
-        userData.get().arrived = time;
+        data.arrived = time;
     }
     console.log('Marking that you arrived at ' + data.arrived);
     userData.save();
