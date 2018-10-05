@@ -1,6 +1,6 @@
 {
     "name": "teamwork-cli",
-    "version": "1.1.9",
+    "version": "1.1.10",
     "description": "Command-line-interface for the Teamwork (https://www.teamwork.com/time-tracking) time entry system.",
     "keywords": [
         "teamwork",
