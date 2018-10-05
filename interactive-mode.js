@@ -1048,7 +1048,7 @@ const commands = [
         name: 'search',
         aliases: [ 'search', '/', '?', 'find' ],
         action: search,
-        description: 'Searches for a task'
+        description: 'Searches for a task. If -e option is provided, then time entries with empty descriptions are listed.'
     },
     {
         name: 'total',
