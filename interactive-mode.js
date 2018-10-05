@@ -181,6 +181,34 @@ const ls = (args) => {
     }
 }
 
+const findEmpty = () => {
+    const { selected } = state;
+
+    let entryList = [];
+
+    if (!selected.project) {
+        entryList = teamwork.getAllEntries();
+    } else if (!selected.tasklist) {
+        entryList = teamwork.getProjectEntries(selected.project.id);
+    } else if (!selected.task) {
+        entryList = teamwork.getTaskListEntries(selected.tasklist.id);
+    } else if (!selected.timeEntry) {
+        entryList = teamwork.getTaskEntries(selected.task.id);
+
+    } 
+
+    entryList.filter(l => !l.description || /^\s*$/.test(l.description))
+    .forEach(entry => {
+        const project = entry['project-id'];
+        const taskList = entry.tasklistId;
+        const task = entry['todo-item-id'];
+        const id = entry.id;
+        const taskName = entry['todo-item-name'];
+        const date = dateFormat(new Date(entry.date), "mm/dd/yyyy");
+        console.log(`${project}/${taskList}/${task}/${id}: "${taskName}" on ${date}`);
+    });
+}
+
 const favorite = (args) => {
 
     if (!args || args.length < 2) {
@@ -221,6 +249,11 @@ const search = (args) => {
     if (!args || args.length < 2) {
       console.log('At least one argument required')
       return;
+    }
+
+    if (args.length == 2 && args[1] == '-e') {
+        findEmpty();
+        return;
     }
 
     const { project, tasklist } = state.selected;
@@ -498,7 +531,7 @@ const reversableCd = (args) => {
     cd(cdArgs);
 }
 
-const checkForLogTimeDefaults = (task) => {
+const logTimeInteractive = (task) => {
 
     const defaults = { 
         description: '',
@@ -511,39 +544,24 @@ const checkForLogTimeDefaults = (task) => {
     // check for a timer - hours/minutes
     const timer = userData.get().timers[task];
     if (timer) {
-        const timerLength = (timer.duration)/1000/60;
-        const timerHours = Math.floor(timerLength/60);
-        const timerMinutes = Math.round((timerLength % 60) / 15)*15;
-
-        if (timerMinutes === 60) {
-            defaults.hours = timerHours + 1;
-        } else {
-            defaults.hours = timerHours;
-            defaults.minutes = timerMinutes;
-        }
+        const timerLength = Math.floor((timer.duration)/1000/60);
+        defaults.hours = Math.floor(timerLength/60);
+        defaults.minutes = timerLength % 60;
     } 
 
     // check if billable
-    let taskId = task;
-    if (isNaN(task)) {
-        taskId = userData.get().favorites[task];
-    }
+    const taskId = isNaN(task) ? userData.get().favorites[task] : task;
     const tmTask = teamwork.getTask(taskId);
     defaults.isbillable = tmTask['project-name'].startsWith('RTS') ? 0 : 1;
 
-    return defaults;
-}
-
-const logTimeInteractive = (taskId) => {
-
-    const defaults = checkForLogTimeDefaults(taskId);
-
+    // get values from user
     const description = ask('Description', defaults.description);
     const hours = ask('Hours', defaults.hours);
     const minutes = ask('Minutes', defaults.minutes);
     const date = ask('Date', defaults.date);
     const isbillable = ask('Is Billable', defaults.isbillable);
 
+    // send time entry
     return functions.sendTimeEntry({ taskId, description, date, hours, minutes, isbillable });
 }
 

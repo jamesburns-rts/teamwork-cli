@@ -171,10 +171,70 @@ const getTasks = (tasklistId) => {
 }
 
 /**
+ * Get collection of tasks for the given project
+ */
+const getProjectTasks = (projectId) => {
+    return teamworkGET(`/projects/${projectId}/tasks.json`)['todo-items'];
+}
+
+/**
+ * Get all tasks
+ */
+const getAllTasks = () => {
+    return teamworkGET(`/tasks.json`)['todo-items'];
+}
+
+/**
  * Get collection of tasks for the given task list
  */
 const getTask = (taskId) => {
     return teamworkGET(`/tasks/${taskId}.json`)['todo-item'];
+}
+
+/**
+ * Get collection of time entries
+ */
+const getAllEntries = () => {
+    const userId = getUserId();
+    let entries = []
+    let page = 1;
+    let lastSize = 500;
+    while (lastSize === 500) {
+        console.log('requesting page ' + page + ' last size: ' + lastSize);
+        const result = teamworkGET(`/time_entries.json?pageSize=500&page=${page}`)['time-entries']
+        lastSize = result.length;
+        page += 1;
+        entries = entries.concat(result);
+    }
+    return entries.filter(entry => entry['person-id'] === userId);
+}
+
+/**
+ * Get collection of time entries for the given project
+ */
+const getProjectEntries = (projectId) => {
+    const userId = getUserId();
+    let entries = []
+    let page = 1;
+    let lastSize = 500;
+    while (lastSize === 500) {
+        const result = teamworkGET(`/projects/${projectId}/time_entries.json?pageSize=500&page=${page}`)['time-entries']
+        lastSize = result.length;
+        page += 1;
+        entries = entries.concat(result);
+    }
+    return entries.filter(entry => entry['person-id'] === userId);
+}
+
+/**
+ * Get collection of time entries for the given task list
+ */
+const getTaskListEntries = (taskListId) => {
+    let entryList = [];
+    getTasks(taskListId).forEach(task => {
+        entryList = entryList.concat(getTaskEntries(task.id));
+    });
+    return entryList;
 }
 
 /**
@@ -420,7 +480,12 @@ module.exports = {
     getTasklists,
     getTasklist,
     getTasks,
+    getProjectTasks,
+    getAllTasks,
     getTask,
+    getAllEntries,
+    getProjectEntries,
+    getTaskListEntries,
     getTaskEntries,
     addTask,
     editTask,
