@@ -117,8 +117,8 @@ const printTimeLogged = () => {
     console.log(`    Logged NonBillable Hours: ${nonbillable} (${nonPercent}%)`);
     console.log(`    Remaining Monthly Hours: ${requiredHours + leftInMonth - total}\n`);
 
-    console.log(`    Logged today: ${todayHours}`);
-    console.log(`    Time worked: ${getTimeWorkedString(arrived, timers)}\n`);
+    console.log(`    Time worked: ${getTimeWorkedString(arrived, timers)}`);
+    console.log(`    Logged today: ${getDurationString(todayHours * 3600000)}\n`);
 
     Object.keys(timers)
         .forEach(id => {
