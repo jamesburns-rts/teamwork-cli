@@ -1065,9 +1065,9 @@ const commands = [
     },
     {
         name: 'favorites',
-        aliases: ['favorites', 'favs', 'faves'],
-        action: functions.listFavorites,
-        description: 'List favorites'
+        aliases: ['favorites', 'favs', 'faves', 'favesies'],
+        action: (args) => functions.listFavorites(args.indexOf('-v') > 0),
+        description: 'List favorites (use -v for task names)'
     },
     {
         name: 'clear',

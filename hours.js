@@ -39,7 +39,8 @@ const parseProgramArguments = (args) => {
     argList['tasks'] = getArgEntry('p', null, 'Print a list of previous entered tasks for the year', '');
     argList['entries'] = getArgEntry('q', null, 'Print entries of today or date specified', dateFormat(new Date(), "yyyymmdd"));
     argList['since'] = getArgEntry('Q', null, 'Print entries since date specified', 'week');
-    argList['favorites'] = getArgEntry('f', null, 'Print the list of your favorites (saved in interactive mod)', false);
+    argList['favorites'] = getArgEntry('f', null, 'Print the list of your favorites', false);
+    argList['favorites-full'] = getArgEntry('F', null, 'Print the list of your favorites and their tasks', false);
     argList['percentages'] = getArgEntry('w', null, 'Print percentages of time logged', 'week');
     argList['get'] = getArgEntry('g', null, 'Print a peice of data', 'time-worked');
 
@@ -315,6 +316,10 @@ try {
 
             if (argList['favorites'].provided) {
                 functions.listFavorites();
+            }
+
+            if (argList['favorites-full'].provided) {
+                functions.listFavorites(true);
             }
 
             if (argList['interactive'].provided) {

@@ -318,17 +318,23 @@ const stopTimer = (id) => {
     }
 };
 
-const listFavorites = () => {
-    const {favorites} = userData.get();
-    const longest = Object.keys(favorites)
-        .reduce((a, b) => Math.max(a, b.length), 0);
+const listFavorites = (verbose) => {
 
-    Object.keys(favorites).forEach(name => {
-        const taskId = favorites[name];
-        const task = teamwork.getTask(taskId);
-        const padding = name.length < longest ? ' '.repeat(longest - name.length) : '';
-        console.log(`${name}: ${padding + taskId} - ${task['project-name']} / ${task['todo-list-name']} / ${task.content}`);
-    });
+    const {favorites} = userData.get();
+
+    if (!verbose) {
+        console.log(Object.keys(favorites).join('\n'));
+    } else {
+        const longest = Object.keys(favorites)
+            .reduce((a, b) => Math.max(a, b.length), 0);
+
+        Object.keys(favorites).forEach(name => {
+            const taskId = favorites[name];
+            const task = teamwork.getTask(taskId);
+            const padding = name.length < longest ? ' '.repeat(longest - name.length) : '';
+            console.log(`${name}: ${padding + taskId} - ${task['project-name']} / ${task['todo-list-name']} / ${task.content}`);
+        });
+    }
 };
 
 const parseDateYYYYMMDD = (str) => {
