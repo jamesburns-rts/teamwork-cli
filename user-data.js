@@ -1,5 +1,3 @@
-const dateFormat = require('dateformat');
-//const yaml = require('js-yaml');
 const fs = require('fs');
 
 /************************************************************************************
@@ -17,30 +15,30 @@ let data;
 
 const getFileName = () => {
     return USER_DATA_FILE;
-}
+};
 
 const checkData = () => {
-  if (!data) {
-    data = {};
-  }
-  if (!data.teamwork) {
-    data.teamwork = {};
-  } 
-  if (!data.timers) {
-    data.timers = {};
-  } else {
-      Object.keys(data.timers).forEach(key => {
-          const timer = data.timers[key];
-          timer.started = new Date(timer.started);
-      });
-  }
-  if (!data.favorites) {
-    data.favorites = {};
-  }
-  if (data.arrived) {
-      data.arrived = new Date(data.arrived);
-  }
-}
+    if (!data) {
+        data = {};
+    }
+    if (!data.teamwork) {
+        data.teamwork = {};
+    }
+    if (!data.timers) {
+        data.timers = {};
+    } else {
+        Object.keys(data.timers).forEach(key => {
+            const timer = data.timers[key];
+            timer.started = new Date(timer.started);
+        });
+    }
+    if (!data.favorites) {
+        data.favorites = {};
+    }
+    if (data.arrived) {
+        data.arrived = new Date(data.arrived);
+    }
+};
 
 const get = () => {
 
@@ -57,10 +55,10 @@ const get = () => {
     } catch (e) {
         console.log(e);
     }
-    
+
     checkData();
     return data;
-}
+};
 
 const save = () => {
     try {
@@ -69,10 +67,10 @@ const save = () => {
     } catch (e) {
         console.log(e);
     }
-}
+};
 
 module.exports = {
     getFileName,
     get,
     save
-}
+};

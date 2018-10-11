@@ -13,7 +13,7 @@ let USER_ID;
 const init = () => {
 
     const persistedData = userData.get();
-    let { key, url, userId } = persistedData.teamwork;
+    let {key, url, userId} = persistedData.teamwork;
 
     if (typeof key !== 'string' || key.length === 0) {
         throw "Teamwork key is not defined! Use 'hours --key <key>' to save it."
@@ -30,21 +30,21 @@ const init = () => {
     }
     BASIC_AUTH_TOKEN = new Buffer(key + ":xxx").toString("base64");
     USER_ID = userId;
-}
+};
 
 const getAuthHeader = () => {
-    if (!BASIC_AUTH_TOKEN) { 
+    if (!BASIC_AUTH_TOKEN) {
         init();
     }
-    return "BASIC " + BASIC_AUTH_TOKEN; 
-}
+    return "BASIC " + BASIC_AUTH_TOKEN;
+};
 
 const getTeamworkUrl = () => {
-    if (!TEAMWORK_URL) { 
+    if (!TEAMWORK_URL) {
         init();
     }
-    return TEAMWORK_URL; 
-}
+    return TEAMWORK_URL;
+};
 
 
 /**
@@ -128,7 +128,7 @@ const teamworkDELETE = (endpoint) => {
  */
 const getMe = () => {
     return teamworkGET('/me.json');
-}
+};
 
 /**
  * Get teamwork user id from API key
@@ -140,91 +140,91 @@ const getUserId = () => {
         userData.get().teamwork.userId = USER_ID;
     }
     return USER_ID;
-}
+};
 
 /**
  * Get list of projects for user
  */
 const getProjects = () => {
     return teamworkGET('/projects.json').projects;
-}
+};
 
 /**
  * Get collection of Task lists for the given project
  */
 const getTasklists = (projectId) => {
     return teamworkGET(`/projects/${projectId}/tasklists.json`).tasklists;
-}
+};
 
 /**
  * Get a single Task list
  */
 const getTasklist = (taskListId) => {
     return teamworkGET(`/tasklists/${taskListId}.json`)['todo-list'];
-}
+};
 
 /**
  * Get collection of tasks for the given task list
  */
 const getTasks = (tasklistId) => {
     return teamworkGET(`/tasklists/${tasklistId}/tasks.json`)['todo-items'];
-}
+};
 
 /**
  * Get collection of tasks for the given project
  */
 const getProjectTasks = (projectId) => {
     return teamworkGET(`/projects/${projectId}/tasks.json`)['todo-items'];
-}
+};
 
 /**
  * Get all tasks
  */
 const getAllTasks = () => {
     return teamworkGET(`/tasks.json`)['todo-items'];
-}
+};
 
 /**
  * Get collection of tasks for the given task list
  */
 const getTask = (taskId) => {
     return teamworkGET(`/tasks/${taskId}.json`)['todo-item'];
-}
+};
 
 /**
  * Get collection of time entries
  */
 const getAllEntries = () => {
     const userId = getUserId();
-    let entries = []
+    let entries = [];
     let page = 1;
     let lastSize = 500;
     while (lastSize === 500) {
         console.log('requesting page ' + page + ' last size: ' + lastSize);
-        const result = teamworkGET(`/time_entries.json?pageSize=500&page=${page}`)['time-entries']
+        const result = teamworkGET(`/time_entries.json?pageSize=500&page=${page}`)['time-entries'];
         lastSize = result.length;
         page += 1;
         entries = entries.concat(result);
     }
     return entries.filter(entry => entry['person-id'] === userId);
-}
+};
 
 /**
  * Get collection of time entries for the given project
  */
 const getProjectEntries = (projectId) => {
     const userId = getUserId();
-    let entries = []
+    let entries = [];
     let page = 1;
     let lastSize = 500;
     while (lastSize === 500) {
-        const result = teamworkGET(`/projects/${projectId}/time_entries.json?pageSize=500&page=${page}`)['time-entries']
+        const result = teamworkGET(`/projects/${projectId}/time_entries.json?pageSize=500&page=${page}`)['time-entries'];
         lastSize = result.length;
         page += 1;
         entries = entries.concat(result);
     }
     return entries.filter(entry => entry['person-id'] === userId);
-}
+};
 
 /**
  * Get collection of time entries for the given task list
@@ -235,7 +235,7 @@ const getTaskListEntries = (taskListId) => {
         entryList = entryList.concat(getTaskEntries(task.id));
     });
     return entryList;
-}
+};
 
 /**
  * Get collection of time entries for the given task
@@ -244,7 +244,7 @@ const getTaskEntries = (taskId) => {
     const userId = getUserId();
     return teamworkGET(`/todo_items/${taskId}/time_entries.json`)['time-entries']
         .filter(entry => entry['person-id'] === userId);
-}
+};
 
 /**
  * Add a task to the tasklist
@@ -265,8 +265,10 @@ const getTaskEntries = (taskId) => {
  */
 const addTask = (tasklistId, newTask) => {
 
-    const { content, description, parentTaskId, progress, priority, predecessors, positionAfterTask, tags,
-        estimatedMinutes, owner, startDate, dueDate } = newTask;
+    const {
+        content, description, parentTaskId, progress, priority, predecessors, positionAfterTask, tags,
+        estimatedMinutes, owner, startDate, dueDate
+    } = newTask;
 
     const todoItem = {
         "todo-item": {
@@ -283,15 +285,15 @@ const addTask = (tasklistId, newTask) => {
             positionAfterTask,
             tags
         }
-    }
+    };
 
 
     console.log(newTask);
     return teamworkPOST(`/tasklists/${tasklistId}/tasks.json`, todoItem);
-}
+};
 
 /**
- * Edit a task 
+ * Edit a task
  *
  * @param taskId ID of task to edit
  * @param task.content Name of task - required
@@ -309,8 +311,10 @@ const addTask = (tasklistId, newTask) => {
  */
 const editTask = (taskId, task) => {
 
-    const { content, description, parentTaskId, progress, priority, predecessors, positionAfterTask, tags,
-        estimatedMinutes, owner, startDate, dueDate } = task;
+    const {
+        content, description, parentTaskId, progress, priority, predecessors, positionAfterTask, tags,
+        estimatedMinutes, owner, startDate, dueDate
+    } = task;
 
     const todoItem = {
         "todo-item": {
@@ -327,25 +331,25 @@ const editTask = (taskId, task) => {
             positionAfterTask,
             tags
         }
-    }
+    };
 
     console.log(task);
     return teamworkPUT(`/tasks/${taskId}.json`, todoItem);
-}
+};
 
 /**
  * Deletes the task
  */
 const deleteTask = (taskId) => {
     teamworkDELETE(`/tasks/${taskId}.json`);
-}
+};
 
 /**
  * Deletes the time entry
  */
 const deleteTimeEntry = (entryId) => {
     teamworkDELETE(`/time_entries/${entryId}.json`);
-}
+};
 
 /**
  * Get user's time entries between the given dates
@@ -353,11 +357,11 @@ const deleteTimeEntry = (entryId) => {
 const getTimeEntries = (fromDate, toDate) => {
     const userId = getUserId();
 
-    const args = { userId, fromDate, toDate };
-    const argStr = Object.keys(args).filter(k => args[k]).map(k => k + '=' + args[k]).join('&')
+    const args = {userId, fromDate, toDate};
+    const argStr = Object.keys(args).filter(k => args[k]).map(k => k + '=' + args[k]).join('&');
 
     return teamworkGET('/time_entries.json?' + argStr)['time-entries'];
-}
+};
 
 /**
  * Search for tasks using given searchTerm
@@ -373,13 +377,13 @@ const searchForTask = (searchTerm, projectId, taskListId) => {
     }
 
     let results = teamworkGET('/search.json?pageSize=100&searchFor=tasks&' + args).searchResult.tasks;
-    
+
     if (taskListId) {
         results = results.filter(r => r.taskListId === taskListId);
     }
 
     return results;
-}
+};
 
 /**
  * Get the total time spent on a project
@@ -387,7 +391,7 @@ const searchForTask = (searchTerm, projectId, taskListId) => {
  */
 const getProjectTime = (projectId) => {
     return getTimeFrom(teamworkGET(`/projects/${projectId}/time/total.json`).projects[0]);
-}
+};
 
 /**
  * Get the total time spent on a task list
@@ -395,7 +399,7 @@ const getProjectTime = (projectId) => {
  */
 const getTaskListTime = (taskListId) => {
     return getTimeFrom(teamworkGET(`/tasklists/${taskListId}/time/total.json`).projects[0].tasklist);
-}
+};
 
 /**
  * Get the total time spent on a task
@@ -403,16 +407,16 @@ const getTaskListTime = (taskListId) => {
  */
 const getTaskTime = (taskId) => {
     return getTimeFrom(teamworkGET(`/tasks/${taskId}/time/total.json`).projects[0].tasklist.task);
-}
+};
 
 const getTimeFrom = (response) => {
     // maybe extend to return object
     return response['time-totals']['total-hours-sum'];
-}
+};
 
 const getTimeEntry = (entryId) => {
     return teamworkGET(`/time_entries/${entryId}.json`)['time-entry'];
-}
+};
 
 const prettyJson = (json) => {
     if (json) {
@@ -420,7 +424,7 @@ const prettyJson = (json) => {
     } else {
         console.log('undefined');
     }
-}
+};
 
 /**
  * Send a time entry to log
@@ -438,11 +442,11 @@ const sendTimeEntry = (entry) => {
 
     const timeEntry = {
         'time-entry': {
-            taskId: entry.taskId, 
-            description: entry.description, 
-            date: entry.date, 
-            hours: entry.hours, 
-            minutes: entry.minutes, 
+            taskId: entry.taskId,
+            description: entry.description,
+            date: entry.date,
+            hours: entry.hours,
+            minutes: entry.minutes,
             isbillable: entry.isbillable,
             'person-id': getUserId(),
             time: entry.time,
@@ -452,34 +456,34 @@ const sendTimeEntry = (entry) => {
 
     prettyJson(timeEntry);
     return teamworkPOST(`/tasks/${entry.taskId}/time_entries.json`, timeEntry);
-}
+};
 
 const updateTimeEntry = (entry) => {
 
     const timeEntry = {
         'time-entry': {
-            description: entry.description, 
-            date: entry.date, 
-            hours: entry.hours, 
-            minutes: entry.minutes, 
+            description: entry.description,
+            date: entry.date,
+            hours: entry.hours,
+            minutes: entry.minutes,
             isbillable: entry.isbillable
         }
     };
 
     return teamworkPUT(`/time_entries/${entry.id}.json`, timeEntry);
-}
+};
 
 const getProjectNotebooks = (projectId) => {
     return teamworkGET(`/projects/${projectId}/notebooks.json`).project.notebooks;
-}
+};
 
 const getAllNotebooks = () => {
     return teamworkGET(`/notebooks.json`).projects;
-}
+};
 
 const getNotebook = (notebookId) => {
     return teamworkGET(`/notebooks/${notebookId}.json`).notebook;
-}
+};
 
 module.exports = {
     teamworkGET,
@@ -514,4 +518,4 @@ module.exports = {
     getProjectNotebooks,
     getAllNotebooks,
     getNotebook,
-}
+};

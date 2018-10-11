@@ -9,7 +9,7 @@ const dateFormat = require('dateformat');
 const functions = require('./common-functions.js');
 const userData = require('./user-data.js');
 const teamwork = require('./teamwork.js');
-const { interactiveMode, logTimeInteractive, usage } = require('./interactive-mode.js');
+const {interactiveMode, logTimeInteractive, usage} = require('./interactive-mode.js');
 
 
 /**
@@ -24,34 +24,34 @@ const parseProgramArguments = (args) => {
 
     // creates an object for the arglist object
     const getArgEntry = (letter, argument, description, defaultValue) => {
-        return { letter, argument, description, "provided":false, "value":defaultValue };
-    }
+        return {letter, argument, description, "provided": false, "value": defaultValue};
+    };
 
     // help
-    argList['help'] = getArgEntry('h',null,'Print this help Screen', false);
-    argList['version'] = getArgEntry('v',null,'Print version info', false);
+    argList['help'] = getArgEntry('h', null, 'Print this help Screen', false);
+    argList['version'] = getArgEntry('v', null, 'Print version info', false);
 
     // interactive
-    argList['interactive'] = getArgEntry('i','[path]','Enter interactive mode. Optionally add path to start in.', '.');
+    argList['interactive'] = getArgEntry('i', '[path]', 'Enter interactive mode. Optionally add path to start in.', '.');
 
     // lists of info
-    argList['time-logged'] = getArgEntry('l',null,'Print time logged', false);
-    argList['tasks'] = getArgEntry('p',null,'Print a list of previous entered tasks for the year', '');
-    argList['entries'] = getArgEntry('q',null,'Print entries of today or date specified', dateFormat(new Date(), "yyyymmdd"));
-    argList['since'] = getArgEntry('Q',null,'Print entries since date specified', 'week');
-    argList['favorites'] = getArgEntry('f',null,'Print the list of your favorites (saved in interactive mod)', false);
-    argList['percentages'] = getArgEntry('w',null,'Print percentages of time logged', 'week');
-    argList['get'] = getArgEntry('g',null,'Print a peice of data', 'time-worked');
+    argList['time-logged'] = getArgEntry('l', null, 'Print time logged', false);
+    argList['tasks'] = getArgEntry('p', null, 'Print a list of previous entered tasks for the year', '');
+    argList['entries'] = getArgEntry('q', null, 'Print entries of today or date specified', dateFormat(new Date(), "yyyymmdd"));
+    argList['since'] = getArgEntry('Q', null, 'Print entries since date specified', 'week');
+    argList['favorites'] = getArgEntry('f', null, 'Print the list of your favorites (saved in interactive mod)', false);
+    argList['percentages'] = getArgEntry('w', null, 'Print percentages of time logged', 'week');
+    argList['get'] = getArgEntry('g', null, 'Print a peice of data', 'time-worked');
 
     // time logging
-    argList['interactive-entry'] = getArgEntry('E','[taskId]' ,'Enter time through questions for specified task', '');
-    argList['entry'] = getArgEntry('e',null,'Enter time with below options', false);
-    argList['billable'] = getArgEntry('b','[0/1]','If billable time (default 1)', true);
-    argList['hours'] = getArgEntry('H','[hours]','Set hours to log (default 0)', 0);
-    argList['minutes'] = getArgEntry('M','[minutes]','Set minutes to log (default 0)', 0);
-    argList['date'] = getArgEntry('d','[yyyymmdd]','Set date to log for (default today)', dateFormat(new Date(), "yyyymmdd"));
-    argList['description'] = getArgEntry('m','[message]','Set description to log (default empty)', '');
-    argList['task'] = getArgEntry('t','[taskId]','Set the taskId to log to (see --tasks)', '');
+    argList['interactive-entry'] = getArgEntry('E', '[taskId]', 'Enter time through questions for specified task', '');
+    argList['entry'] = getArgEntry('e', null, 'Enter time with below options', false);
+    argList['billable'] = getArgEntry('b', '[0/1]', 'If billable time (default 1)', true);
+    argList['hours'] = getArgEntry('H', '[hours]', 'Set hours to log (default 0)', 0);
+    argList['minutes'] = getArgEntry('M', '[minutes]', 'Set minutes to log (default 0)', 0);
+    argList['date'] = getArgEntry('d', '[yyyymmdd]', 'Set date to log for (default today)', dateFormat(new Date(), "yyyymmdd"));
+    argList['description'] = getArgEntry('m', '[message]', 'Set description to log (default empty)', '');
+    argList['task'] = getArgEntry('t', '[taskId]', 'Set the taskId to log to (see --tasks)', '');
     argList['start-time'] = getArgEntry('T', '[HH:MM]', 'Set the start time to log (default 09:00)', '09:00');
     argList['move'] = getArgEntry('c', '[EntryId]', 'Move the time entry to the task specified by --task', null);
 
@@ -63,15 +63,15 @@ const parseProgramArguments = (args) => {
     argList['startstop'] = getArgEntry('S', '[timer]', 'Start or stop a timer', '');
 
     if (args !== undefined) {
-        Object.keys(argList).forEach( key => {
+        Object.keys(argList).forEach(key => {
 
             const index = Math.max(args.indexOf(`-${argList[key].letter}`), args.indexOf(`--${key}`));
 
             if (index > -1) {
                 if (args.length > index) {
                     argList[key].provided = true;
-                    if (args.length > index + 1 && !args[index+1].startsWith('-')) {
-                        argList[key].value = args[index+1];
+                    if (args.length > index + 1 && !args[index + 1].startsWith('-')) {
+                        argList[key].value = args[index + 1];
                     }
                 }
             }
@@ -79,14 +79,14 @@ const parseProgramArguments = (args) => {
     }
 
     return argList;
-}
+};
 
 /**
  * Prints Version of program
  */
 const printVersionInfo = () => {
     console.log(`hours ${versionNo}\n`);
-}
+};
 
 /**
  * Print Usage for the utility
@@ -98,14 +98,15 @@ const printUsage = () => {
     const argList = parseProgramArguments();
 
     console.log('OPTIONS');
-    Object.keys(argList).forEach( key => {
+    Object.keys(argList).forEach(key => {
 
-        const letter = argList[key].letter;
-        const description = argList[key].description;
-        const optArg = argList[key].argument == null ? "" : argList[key].argument;
+            const letter = argList[key].letter;
+            const description = argList[key].description;
+            const optArg = argList[key].argument == null ? "" : argList[key].argument;
 
-        // Print option, key, description
-        console.log('\n\t' + `-${letter}, --${key} ${optArg}` + '\n\t' + description)}
+            // Print option, key, description
+            console.log('\n\t' + `-${letter}, --${key} ${optArg}` + '\n\t' + description)
+        }
     );
 
     console.log('\nEXAMPLES');
@@ -118,23 +119,23 @@ const printUsage = () => {
         `
     );
 
-    console.log('\nINTERACTIVE MODE\n')
+    console.log('\nINTERACTIVE MODE\n');
     usage();
-}
+};
 
 const persistKey = (key) => {
     if (typeof key === 'string' && key.length > 0) {
         userData.get().teamwork.key = key;
         userData.save();
     }
-}
+};
 
 const persistUrl = (url) => {
     if (typeof url === 'string' && url.length > 0) {
         userData.get().teamwork.url = url;
         userData.save();
     }
-}
+};
 
 const persistStartTime = (time) => {
 
@@ -151,7 +152,7 @@ const persistStartTime = (time) => {
     }
     console.log('Marking that you arrived at ' + data.arrived);
     userData.save();
-}
+};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // "Main"
@@ -201,13 +202,13 @@ try {
                             console.log(`Timer ${id} stopped at ${length}.`);
                         } else {
                             functions.startTimer(id);
-                            const { started } = userData.get().timers[id];
+                            const {started} = userData.get().timers[id];
                             const length = functions.getDurationString(timer.duration);
                             console.log(`Timer ${id} resumed from ${length} at ${started}.`);
                         }
                     } else {
                         functions.startTimer(id);
-                        const { started } = userData.get().timers[id];
+                        const {started} = userData.get().timers[id];
                         console.log(`Recorded start time for ${id} as ${started}.`);
                     }
                 } else {
@@ -244,7 +245,7 @@ try {
 
                 if (!wasRunning && id && id.length > 0) {
                     functions.startTimer(id);
-                    const { started, duration } = userData.get().timers[id];
+                    const {started, duration} = userData.get().timers[id];
                     if (duration > 0) {
                         const tlength = functions.getDurationString(duration);
                         console.log(`Timer ${id} resumed from ${tlength} at ${started}.`);
@@ -323,6 +324,6 @@ try {
     }
 
     userData.save(data);
-} catch(e) {
+} catch (e) {
     console.log(e);
 }

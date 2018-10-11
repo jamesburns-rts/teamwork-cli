@@ -9,12 +9,12 @@ const functions = require('./common-functions.js');
  * Interactive Mode
  ************************************************************************************/
 
-const EXIT_COMMANDS = [ 'exit', 'quit', 'q', ':q', ':wq', 'leave' ];
+const EXIT_COMMANDS = ['exit', 'quit', 'q', ':q', ':wq', 'leave'];
 const DELIM = '/';
 
-Array.prototype.contains = function ( item ) {
+Array.prototype.contains = function (item) {
     return this.find(i => i === item) !== undefined;
-}
+};
 
 const prettyJson = (json) => {
     if (json) {
@@ -22,7 +22,7 @@ const prettyJson = (json) => {
     } else {
         console.log('undefined');
     }
-}
+};
 
 const state = {
     data: {
@@ -40,19 +40,19 @@ const state = {
 };
 
 const projectName = (projectId) => {
-    const { projects } = state.data;
+    const {projects} = state.data;
     const matches = projects.filter(proj => proj.id === projectId);
     return matches.length > 0 ? matches[0].name : '';
-}
+};
 
 const taskListName = (tasklistId) => {
-    const { tasklists } = state.data;
+    const {tasklists} = state.data;
     const matches = tasklists.filter(tasklist => tasklist.id === tasklistId);
     return matches.length > 0 ? matches[0].name : teamwork.getTasklist(tasklistId).name;
-}
+};
 
 /**
- * Utility function to prompt the user for a value 
+ * Utility function to prompt the user for a value
  * If no default value: '_prompt_: ', else '_prompt_[_defaultValue_]: '
  *
  * @param prompt Text to present to the user
@@ -66,7 +66,7 @@ const ask = (prompt, defaultValue) => {
     } else {
         return readline.question(prompt + ': ');
     }
-}
+};
 
 /**
  * Refreshes prompt stored in state based on selected items
@@ -75,46 +75,54 @@ const ask = (prompt, defaultValue) => {
  */
 const getPromptText = () => {
 
-    const { project, tasklist, task, timeEntry } = state.selected;
+    const {project, tasklist, task, timeEntry} = state.selected;
 
-    let prompt = '\nteamwork'
+    let prompt = '\nteamwork';
 
     if (project) {
-        prompt = prompt +  DELIM + project.name;
+        prompt = prompt + DELIM + project.name;
 
         if (tasklist) {
-            prompt = prompt +  DELIM + tasklist.name;
+            prompt = prompt + DELIM + tasklist.name;
 
             if (task) {
-                prompt = prompt +  DELIM + task.content;
+                prompt = prompt + DELIM + task.content;
 
                 if (timeEntry) {
-                    prompt = prompt +  DELIM + timeEntry.description;
+                    prompt = prompt + DELIM + timeEntry.description;
                 }
             }
-        } 
-    } 
+        }
+    }
     return '\x1b[1m' + prompt + ' > \x1b[0m';
-}
+};
 
 /**
  * Utility function that gets the current directory level of the state (project, task, etc.)
  */
 const getDirLevel = () => {
-    const { project, tasklist, task, timeEntry } = state.selected;
-    if (timeEntry) { return 'timeEntry'; }
-    if (task) { return 'task'; }
-    if (tasklist) { return 'tasklist'; }
-    if (project) { return 'project'; }
+    const {project, tasklist, task, timeEntry} = state.selected;
+    if (timeEntry) {
+        return 'timeEntry';
+    }
+    if (task) {
+        return 'task';
+    }
+    if (tasklist) {
+        return 'tasklist';
+    }
+    if (project) {
+        return 'project';
+    }
     return 'top';
-}
+};
 
 /**
  * Utility function that gets the current directory
  */
 const getCurrentDir = () => {
 
-    const { selected } = state;
+    const {selected} = state;
     let dir = DELIM;
 
     if (selected.project) {
@@ -130,10 +138,10 @@ const getCurrentDir = () => {
                     dir = dir + DELIM + selected.timeEntry.id;
                 }
             }
-        } 
+        }
     }
     return dir;
-}
+};
 
 /**
  * Lists the current contents of the 'directory' (tasks in tasklist, etc)
@@ -142,7 +150,7 @@ const getCurrentDir = () => {
  */
 const ls = (args) => {
 
-    const { data, selected } = state;
+    const {data, selected} = state;
 
     const differentDir = args.length > 1;
     let originalDir = '.';
@@ -160,30 +168,30 @@ const ls = (args) => {
     if (!selected.project) {
 
         console.log('\nProjects:');
-        data.projects.forEach((p,idx) => console.log(`${idx}) ${p.id}: ${p.name}`));
+        data.projects.forEach((p, idx) => console.log(`${idx}) ${p.id}: ${p.name}`));
 
     } else if (!selected.tasklist) {
 
         console.log('\nTask Lists:');
-        data.tasklists.forEach((t,idx) => console.log(`${idx}) ${t.id}: ${t.name}`));
+        data.tasklists.forEach((t, idx) => console.log(`${idx}) ${t.id}: ${t.name}`));
 
     } else if (!selected.task) {
 
         console.log('\nTasks:');
-        data.tasks.forEach((t,idx) => console.log(`${idx}) ${t.id}: ${t.content}`));
+        data.tasks.forEach((t, idx) => console.log(`${idx}) ${t.id}: ${t.content}`));
     } else if (!selected.timeEntry) {
 
         console.log('\nTime Entires:');
-        data.timeEntries.forEach((t,idx) => console.log(`${idx}) ${t.id}: ${dateFormat(new Date(t.date), 'mm/dd/yyyy')} ${t.hours}h ${t.minutes}m - ${t.description}`));
-    } 
+        data.timeEntries.forEach((t, idx) => console.log(`${idx}) ${t.id}: ${dateFormat(new Date(t.date), 'mm/dd/yyyy')} ${t.hours}h ${t.minutes}m - ${t.description}`));
+    }
 
     if (differentDir) {
         cd(['cd', originalDir]);
     }
-}
+};
 
 const findEmpty = () => {
-    const { selected } = state;
+    const {selected} = state;
 
     let entryList = [];
 
@@ -196,28 +204,28 @@ const findEmpty = () => {
     } else if (!selected.timeEntry) {
         entryList = teamwork.getTaskEntries(selected.task.id);
 
-    } 
+    }
 
     entryList.filter(l => !l.description || /^\s*$/.test(l.description))
-    .forEach(entry => {
-        const project = entry['project-id'];
-        const taskList = entry.tasklistId;
-        const task = entry['todo-item-id'];
-        const id = entry.id;
-        const taskName = entry['todo-item-name'];
-        const date = dateFormat(new Date(entry.date), "mm/dd/yyyy");
-        console.log(`${project}/${taskList}/${task}/${id}: "${taskName}" on ${date}`);
-    });
-}
+        .forEach(entry => {
+            const project = entry['project-id'];
+            const taskList = entry.tasklistId;
+            const task = entry['todo-item-id'];
+            const id = entry.id;
+            const taskName = entry['todo-item-name'];
+            const date = dateFormat(new Date(entry.date), "mm/dd/yyyy");
+            console.log(`${project}/${taskList}/${task}/${id}: "${taskName}" on ${date}`);
+        });
+};
 
 const favorite = (args) => {
 
     if (!args || args.length < 2) {
-      console.log('At least one argument required')
-      return;
+        console.log('At least one argument required');
+        return;
     }
 
-    const { selected } = state;
+    const {selected} = state;
     const differentDir = args.length > 2;
     let originalDir = '.';
     let name;
@@ -244,20 +252,20 @@ const favorite = (args) => {
     if (differentDir) {
         cd(['cd', originalDir]);
     }
-}
+};
 
 const search = (args) => {
     if (!args || args.length < 2) {
-      console.log('At least one argument required')
-      return;
+        console.log('At least one argument required');
+        return;
     }
 
-    if (args.length == 2 && args[1] == '-e') {
+    if (args.length === 2 && args[1] === '-e') {
         findEmpty();
         return;
     }
 
-    const { project, tasklist } = state.selected;
+    const {project, tasklist} = state.selected;
     const searchTerm = args.slice(1).join(' ');
     const projectId = project ? project.id : null;
     const tasklistId = tasklist ? tasklist.id : null;
@@ -287,7 +295,7 @@ const search = (args) => {
             console.log('unsupported');
             return;
     }
-}
+};
 
 const sumTime = (args) => {
 
@@ -322,7 +330,7 @@ const sumTime = (args) => {
     }
 
     console.log(`Total time: ${total} hours`);
-}
+};
 
 const getTotalTime = (args, curDirFunc, subDirFunc) => {
     if (!args || args.length < 1) {
@@ -341,25 +349,25 @@ const getTotalTime = (args, curDirFunc, subDirFunc) => {
     }
 
     return total;
-}
+};
 
 const getTimeEntryTime = (arg) => {
     const item = findDirItem(state.data.timeEntries, arg);
     let total = 0;
     if (item) {
-        const { hours, minutes } = item;
+        const {hours, minutes} = item;
         if (hours) {
             total += Number(hours);
         }
         if (minutes) {
             total += Number(minutes) / 60;
         }
-    } 
+    }
     return total;
-}
+};
 
 /**
- * Utility function that finds an item in the list given the argument. 
+ * Utility function that finds an item in the list given the argument.
  * First by array index, then by id, then by... ?
  *
  * @param list List to search through
@@ -379,11 +387,11 @@ const findDirItem = (list, arg) => {
         // find it somehow by name?
     }
     return undefined;
-}
+};
 
 const findCurrentDirItem = (arg) => {
 
-    const { projects, tasklists, tasks, timeEntries } = state.data;
+    const {projects, tasklists, tasks, timeEntries} = state.data;
 
     switch (getDirLevel()) {
         case 'top':
@@ -398,11 +406,11 @@ const findCurrentDirItem = (arg) => {
             console.log('unsupported');
             return;
     }
-}
+};
 
 const getSelected = () => {
 
-    const { project, tasklist, task, timeEntry } = state.selected;
+    const {project, tasklist, task, timeEntry} = state.selected;
 
     switch (getDirLevel()) {
         case 'top':
@@ -419,11 +427,11 @@ const getSelected = () => {
             console.log('unsupported');
             return;
     }
-}
+};
 
 /**
  * Changes 'directory' of terminal
- * 
+ *
  * @param state Current state of the terminal
  * @param args Array of arguments with first being the command
  */
@@ -448,7 +456,7 @@ const cd = (args) => {
             path = path.substr(0, path.length - 1);
         }
 
-        const { selected, data } = state;
+        const {selected, data} = state;
 
         // is a favorite
         if (path.indexOf('/') < 0 && isNaN(path)) {
@@ -457,11 +465,11 @@ const cd = (args) => {
                 const tmTask = teamwork.getTask(taskId);
                 const projectId = tmTask['project-id'];
                 const taskListId = tmTask['todo-list-id'];
-                const p =`/${projectId}/${taskListId}/${taskId}`;
+                const p = `/${projectId}/${taskListId}/${taskId}`;
                 cd(['cd', p]);
                 return;
             }
-        } 
+        }
 
         path.split(DELIM).forEach(a => {
 
@@ -516,7 +524,7 @@ const cd = (args) => {
 
     userData.get().currentDir = getCurrentDir();
     userData.save();
-}
+};
 
 /**
  * Wrapper around 'cd' that allows going back
@@ -530,25 +538,25 @@ const reversableCd = (args) => {
     lastDir = getCurrentDir();
 
     cd(cdArgs);
-}
+};
 
 const logTimeInteractive = (task) => {
 
-    const defaults = { 
+    const defaults = {
         description: '',
-        hours: 8, 
+        hours: 8,
         minutes: 0,
         date: dateFormat(new Date(), "yyyymmdd"),
         isbillable: 1
-    }
+    };
 
     // check for a timer - hours/minutes
     const timer = userData.get().timers[task];
     if (timer) {
-        const timerLength = Math.floor((timer.duration)/1000/60);
-        defaults.hours = Math.floor(timerLength/60);
+        const timerLength = Math.floor((timer.duration) / 1000 / 60);
+        defaults.hours = Math.floor(timerLength / 60);
         defaults.minutes = timerLength % 60;
-    } 
+    }
 
     // check if billable
     const taskId = isNaN(task) ? userData.get().favorites[task] : task;
@@ -563,15 +571,15 @@ const logTimeInteractive = (task) => {
     const isbillable = ask('Is Billable', defaults.isbillable);
 
     // send time entry
-    return functions.sendTimeEntry({ taskId, description, date, hours, minutes, isbillable });
-}
+    return functions.sendTimeEntry({taskId, description, date, hours, minutes, isbillable});
+};
 
 /**
  * Overrides the terminal to create an time entry
  */
 const logTime = (args) => {
 
-    switch(getDirLevel()) {
+    switch (getDirLevel()) {
         case "task":
             logTimeInteractive(state.selected.task.id);
             cd(['cd', '.']);
@@ -581,7 +589,7 @@ const logTime = (args) => {
             console.log('not supported');
             break;
     }
-}
+};
 
 /**
  * updates a time entry
@@ -593,7 +601,7 @@ const editItem = (args) => {
 
     const hasArg = args && args.length > 1;
 
-    switch(getDirLevel()) {
+    switch (getDirLevel()) {
         case "timeEntry":
             entry = state.selected.timeEntry;
             break;
@@ -647,17 +655,17 @@ const editItem = (args) => {
         console.log('item not found');
         return;
     }
-}
+};
 
 /**
  * moves a time entry
  */
 const moveTimeEntry = (args) => {
 
-    let entry, task;
+    let entry, taskId;
 
 
-    switch(getDirLevel()) {
+    switch (getDirLevel()) {
         case "task":
 
             if (!args || args.length < 3) {
@@ -680,7 +688,7 @@ const moveTimeEntry = (args) => {
 
     functions.moveTimeEntry(entry, taskId);
     cd(['cd', '.']);
-}
+};
 
 const parseTimeEstimate = (str) => {
     if (str.length === 0) {
@@ -708,8 +716,8 @@ const parseTimeEstimate = (str) => {
             minutes = Number(res[1]);
         }
     }
-    return minutes + (hours + (days + weeks*5)*8)*60;
-}
+    return minutes + (hours + (days + weeks * 5) * 8) * 60;
+};
 
 const askForTaskInfo = (defaults) => {
 
@@ -718,7 +726,7 @@ const askForTaskInfo = (defaults) => {
     const getDefault = (val) => {
         const v = defaults ? defaults[val] : null;
         return v ? v : '';
-    }
+    };
 
     const content = ask('Title', getDefault('content'));
     if (content) {
@@ -733,14 +741,14 @@ const askForTaskInfo = (defaults) => {
     if (description.length > 0) {
         task.description = description;
     }
-    let parentTaskId = ask('Parent Task', getDefault('parentTaskId')); 
+    let parentTaskId = ask('Parent Task', getDefault('parentTaskId'));
     if (parentTaskId.length > 0) {
         if (isNaN(parentTaskId)) {
             parentTaskId = userData.get().favorites[parentTaskId];
-        } 
+        }
         task.parentTaskId = parentTaskId;
     }
-    const progress = ask('Progress % (0-90)', getDefault('progress')); 
+    const progress = ask('Progress % (0-90)', getDefault('progress'));
     if (progress.length > 0 && !isNaN(progress)) {
         task.progress = Number(progress);
     }
@@ -748,7 +756,7 @@ const askForTaskInfo = (defaults) => {
     if (owner.length > 0) {
         if (owner.toLowerCase() === 'me') {
             owner = teamwork.getUserId();
-        } 
+        }
         task.owner = owner;
     }
     const startDate = ask('Start Date(yyyymmdd)', getDefault('start-date'));
@@ -768,7 +776,7 @@ const askForTaskInfo = (defaults) => {
         task.predecessors = predecessors.split(',')
             .map(p => p.trim())
             .map(p => isNaN(p) ? userData.get().favorites[p] : p)
-            .map(p => { 
+            .map(p => {
                 return {
                     id: p,
                     type: 'complete'
@@ -788,14 +796,14 @@ const askForTaskInfo = (defaults) => {
     }
 
     return task;
-}
-    
+};
+
 /**
  * Add item to the current directory
  */
 const addItem = (args) => {
 
-    switch(getDirLevel()) {
+    switch (getDirLevel()) {
         case "tasklist":
 
             const newTask = askForTaskInfo();
@@ -819,10 +827,10 @@ const addItem = (args) => {
             console.log('not supported');
             break;
     }
-}
+};
 
 const listNotebooks = (args) => {
-    const { selected } = state;
+    const {selected} = state;
 
     if (getDirLevel() === 'top') {
         console.log('unsupported');
@@ -838,13 +846,13 @@ const listNotebooks = (args) => {
             const notebook = teamwork.getNotebook(notebooks[args[1]].id).content;
             console.log(htmlToText.fromString(notebook));
         } else {
-            notebooks.forEach((nb,idx) => {
+            notebooks.forEach((nb, idx) => {
                 console.log(`${idx}) ${nb.id}: ${nb.name}`);
             });
         }
     }
-}
-    
+};
+
 
 /**
  * Print usage
@@ -852,22 +860,22 @@ const listNotebooks = (args) => {
 const usage = (args) => {
 
     console.log('This mode creates a quasi-terminal with a directory structure setup like teamwork. There is a top level "teamwork" directory containing a folder for each project, each project contains tasklists, and each tasklist contains tasks.');
-    
+
     console.log('\nOnce in a task you can log time. You can also create tasks/tasklists.');
 
     commands.forEach(cmd => {
         console.log(`\n    ${cmd.name.toUpperCase()}: ${cmd.aliases.join(', ')}`);
         console.log('    ' + cmd.description);
     });
-}
+};
 
 const printInfo = (args) => {
     if (args && args.length > 1) {
         if (args[1] === 'hours') {
             functions.printTimeLogged();
-        } else if (args[1] === 'logged'){
+        } else if (args[1] === 'logged') {
             functions.printPreviousTasks()
-        } else if (args[1] === 'today'){
+        } else if (args[1] === 'today') {
             functions.printDateEntries(dateFormat(new Date(), 'yyyymmdd'));
         } else if (args.length > 2 && args[1] === 'on') {
             functions.printDateEntries(args[2]);
@@ -875,7 +883,7 @@ const printInfo = (args) => {
     } else {
         functions.printTimeLogged();
     }
-}
+};
 
 const echoItem = (args) => {
 
@@ -889,12 +897,12 @@ const echoItem = (args) => {
     } else {
         prettyJson(state.selected[getDirLevel()]);
     }
-}
+};
 
 const sureDelete = (description) => {
     const confirmation = ask('Are you sure you want to delete "' + description + '" [y/N]? ').toLowerCase();
     return confirmation === 'y' || confirmation === 'yes';
-}
+};
 
 const deleteItem = (args) => {
 
@@ -927,7 +935,7 @@ const deleteItem = (args) => {
             return;
     }
     cd(['cd', '.']);
-}
+};
 
 const copyItem = (args) => {
 
@@ -943,13 +951,13 @@ const copyItem = (args) => {
                 console.log('Entry not found.');
 
             } else {
-                functions.sendTimeEntry({ 
-                    taskId: state.selected.task.id, 
-                    description: entry.description, 
-                    date: dateFormat(new Date(), 'yyyymmdd'), 
-                    hours: entry.hours, 
+                functions.sendTimeEntry({
+                    taskId: state.selected.task.id,
+                    description: entry.description,
+                    date: dateFormat(new Date(), 'yyyymmdd'),
+                    hours: entry.hours,
                     minutes: entry.minutes,
-                    isbillable: entry.isbillable 
+                    isbillable: entry.isbillable
                 });
             }
             break;
@@ -958,132 +966,127 @@ const copyItem = (args) => {
             return;
     }
     cd(['cd', '.']);
-}
+};
 
 const commands = [
     {
         name: 'exit',
         aliases: EXIT_COMMANDS,
-        action: (args) => {},
+        action: (args) => {
+        },
         description: 'Exit interactive mode.'
     },
     {
         name: 'list',
-        aliases: [ 'list', 'ls', 'l', 'll' ],
+        aliases: ['list', 'ls', 'l', 'll'],
         action: ls,
         description: 'List the contents of the item - a projects tasklists for example.'
     },
     {
         name: 'select',
-        aliases: [ 'select', 'sel', 'cd', 'c', ':e', 'enter', 'dir' ],
+        aliases: ['select', 'sel', 'cd', 'c', ':e', 'enter', 'dir'],
         action: reversableCd,
         description: 'Select a project, tasklist, or task - aka change directory.'
     },
     {
         name: 'edit',
-        aliases: [ 'edit' ],
+        aliases: ['edit'],
         action: editItem,
         description: 'Update a time entry'
     },
     {
         name: 'move',
-        aliases: [ 'move', 'mv' ],
+        aliases: ['move', 'mv'],
         action: moveTimeEntry,
         description: 'Move a time entry to another task'
     },
     {
         name: 'help',
-        aliases: [ 'help', 'h', 'pls', 'halp' ],
+        aliases: ['help', 'h', 'pls', 'halp'],
         action: usage,
         description: 'Display this information.'
     },
     {
         name: 'log time',
-        aliases: [ 'log', 'entry', 'record' ],
+        aliases: ['log', 'entry', 'record'],
         action: logTime,
         description: 'Log time while in a given task'
     },
     {
         name: 'create',
-        aliases: [ 'create', 'mkdir', 'touch', 'make', 'add' ],
+        aliases: ['create', 'mkdir', 'touch', 'make', 'add'],
         action: addItem,
         description: 'Create a new item in the entity (new task, tasklist, etc.)'
     },
     {
         name: 'hours',
-        aliases: [ 'hours' ],
-        action: (args) => printInfo(),
-        description: 'Display infromation about time already logged'
-    },
-    {
-        name: 'print info',
-        aliases: [ 'print' ],
+        aliases: ['hours', 'print'],
         action: printInfo,
         description: 'Display infromation about time already logged'
     },
     {
         name: 'path',
-        aliases: [ 'path', 'pwd' ],
-        action: (args) => console.log(getCurrentDir()),
+        aliases: ['path', 'pwd'],
+        action: () => console.log(getCurrentDir()),
         description: 'Display the current path using the Ids.'
     },
     {
         name: 'echo',
-        aliases: [ 'echo', 'cat', 'show', 'display' ],
+        aliases: ['echo', 'cat', 'show', 'display'],
         action: echoItem,
         description: 'Display the json of the item'
     },
     {
         name: 'remove',
-        aliases: [ 'remove', 'rm', 'delete', 'del' ],
+        aliases: ['remove', 'rm', 'delete', 'del'],
         action: deleteItem,
         description: 'Delete the specified item.'
     },
     {
         name: 'copy',
-        aliases: [ 'copy', 'cp', 'duplicate', 'dup' ],
+        aliases: ['copy', 'cp', 'duplicate', 'dup'],
         action: copyItem,
         description: 'Copy the specified item.'
     },
     {
         name: 'today',
-        aliases: [ 'today' ],
-        action: (args) => printInfo(['print', 'today']),
+        aliases: ['today'],
+        action: () => printInfo(['print', 'today']),
         description: 'Show logged today'
     },
     {
         name: 'favorite',
-        aliases: [ 'favorite', 'fav' ],
+        aliases: ['favorite', 'fav'],
         action: favorite,
         description: 'Mark task as favorite: fav [PATH] name'
     },
     {
         name: 'favorites',
-        aliases: [ 'favorites', 'favs', 'faves' ],
+        aliases: ['favorites', 'favs', 'faves'],
         action: functions.listFavorites,
         description: 'List favorites'
     },
     {
         name: 'clear',
-        aliases: [ 'clear', 'cle' ],
+        aliases: ['clear', 'cle'],
         action: () => process.stdout.write('\033c'),
         description: 'Clear screen'
     },
     {
         name: 'search',
-        aliases: [ 'search', '/', '?', 'find' ],
+        aliases: ['search', '/', '?', 'find'],
         action: search,
         description: 'Searches for a task. If -e option is provided, then time entries with empty descriptions are listed.'
     },
     {
         name: 'total',
-        aliases: [ 'total', 'time', 'sum' ],
+        aliases: ['total', 'time', 'sum'],
         action: sumTime,
         description: 'Sums the time spent on an item or items'
     },
     {
         name: 'notebooks',
-        aliases: [ 'notebooks', 'notes', 'nb', 'books' ],
+        aliases: ['notebooks', 'notes', 'nb', 'books'],
         action: listNotebooks,
         description: 'List the notebooks in the current dir'
     },
@@ -1096,7 +1099,7 @@ const commands = [
  */
 const interactiveMode = (startingPath) => {
 
-    const { currentDir } = userData.get();
+    const {currentDir} = userData.get();
 
     if (currentDir) {
         reversableCd(['cd', currentDir]);
@@ -1104,10 +1107,10 @@ const interactiveMode = (startingPath) => {
 
     if (startingPath) {
         reversableCd(['cd', startingPath]);
-    } 
+    }
 
-    while(1) {
-        
+    while (1) {
+
         const answer = readline.question(getPromptText());
         const args = answer.split(' ');
         const cmd = args[0].toLowerCase();
@@ -1119,12 +1122,12 @@ const interactiveMode = (startingPath) => {
 
         if (EXIT_COMMANDS.contains(cmd)) {
             break;
-        } 
+        }
     }
-}
+};
 
 module.exports = {
     interactiveMode,
     logTimeInteractive,
     usage
-}
+};

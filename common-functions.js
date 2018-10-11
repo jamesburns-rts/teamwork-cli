@@ -8,28 +8,28 @@ const userData = require('./user-data.js');
 
 const isToday = (date) => {
     return date && date.getDate() === (new Date()).getDate();
-}
+};
 
 const getDurationString = (milliseconds) => {
-    const minuteDiff = (milliseconds)/1000/60;
-    const hours = Math.floor(minuteDiff/60);
+    const minuteDiff = (milliseconds) / 1000 / 60;
+    const hours = Math.floor(minuteDiff / 60);
     const minutes = Math.floor(minuteDiff) % 60;
     const hourStr = hours > 0 ? `${hours}h ` : '';
     return `${hourStr}${minutes}m`;
-}
+};
 
 const getTimeSinceString = (time) => {
     const now = new Date();
     return getDurationString(now - time);
-}
+};
 
 const getTimeArrivedString = (time) => {
-    if (isToday(time)){
+    if (isToday(time)) {
         return `${dateFormat(time, "H:MM")} (${getTimeSinceString(time)} ago)`;
     } else {
         return 'not set';
     }
-}
+};
 
 const getTimerString = (id, timer) => {
     if (timer.running) {
@@ -38,10 +38,10 @@ const getTimerString = (id, timer) => {
     } else {
         return `Timer: ${id} ran for for ${getDurationString(timer.duration)}`;
     }
-}
+};
 
 // calculates number of work days between two dates
-const workday_count = (start,end) => {
+const workday_count = (start, end) => {
     let count = 0;
     let day = new Date(start);
     let month = day.getMonth();
@@ -52,7 +52,7 @@ const workday_count = (start,end) => {
         day.setDate(day.getDate() + 1);
     }
     return count;
-}
+};
 
 /**
  * Prints the time logged summary for the month
@@ -76,31 +76,31 @@ const printTimeLogged = () => {
     let nonbillable = 0;
     let todayHours = 0;
 
-    timeEntries.map( entry => {
-        const entryDate = new Date(entry.date);
-        if (entryDate.getDate() <= today.getDate()) {
+    timeEntries.map(entry => {
+            const entryDate = new Date(entry.date);
+            if (entryDate.getDate() <= today.getDate()) {
 
-            const entryHours = parseFloat(entry.hours) + (parseFloat(entry.minutes) / 60.0);
+                const entryHours = parseFloat(entry.hours) + (parseFloat(entry.minutes) / 60.0);
 
-            if (entry.isbillable == 0) {
-                nonbillable += entryHours;
-            }
-            else {
-                billable += entryHours;
-            }
+                if (entry.isbillable == 0) {
+                    nonbillable += entryHours;
+                }
+                else {
+                    billable += entryHours;
+                }
 
-            if (entryDate.getDate() == today.getDate()) {
-                todayHours += entryHours;
+                if (entryDate.getDate() == today.getDate()) {
+                    todayHours += entryHours;
+                }
             }
         }
-    }
     );
 
-    const { arrived, timers } = userData.get();
+    const {arrived, timers} = userData.get();
 
     const total = billable + nonbillable + holiday;
-    const nonPercent = Math.round(1000.0*nonbillable/total) / 10.0; 
-    
+    const nonPercent = Math.round(1000.0 * nonbillable / total) / 10.0;
+
     console.log(`\n    Month Required Hours: ${requiredHours + leftInMonth}`);
     console.log(`    Logged Total Hours: ${billable + nonbillable}\n`);
 
@@ -113,20 +113,20 @@ const printTimeLogged = () => {
 
     Object.keys(timers)
         .forEach(id => {
-            if(isToday(timers[id].started)) {
+            if (isToday(timers[id].started)) {
                 console.log('    ' + getTimerString(id, timers[id]));
             } else {
                 delete timers[id];
             }
-        })
+        });
 
     if (total > requiredHours) {
         console.log(`\nYou are ${total - requiredHours} over for today.`);
     }
     else {
-        console.log(`\nYou are ${requiredHours- total } short for today.`);
+        console.log(`\nYou are ${requiredHours - total } short for today.`);
     }
-}
+};
 
 /**
  * Print tasks for the current year
@@ -140,11 +140,11 @@ const printPreviousTasks = () => {
 
     const tasks = teamwork.getTimeEntries(dateStr);
     const descriptions = tasks
-        .sort( (a,b) => (a.date === b.date ? 0 : (a.date > b.date ? 1 : -1)))
-        .map( t => `${t['todo-item-id']}: ${t['project-name']} : ${t['todo-item-name']}`)
+        .sort((a, b) => (a.date === b.date ? 0 : (a.date > b.date ? 1 : -1)))
+        .map(t => `${t['todo-item-id']}: ${t['project-name']} : ${t['todo-item-name']}`);
 
-    new Set(descriptions).forEach( t => console.log(t) );
-}
+    new Set(descriptions).forEach(t => console.log(t));
+};
 
 /**
  * Prints the entries for the given date
@@ -153,21 +153,21 @@ const printDateEntries = (date) => {
 
     const timeEntries = teamwork.getTimeEntries(date, date);
     let total = 0;
-    timeEntries.forEach( t => {
+    timeEntries.forEach(t => {
 
-        const hours = (t.hours*1.0 + t.minutes/60.0);
+        const hours = (t.hours * 1.0 + t.minutes / 60.0);
 
         console.log('\n  ' + t.description);
-        console.log(`    Project: ${t['project-name']}`); 
-        console.log(`    TaskName: ${t['todo-item-name']}`); 
-        console.log(`    TaskId: ${t['todo-item-id']}`); 
-        console.log(`    Billable: ${t.isbillable == 1 ? "Yes" : "No"}`); 
-        console.log(`    Hours: ${hours.toFixed(2)}`); 
+        console.log(`    Project: ${t['project-name']}`);
+        console.log(`    TaskName: ${t['todo-item-name']}`);
+        console.log(`    TaskId: ${t['todo-item-id']}`);
+        console.log(`    Billable: ${t.isbillable == 1 ? "Yes" : "No"}`);
+        console.log(`    Hours: ${hours.toFixed(2)}`);
         total = total + hours;
     });
 
     console.log('  \nTotal: ' + total.toFixed(2));
-}
+};
 
 /**
  * @param data must be n x m array
@@ -188,14 +188,14 @@ const logTable = (data) => {
         });
     });
 
-    data.forEach((row, ridx) => {
+    data.forEach(row => {
         const rowStr = row.reduce((str, col, idx) => {
             const padding = ' '.repeat(lengths[idx] - col.length + 2);
             return str + col + padding;
         }, '');
         console.log(rowStr);
     });
-}
+};
 
 const getSinceDate = (date) => {
     if (!date || date.toLowerCase() === 'week') {
@@ -209,7 +209,7 @@ const getSinceDate = (date) => {
     } else {
         return date;
     }
-}
+};
 
 const printPercentages = (date) => {
 
@@ -228,36 +228,36 @@ const printPercentages = (date) => {
         projects[entry['project-id']] = hours;
     });
 
-    const total = Object.keys(projects).reduce((t,key) => t + projects[key], 0);
+    const total = Object.keys(projects).reduce((t, key) => t + projects[key], 0);
     const twProjects = teamwork.getProjects();
 
     const data = Object.keys(projects).map(proj => {
         const twp = twProjects.find(p => p.id === proj);
 
-        return [twp ? twp.name : proj, projects[proj].toFixed(1) + 'h', (100*projects[proj]/total).toFixed(1) + '%'];
+        return [twp ? twp.name : proj, projects[proj].toFixed(1) + 'h', (100 * projects[proj] / total).toFixed(1) + '%'];
     });
 
 
-    const month = sinceDate.substr(4,2);
-    const day = sinceDate.substr(6,2);
+    const month = sinceDate.substr(4, 2);
+    const day = sinceDate.substr(6, 2);
     console.log(`\nProject totals since ${month}/${day}\n`);
     logTable([
-        ['Project', 'Total', 'Percent'], 
-        ...data, 
+        ['Project', 'Total', 'Percent'],
+        ...data,
         ['Total', total.toFixed(1) + 'h', '100.0%']]);
-}
+};
 
 const moveTimeEntry = (entry, taskId) => {
-    sendTimeEntry({ 
+    sendTimeEntry({
         taskId,
-        description: entry.description, 
-        date: dateFormat(new Date(entry.date), 'yyyymmdd'), 
-        hours: entry.hours, 
+        description: entry.description,
+        date: dateFormat(new Date(entry.date), 'yyyymmdd'),
+        hours: entry.hours,
         minutes: entry.minutes,
-        isbillable: entry.isbillable 
+        isbillable: entry.isbillable
     });
     teamwork.deleteTimeEntry(entry.id);
-}
+};
 
 /**
  * Search for tasks using given searchTerm
@@ -267,7 +267,7 @@ const moveTimeEntry = (entry, taskId) => {
  */
 const searchForTask = (searchTerm, projectId, taskListId) => {
     return teamwork.searchForTask(searchTerm, projectId, taskListId);
-}
+};
 
 /**
  * send time entry request - if taskID is not a number then it checks
@@ -280,7 +280,7 @@ const sendTimeEntry = (entry) => {
     }
 
     return teamwork.sendTimeEntry(entry);
-}
+};
 
 const startTimer = (id) => {
     const timers = userData.get().timers;
@@ -296,7 +296,7 @@ const startTimer = (id) => {
         timer.running = true;
     }
     userData.save();
-}
+};
 
 const stopTimer = (id) => {
     const timers = userData.get().timers;
@@ -307,12 +307,12 @@ const stopTimer = (id) => {
         timer.running = false;
         userData.save();
     }
-}
+};
 
 const listFavorites = () => {
-    const { favorites } = userData.get();
+    const {favorites} = userData.get();
     const longest = Object.keys(favorites)
-        .reduce((a,b) => Math.max(a, b.length), 0);
+        .reduce((a, b) => Math.max(a, b.length), 0);
 
     Object.keys(favorites).forEach(name => {
         const taskId = favorites[name];
@@ -320,7 +320,7 @@ const listFavorites = () => {
         const padding = name.length < longest ? ' '.repeat(longest - name.length) : '';
         console.log(`${name}: ${padding + taskId} - ${task['project-name']} / ${task['todo-list-name']} / ${task.content}`);
     });
-}
+};
 
 const parseDateYYYYMMDD = (str) => {
     if (!str || str.length !== 8) {
@@ -332,7 +332,7 @@ const parseDateYYYYMMDD = (str) => {
     const day = Number(str.substr(6, 2));
 
     return new Date(year, month - 1, day);
-}
+};
 
 const BREAKS = ['break', 'lunch'];
 
@@ -341,7 +341,7 @@ const printItem = (str) => {
         str = 'time-worked';
     }
 
-    const { arrived, timers } = userData.get();
+    const {arrived, timers} = userData.get();
 
     switch (str.toLowerCase()) {
         case 'time-worked':
@@ -355,7 +355,7 @@ const printItem = (str) => {
                             breaks = breaks + timer.duration;
                             if (timer.running) {
                                 breaks = breaks + (new Date() - timer.started);
-                            } 
+                            }
                         });
                 }
                 console.log(getDurationString((new Date() - arrived) - breaks));
@@ -365,18 +365,18 @@ const printItem = (str) => {
             if (timers) {
                 console.log(
                     Object.keys(timers)
-                    .filter(key => timers[key].running)
-                    .map(key => {
-                        const timer = timers[key];
-                        const duration = timer.duration + (new Date() - timer.started);
-                        return `${key}: ${getDurationString(duration)}`;
-                    }).join(', ')
+                        .filter(key => timers[key].running)
+                        .map(key => {
+                            const timer = timers[key];
+                            const duration = timer.duration + (new Date() - timer.started);
+                            return `${key}: ${getDurationString(duration)}`;
+                        }).join(', ')
                 );
             }
             break;
 
     }
-}
+};
 
 module.exports = {
     sendTimeEntry,
@@ -393,4 +393,4 @@ module.exports = {
     parseDateYYYYMMDD,
     printItem,
     searchForTask
-}
+};
