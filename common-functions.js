@@ -312,9 +312,23 @@ const stopTimer = (id) => {
     const timer = timers[id];
     if (timer && timer.running && isToday(timer.started)) {
 
-        timer.duration = timer.duration + (new Date() - timer.started);
+        timer.duration += new Date() - timer.started;
         timer.running = false;
         userData.save();
+    }
+};
+
+const modifyTimer = (id, hours, minutes) => {
+    const timers = userData.get().timers;
+    if (id && timers[id] && (hours !== 0 || minutes !== 0)) {
+        const timer = timers[id];
+        timer.duration += hours * 3600000;
+        timer.duration += minutes * 60000;
+        userData.save();
+        return timer.duration;
+    } else {
+        console.log('Timer ' + id + ' not found');
+        return 0;
     }
 };
 
@@ -386,6 +400,7 @@ module.exports = {
     printPercentages,
     startTimer,
     stopTimer,
+    modifyTimer,
     getDurationString,
     listFavorites,
     getSinceDate,

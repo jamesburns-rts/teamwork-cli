@@ -62,6 +62,9 @@ const parseProgramArguments = (args) => {
     argList['arrived'] = getArgEntry('a', '[HH:MM]', 'Record the time as when you arrived (default to now)', new Date());
     argList['switch'] = getArgEntry('s', '[timer]', 'Switch to a different timer', '');
     argList['startstop'] = getArgEntry('S', '[timer]', 'Start or stop a timer', '');
+    argList['delete-timer'] = getArgEntry('D', '[timer]', 'Delete a timer', '');
+    argList['add-timer'] = getArgEntry('A', '[timer]', 'Along with -H and -M adds time to a timer', '');
+    argList['subtract-timer'] = getArgEntry('x', '[timer]', 'Along with -H and -M subtract from a timer', '');
 
     if (args !== undefined) {
         Object.keys(argList).forEach(key => {
@@ -254,6 +257,30 @@ try {
                         console.log(`Timer ${id} started at ${started}.`);
                     }
                 }
+            }
+
+            if (argList['delete-timer'].provided) {
+                const timers = userData.get().timers;
+                const id = argList['delete-timer'].value;
+                if (id && timers[id]) {
+                    delete timers[id];
+                }
+            }
+
+            if (argList['add-timer'].provided) {
+                const id = argList['add-timer'].value;
+                const hours = Number(argList['hours'].value);
+                const minutes = Number(argList['minutes'].value);
+                const duration = functions.modifyTimer(id, hours, minutes);
+                console.log(`${id}: ${functions.getDurationString(duration)}`)
+            }
+
+            if (argList['subtract-timer'].provided) {
+                const id = argList['subtract-timer'].value;
+                const hours = -Number(argList['hours'].value);
+                const minutes = -Number(argList['minutes'].value);
+                const duration = functions.modifyTimer(id, hours, minutes);
+                console.log(`${id}: ${functions.getDurationString(duration)}`)
             }
 
             if (argList['interactive-entry'].provided) {
