@@ -469,6 +469,18 @@ const updateTimeEntry = (entry) => {
     return teamworkPUT(`/time_entries/${entry.id}.json`, timeEntry);
 }
 
+const getProjectNotebooks = (projectId) => {
+    return teamworkGET(`/projects/${projectId}/notebooks.json`).project.notebooks;
+}
+
+const getAllNotebooks = () => {
+    return teamworkGET(`/notebooks.json`).projects;
+}
+
+const getNotebook = (notebookId) => {
+    return teamworkGET(`/notebooks/${notebookId}.json`).notebook;
+}
+
 module.exports = {
     teamworkGET,
     teamworkPOST,
@@ -498,5 +510,8 @@ module.exports = {
     searchForTask,
     getProjectTime,
     getTaskListTime,
-    getTaskTime
+    getTaskTime,
+    getProjectNotebooks,
+    getAllNotebooks,
+    getNotebook,
 }

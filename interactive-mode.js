@@ -1,5 +1,6 @@
 const readline = require('readline-sync');
 const dateFormat = require('dateformat');
+const htmlToText = require('html-to-text');
 const teamwork = require('./teamwork.js');
 const userData = require('./user-data.js');
 const functions = require('./common-functions.js');
@@ -109,7 +110,7 @@ const getDirLevel = () => {
 }
 
 /**
- * Utility function that gets teh current directory
+ * Utility function that gets the current directory
  */
 const getCurrentDir = () => {
 
@@ -819,6 +820,30 @@ const addItem = (args) => {
             break;
     }
 }
+
+const listNotebooks = (args) => {
+    const { selected } = state;
+
+    if (getDirLevel() === 'top') {
+        console.log('unsupported');
+        return;
+    }
+
+    const selection = (args && args.length > 1) ? args[1] : null;
+
+    let notebooks = teamwork.getProjectNotebooks(selected.project.id);
+
+    if (notebooks) {
+        if (selection) {
+            const notebook = teamwork.getNotebook(notebooks[args[1]].id).content;
+            console.log(htmlToText.fromString(notebook));
+        } else {
+            notebooks.forEach((nb,idx) => {
+                console.log(`${idx}) ${nb.id}: ${nb.name}`);
+            });
+        }
+    }
+}
     
 
 /**
@@ -1055,6 +1080,12 @@ const commands = [
         aliases: [ 'total', 'time', 'sum' ],
         action: sumTime,
         description: 'Sums the time spent on an item or items'
+    },
+    {
+        name: 'notebooks',
+        aliases: [ 'notebooks', 'notes', 'nb', 'books' ],
+        action: listNotebooks,
+        description: 'List the notebooks in the current dir'
     },
 ];
 
