@@ -6,6 +6,8 @@ const userData = require('./user-data.js');
  * teamwork-cli functions
  ************************************************************************************/
 
+const BREAKS = ['break', 'lunch'];
+
 const isToday = (date) => {
     return date && date.getDate() === (new Date()).getDate();
 };
@@ -18,14 +20,21 @@ const getDurationString = (milliseconds) => {
     return `${hourStr}${minutes}m`;
 };
 
-const getTimeSinceString = (time) => {
-    const now = new Date();
-    return getDurationString(now - time);
-};
-
-const getTimeArrivedString = (time) => {
-    if (isToday(time)) {
-        return `${dateFormat(time, "H:MM")} (${getTimeSinceString(time)} ago)`;
+const getTimeWorkedString = (arrived, timers) => {
+    if (isToday(arrived)) {
+        let breaks = 0;
+        if (timers) {
+            Object.keys(timers)
+                .filter(key => BREAKS.indexOf(key.toLowerCase()) >= 0)
+                .forEach(key => {
+                    const timer = timers[key];
+                    breaks = breaks + timer.duration;
+                    if (timer.running) {
+                        breaks = breaks + (new Date() - timer.started);
+                    }
+                });
+        }
+        return getDurationString((new Date() - arrived) - breaks);
     } else {
         return 'not set';
     }
@@ -34,9 +43,9 @@ const getTimeArrivedString = (time) => {
 const getTimerString = (id, timer) => {
     if (timer.running) {
         const duration = timer.duration + (new Date() - timer.started);
-        return `Timer: ${id} has been running for ${getDurationString(duration)}`;
+        return `${id}: ${getDurationString(duration)} - running`;
     } else {
-        return `Timer: ${id} ran for for ${getDurationString(timer.duration)}`;
+        return `${id}: ${getDurationString(timer.duration)}`;
     }
 };
 
@@ -108,8 +117,8 @@ const printTimeLogged = () => {
     console.log(`    Logged NonBillable Hours: ${nonbillable} (${nonPercent}%)`);
     console.log(`    Remaining Monthly Hours: ${requiredHours + leftInMonth - total}\n`);
 
-    console.log(`    Total today: ${todayHours}`);
-    console.log(`    Time Started: ${getTimeArrivedString(arrived)}`);
+    console.log(`    Logged today: ${todayHours}`);
+    console.log(`    Time worked: ${getTimeWorkedString(arrived, timers)}\n`);
 
     Object.keys(timers)
         .forEach(id => {
@@ -334,8 +343,6 @@ const parseDateYYYYMMDD = (str) => {
     return new Date(year, month - 1, day);
 };
 
-const BREAKS = ['break', 'lunch'];
-
 const printItem = (str) => {
     if (!str) {
         str = 'time-worked';
@@ -345,21 +352,7 @@ const printItem = (str) => {
 
     switch (str.toLowerCase()) {
         case 'time-worked':
-            if (arrived) {
-                let breaks = 0;
-                if (timers) {
-                    Object.keys(timers)
-                        .filter(key => BREAKS.indexOf(key.toLowerCase()) >= 0)
-                        .forEach(key => {
-                            const timer = timers[key];
-                            breaks = breaks + timer.duration;
-                            if (timer.running) {
-                                breaks = breaks + (new Date() - timer.started);
-                            }
-                        });
-                }
-                console.log(getDurationString((new Date() - arrived) - breaks));
-            }
+            console.log(getTimeWorkedString(arrived, timers));
             break;
         case 'timers':
             if (timers) {

@@ -553,7 +553,10 @@ const logTimeInteractive = (task) => {
     // check for a timer - hours/minutes
     const timer = userData.get().timers[task];
     if (timer) {
-        const timerLength = Math.floor((timer.duration) / 1000 / 60);
+        let timerLength = Math.floor((timer.duration) / 1000 / 60);
+        if (timer.running) {
+            timerLength += new Date() - timer.started;
+        }
         defaults.hours = Math.floor(timerLength / 60);
         defaults.minutes = timerLength % 60;
     }
