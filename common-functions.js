@@ -106,6 +106,9 @@ const printTimeLogged = () => {
     );
 
     const {arrived, timers} = userData.get();
+    Object.keys(timers)
+        .filter(id => !isToday(timers[id].started))
+        .forEach(id => delete timers[id]);
 
     const total = billable + nonbillable + holiday;
     const nonPercent = Math.round(1000.0 * nonbillable / total) / 10.0;
@@ -120,14 +123,7 @@ const printTimeLogged = () => {
     console.log(`    Time worked: ${getTimeWorkedString(arrived, timers)}`);
     console.log(`    Logged today: ${getDurationString(todayHours * 3600000)}\n`);
 
-    Object.keys(timers)
-        .forEach(id => {
-            if (isToday(timers[id].started)) {
-                console.log('    ' + getTimerString(id, timers[id]));
-            } else {
-                delete timers[id];
-            }
-        });
+    Object.keys(timers).forEach(id => console.log('    ' + getTimerString(id, timers[id])));
 
     if (total > requiredHours) {
         console.log(`\nYou are ${total - requiredHours} over for today.`);
