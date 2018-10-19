@@ -9,8 +9,13 @@ const fs = require('fs');
  *
  ************************************************************************************/
 
+const {HOME, HOMEPATH, LOCALAPPDATA} = process.env;
+const homeDir = HOME || HOMEPATH || LOCALAPPDATA || false;
+if (!homeDir) {
+    throw "Either the HOME or HOMEPATH environment variable must be set!"
+}
 
-const USER_DATA_FILE = process.env.HOME + '/.teamwork-data.json';
+const USER_DATA_FILE = homeDir + '/.teamwork-data.json';
 let data;
 
 const getFileName = () => {
