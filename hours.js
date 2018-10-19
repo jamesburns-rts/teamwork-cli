@@ -160,10 +160,12 @@ const persistStartTime = (time) => {
 };
 
 const getTimeDiff = (startTime, endTime) => {
-    const startHour = Number(startTime.substring(0, 2));
-    const startMinute = Number(startTime.substring(3, 5));
-    const endHour = Number(endTime.substring(0, 2));
-    const endMinute = Number(endTime.substring(3, 5));
+    const startColon = startTime.indexOf(':');
+    const endColon = endTime.indexOf(':');
+    const startHour = Number(startTime.substring(0, startColon));
+    const startMinute = Number(startTime.substring(startColon + 1, 5));
+    const endHour = Number(endTime.substring(0, endColon));
+    const endMinute = Number(endTime.substring(endColon + 1, 5));
 
     const value = {
         hours: endHour - startHour,
@@ -313,7 +315,7 @@ try {
 
                 let hours = 0, minutes = 0;
                 if (argList['start-time'].provided && argList['end-time'].provided) {
-                    const diff = getTimeDiff(argList['start-time'], argList['end-time]']);
+                    const diff = getTimeDiff(argList['start-time'].value, argList['end-time'].value);
                     hours = diff.hours;
                     minutes = diff.minutes;
                 }
