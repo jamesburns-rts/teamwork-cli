@@ -50,44 +50,47 @@ a task ID, such as `hours -E mytask` to log time.
 ## Usage
 
 ```
-hours 1.1.11
+hours 1.1.12
 
 OPTIONS
 
-	-h, --help
+	-h, --help 
 	Print this help Screen
 
-	-v, --version
+	-v, --version 
 	Print version info
 
 	-i, --interactive [path]
 	Enter interactive mode. Optionally add path to start in.
 
-	-l, --time-logged
+	-l, --time-logged 
 	Print time logged
 
-	-p, --tasks
+	-p, --tasks 
 	Print a list of previous entered tasks for the year
 
-	-q, --entries
+	-q, --entries 
 	Print entries of today or date specified
 
-	-Q, --since
+	-Q, --since 
 	Print entries since date specified
 
-	-f, --favorites
-	Print the list of your favorites (saved in interactive mod)
+	-f, --favorites 
+	Print the list of your favorites
 
-	-w, --percentages
+	-F, --favorites-full 
+	Print the list of your favorites and their tasks
+
+	-w, --percentages 
 	Print percentages of time logged
 
-	-g, --get
+	-g, --get 
 	Print a peice of data
 
 	-E, --interactive-entry [taskId]
 	Enter time through questions for specified task
 
-	-e, --entry
+	-e, --entry 
 	Enter time with below options
 
 	-b, --billable [0/1]
@@ -111,6 +114,9 @@ OPTIONS
 	-T, --start-time [HH:MM]
 	Set the start time to log (default 09:00)
 
+	-O, --end-time [HH:MM]
+	Set the length based on the start/end time (default empty)
+
 	-c, --move [EntryId]
 	Move the time entry to the task specified by --task
 
@@ -129,6 +135,15 @@ OPTIONS
 	-S, --startstop [timer]
 	Start or stop a timer
 
+	-D, --delete-timer [timer]
+	Delete a timer
+
+	-A, --add-timer [timer]
+	Along with -H and -M adds time to a timer
+
+	-x, --subtract-timer [timer]
+	Along with -H and -M subtract from a timer
+
 EXAMPLES
 
     node hours.js --entry --task 6905921 --start-time "09:00" --hours 1 --minutes 30 --billable 0 --description "Friday Standup"
@@ -136,7 +151,7 @@ EXAMPLES
 
     node hours.js -e -t 6905921 -T "09:00" -H 1 -M 30 -b 0 -m "Friday Standup"
     Same as above but using letters instead
-
+        
 
 INTERACTIVE MODE
 
@@ -168,10 +183,7 @@ Once in a task you can log time. You can also create tasks/tasklists.
     CREATE: create, mkdir, touch, make, add
     Create a new item in the entity (new task, tasklist, etc.)
 
-    HOURS: hours
-    Display infromation about time already logged
-
-    PRINT INFO: print
+    HOURS: hours, print
     Display infromation about time already logged
 
     PATH: path, pwd
@@ -192,8 +204,8 @@ Once in a task you can log time. You can also create tasks/tasklists.
     FAVORITE: favorite, fav
     Mark task as favorite: fav [PATH] name
 
-    FAVORITES: favorites, favs, faves
-    List favorites
+    FAVORITES: favorites, favs, faves, favesies
+    List favorites (use -v for task names)
 
     CLEAR: clear, cle
     Clear screen
@@ -203,4 +215,7 @@ Once in a task you can log time. You can also create tasks/tasklists.
 
     TOTAL: total, time, sum
     Sums the time spent on an item or items
+
+    NOTEBOOKS: notebooks, notes, nb, books
+    List the notebooks in the current dir
 ```
