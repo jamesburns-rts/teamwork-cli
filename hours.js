@@ -54,6 +54,7 @@ const parseProgramArguments = (args) => {
     argList['description'] = getArgEntry('m', '[message]', 'Set description to log (default empty)', '');
     argList['task'] = getArgEntry('t', '[taskId]', 'Set the taskId to log to (see --tasks)', '');
     argList['start-time'] = getArgEntry('T', '[HH:MM]', 'Set the start time to log (default 09:00)', '09:00');
+    argList['end-time'] = getArgEntry('O', '[HH:MM]', 'Set the length based on the start/end time (default empty)', '');
     argList['move'] = getArgEntry('c', '[EntryId]', 'Move the time entry to the task specified by --task', null);
 
     // persistence
@@ -156,6 +157,27 @@ const persistStartTime = (time) => {
     }
     console.log('Marking that you arrived at ' + data.arrived);
     userData.save();
+};
+
+const getTimeDiff = (startTime, endTime) => {
+    const startHour = Number(startTime.substring(0, 2));
+    const startMinute = Number(startTime.substring(3, 5));
+    const endHour = Number(endTime.substring(0, 2));
+    const endMinute = Number(endTime.substring(3, 5));
+
+    const value = {
+        hours: endHour - startHour,
+        minutes: endMinute - startMinute
+    };
+
+    if (value.hours < 0) {
+        value.hours += 12;
+    }
+    if (value.minutes < 0) {
+        value.hours -= 1;
+        value.minutes += 60;
+    }
+    return value;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -289,12 +311,25 @@ try {
             }
             else if (argList['entry'].provided) {
 
+                let hours = 0, minutes = 0;
+                if (argList['start-time'].provided && argList['end-time'].provided) {
+                    const diff = getTimeDiff(argList['start-time'], argList['end-time]']);
+                    hours = diff.hours;
+                    minutes = diff.minutes;
+                }
+                if (argList['hours'].provided) {
+                    hours = argList['hours'].value;
+                }
+                if (argList['minutes'].provided) {
+                    hours = argList['minutes'].value;
+                }
+
                 const resp = functions.sendTimeEntry({
                     taskId: argList['task'].value,
                     description: argList['description'].value,
                     date: argList['date'].value,
-                    hours: argList['hours'].value,
-                    minutes: argList['minutes'].value,
+                    hours: hours,
+                    minutes: minutes,
                     isbillable: argList['billable'].value,
                     time: argList['start-time'].value
                 });
