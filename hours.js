@@ -287,7 +287,11 @@ try {
                 const timers = userData.get().timers;
                 const id = argList['delete-timer'].value;
                 if (id && timers[id]) {
+                    const tlength = functions.getDurationString(timers[id].duration);
                     delete timers[id];
+                    console.log(`Deleted timer ${id} at ${tlength}`);
+                } else {
+                    console.log(`Unable to find timer ${id} to delete`);
                 }
             }
 
