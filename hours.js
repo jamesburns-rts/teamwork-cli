@@ -327,7 +327,7 @@ try {
                     hours = argList['hours'].value;
                 }
                 if (argList['minutes'].provided) {
-                    hours = argList['minutes'].value;
+                    minutes = argList['minutes'].value;
                 }
 
                 const resp = functions.sendTimeEntry({
