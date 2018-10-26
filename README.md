@@ -50,7 +50,7 @@ a task ID, such as `hours -E mytask` to log time.
 ## Usage
 
 ```
-hours 1.1.13
+hours 1.1.14
 
 OPTIONS
 
