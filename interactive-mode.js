@@ -1105,7 +1105,7 @@ const interactiveMode = (startingPath) => {
     const data = userData.get();
 
     if (data.teamwork.url && data.teamwork.key) {
-        state.projects = teamwork.getProjects();
+        state.data.projects = teamwork.getProjects();
     }
 
     if (data.currentDir) {
