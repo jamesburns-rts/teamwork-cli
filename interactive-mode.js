@@ -26,7 +26,7 @@ const prettyJson = (json) => {
 
 const state = {
     data: {
-        projects: userData.get().teamwork.key ? teamwork.getProjects() : undefined,
+        projects: undefined,
         tasklists: undefined,
         tasks: undefined,
         timeEntries: undefined
@@ -1102,10 +1102,14 @@ const commands = [
  */
 const interactiveMode = (startingPath) => {
 
-    const {currentDir} = userData.get();
+    const data = userData.get();
 
-    if (currentDir) {
-        reversableCd(['cd', currentDir]);
+    if (data.teamwork.url && data.teamwork.key) {
+        state.projects = teamwork.getProjects();
+    }
+
+    if (data.currentDir) {
+        reversableCd(['cd', data.currentDir]);
     }
 
     if (startingPath) {
