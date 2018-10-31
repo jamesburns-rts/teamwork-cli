@@ -357,7 +357,7 @@ const deleteTimeEntry = (entryId) => {
 const getTimeEntries = (fromDate, toDate) => {
     const userId = getUserId();
 
-    const args = {userId, fromDate, toDate};
+    const args = {userId, fromDate, toDate, pageSize: 500};
     const argStr = Object.keys(args).filter(k => args[k]).map(k => k + '=' + args[k]).join('&');
 
     return teamworkGET('/time_entries.json?' + argStr)['time-entries'];
