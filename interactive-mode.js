@@ -4,6 +4,7 @@ const htmlToText = require('html-to-text');
 const teamwork = require('./teamwork.js');
 const userData = require('./user-data.js');
 const functions = require('./common-functions.js');
+const main = require('./command-mode.js');
 
 /************************************************************************************
  * Interactive Mode
@@ -554,10 +555,11 @@ const logTimeInteractive = (task) => {
     // check for a timer - hours/minutes
     const timer = userData.get().timers[task];
     if (timer) {
-        let timerLength = Math.floor((timer.duration) / 1000 / 60);
+        let timerLength = timer.duration;
         if (timer.running) {
             timerLength += new Date() - timer.started;
         }
+        timerLength = Math.floor((timerLength) / 1000 / 60);
         defaults.hours = Math.floor(timerLength / 60);
         defaults.minutes = timerLength % 60;
     }
@@ -1024,9 +1026,9 @@ const commands = [
     },
     {
         name: 'hours',
-        aliases: ['hours', 'print'],
-        action: printInfo,
-        description: 'Display infromation about time already logged'
+        aliases: ['hours', 'main'],
+        action: (args) => main(['node', ...args], {logTimeInteractive, usage}),
+        description: 'Normal hours command'
     },
     {
         name: 'path',
