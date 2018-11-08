@@ -94,7 +94,7 @@ const getPromptText = () => {
             }
         }
     }
-    return '\x1b[1m' + prompt + ' > \x1b[0m';
+    return prompt + ' > ';
 };
 
 /**
