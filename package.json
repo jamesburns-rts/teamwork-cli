@@ -28,7 +28,7 @@
     "dependencies": {
         "dateformat": "^2.0.0",
         "html-to-text": "^4.0.0",
-        "readline-sync": "^1.4.7",
+        "prompt-sync": "^4.1.6",
         "sync-request": "^4.1.0"
     },
     "scripts": {

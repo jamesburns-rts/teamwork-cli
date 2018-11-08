@@ -1,4 +1,4 @@
-const readline = require('readline-sync');
+const promptSync = require('prompt-sync')();
 const dateFormat = require('dateformat');
 const htmlToText = require('html-to-text');
 const teamwork = require('./teamwork.js');
@@ -61,10 +61,11 @@ const taskListName = (tasklistId) => {
 const ask = (prompt, defaultValue) => {
 
     if (defaultValue !== null && defaultValue !== undefined) {
-        const val = readline.question(`${prompt}[${defaultValue}]: `);
+        // const val = readline.question(`${prompt}[${defaultValue}]: `);
+        const val = promptSync(`${prompt}[${defaultValue}]: `);
         return val.length > 0 ? val : defaultValue;
     } else {
-        return readline.question(prompt + ': ');
+        return promptSync(prompt + ': ');
     }
 };
 
@@ -77,7 +78,7 @@ const getPromptText = () => {
 
     const {project, tasklist, task, timeEntry} = state.selected;
 
-    let prompt = '\nteamwork';
+    let prompt = 'teamwork';
 
     if (project) {
         prompt = prompt + DELIM + project.name;
@@ -94,7 +95,7 @@ const getPromptText = () => {
             }
         }
     }
-    return '\x1b[1m' + prompt + ' > \x1b[0m';
+    return prompt + ' > ';
 };
 
 /**
@@ -1118,7 +1119,11 @@ const interactiveMode = (startingPath) => {
 
     while (1) {
 
-        const answer = readline.question(getPromptText());
+        const answer = promptSync(getPromptText());
+        if (answer === null) {
+            break;
+        }
+
         const args = answer.split(' ');
         const cmd = args[0].toLowerCase();
 
@@ -1130,6 +1135,7 @@ const interactiveMode = (startingPath) => {
         if (EXIT_COMMANDS.contains(cmd)) {
             break;
         }
+        console.log('');
     }
 };
 
