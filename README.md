@@ -45,7 +45,8 @@ If in interactive mode you can use the `search` command to find tasks in subdire
 
 I highly suggest navigating to the task you want and then mark it as a favorite
 like `fav mytask` you can then use `mytask` anywhere you would normally use 
-a task ID, such as `hours -E mytask` to log time.
+a task ID, such as `hours -E mytask` to log time. You can also navigate to the task when in 
+interactive move with `cd mytask` or jump right in with `hours -i mytask`.
 
 ## Usage
 
@@ -166,7 +167,7 @@ Once in a task you can log time. You can also create tasks/tasklists.
     List the contents of the item - a projects tasklists for example.
 
     SELECT: select, sel, cd, c, :e, enter, dir
-    Select a project, tasklist, or task - aka change directory.
+    Select a project, tasklist, or task - aka change directory. You can change to a favorite as well.
 
     EDIT: edit
     Update a time entry

@@ -991,7 +991,7 @@ const commands = [
         name: 'select',
         aliases: ['select', 'sel', 'cd', 'c', ':e', 'enter', 'dir'],
         action: reversableCd,
-        description: 'Select a project, tasklist, or task - aka change directory.'
+        description: 'Select a project, tasklist, or task - aka change directory. You can change to a favorite as well.'
     },
     {
         name: 'edit',
