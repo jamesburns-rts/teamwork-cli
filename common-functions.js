@@ -86,26 +86,27 @@ const printTimeLogged = () => {
     let todayHours = 0;
 
     timeEntries.map(entry => {
-            const entryDate = new Date(entry.date);
-            if (entryDate.getDate() <= today.getDate()) {
+        const entryDate = new Date(entry.date);
+        if (entryDate.getDate() <= today.getDate()) {
 
-                const entryHours = parseFloat(entry.hours) + (parseFloat(entry.minutes) / 60.0);
+            const entryHours = parseFloat(entry.hours) + (parseFloat(entry.minutes) / 60.0);
 
-                if (entry.isbillable == 0) {
-                    nonbillable += entryHours;
-                }
-                else {
-                    billable += entryHours;
-                }
+            if (entry.isbillable == 0) {
+                nonbillable += entryHours;
+            } else {
+                billable += entryHours;
+            }
 
-                if (entryDate.getDate() == today.getDate()) {
-                    todayHours += entryHours;
-                }
+            if (entryDate.getDate() == today.getDate()) {
+                todayHours += entryHours;
             }
         }
-    );
+    });
 
-    const {arrived, timers} = userData.get();
+    const {
+        arrived,
+        timers
+    } = userData.get();
     Object.keys(timers)
         .filter(id => !isToday(timers[id].started))
         .forEach(id => delete timers[id]);
@@ -126,8 +127,7 @@ const printTimeLogged = () => {
 
     if (total > requiredHours) {
         console.log(`\nYou are ${total - requiredHours} over for today.`);
-    }
-    else {
+    } else {
         console.log(`\nYou are ${requiredHours - total } short for today.`);
     }
 };
@@ -247,8 +247,8 @@ const printPercentages = (date) => {
     console.log(`\nProject totals since ${month}/${day}\n`);
     logTable([
         ['Project', 'Total', 'Percent'],
-        ...data,
-        ['Total', total.toFixed(1) + 'h', '100.0%']]);
+        ...data, ['Total', total.toFixed(1) + 'h', '100.0%']
+    ]);
 };
 
 const moveTimeEntry = (entry, taskId) => {
@@ -274,6 +274,70 @@ const searchForTask = (searchTerm, projectId, taskListId) => {
 };
 
 /**
+ * Tests if string is of format yyyymmdd
+ */
+const isDateString = (str) => {
+    return /^\s*(20\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01]))\s*$/.test(str);
+}
+
+let getPreviousMonday = () => {
+    var date = new Date();
+    var day = date.getDay() || 7;
+    return new Date().setDate(date.getDate() - day);
+}
+
+const DAYS_OF_WEEK = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+
+const getOffsetOfPrevious = (dayOfWeek) => {
+    dayOfWeek = DAYS_OF_WEEK.indexOf(dayOfWeek.toLowerCase().substr(0, 3));
+    if (dayOfWeek <= 0) {
+        console.warn("Day of week must start with " + DAYS_OF_WEEK);
+        return 0;
+    }
+
+    let offset = dayOfWeek - (new Date()).getDay();
+
+    if (offset >= 0) {
+        offset -= 7;
+    }
+
+    return offset;
+}
+
+const getDateString = (str) => {
+    str = str.trim().toLowerCase();
+
+    let offset = 0;
+    if (/^[-+]?\d+$/.test(str)) {
+        offset = Number(str);
+    } else if (str.startsWith("yest")) { // yesterday
+        offset = -1;
+    } else if (str.startsWith("tom")) { // tomorrow
+        offset = 1;
+    } else if (str.startsWith("tod")) { // today
+        offset = 0;
+    } else if (str.startsWith("next")) { // next <day of week>
+        offset = (getOffsetOfPrevious(str.split(' ')[1]) + 7) || 7;
+    } else if (str.startsWith("last ")) { // last <day of week>
+        offset = getOffsetOfPrevious(str.split(' ')[1]);
+    } else if (DAYS_OF_WEEK.indexOf(str.substr(0, 3) >= 0)) { // same as last day of week
+        offset = getOffsetOfPrevious(str);
+    } else {
+        console.warn("Unrecognized date. Using today.");
+    }
+
+    // get the date
+    const date = new Date();
+    if (offset > 1000 || offset < -1000) {
+        console.warn("Variable date out of range. Using today.");
+    } else {
+        date.setDate(date.getDate() + offset);
+    }
+
+    return dateFormat(date, "yyyymmdd");
+}
+
+/**
  * send time entry request - if taskID is not a number then it checks
  * if it is a favorite
  */
@@ -281,6 +345,9 @@ const sendTimeEntry = (entry) => {
 
     if (isNaN(entry.taskId)) {
         entry.taskId = userData.get().favorites[entry.taskId];
+    }
+    if (!isDateString(entry.date)) {
+        entry.date = getDateString(entry.date);
     }
 
     return teamwork.sendTimeEntry(entry);
@@ -329,7 +396,9 @@ const modifyTimer = (id, hours, minutes) => {
 
 const listFavorites = (verbose) => {
 
-    const {favorites} = userData.get();
+    const {
+        favorites
+    } = userData.get();
 
     if (!verbose) {
         console.log(Object.keys(favorites).join('\n'));
@@ -363,7 +432,10 @@ const printItem = (str) => {
         str = 'time-worked';
     }
 
-    const {arrived, timers} = userData.get();
+    const {
+        arrived,
+        timers
+    } = userData.get();
 
     switch (str.toLowerCase()) {
         case 'time-worked':
@@ -373,12 +445,12 @@ const printItem = (str) => {
             if (timers) {
                 console.log(
                     Object.keys(timers)
-                        .filter(key => timers[key].running)
-                        .map(key => {
-                            const timer = timers[key];
-                            const duration = timer.duration + (new Date() - timer.started);
-                            return `${key}: ${getDurationString(duration)}`;
-                        }).join(', ')
+                    .filter(key => timers[key].running)
+                    .map(key => {
+                        const timer = timers[key];
+                        const duration = timer.duration + (new Date() - timer.started);
+                        return `${key}: ${getDurationString(duration)}`;
+                    }).join(', ')
                 );
             }
             break;
