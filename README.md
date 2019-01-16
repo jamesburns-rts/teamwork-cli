@@ -51,7 +51,7 @@ interactive move with `cd mytask` or jump right in with `hours -i mytask`.
 ## Usage
 
 ```
-hours 1.1.15
+hours 1.1.16
 
 OPTIONS
 
