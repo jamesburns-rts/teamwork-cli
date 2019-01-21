@@ -439,7 +439,6 @@ const prettyJson = (json) => {
  */
 const sendTimeEntry = (entry) => {
 
-
     const timeEntry = {
         'time-entry': {
             taskId: entry.taskId,
@@ -450,7 +449,7 @@ const sendTimeEntry = (entry) => {
             isbillable: entry.isbillable,
             'person-id': getUserId(),
             time: entry.time,
-            'tags': ''
+            tags: entry.tags,
         }
     };
 
@@ -486,36 +485,36 @@ const getNotebook = (notebookId) => {
 };
 
 module.exports = {
+    addTask,
+    deleteTask,
+    deleteTimeEntry,
+    editTask,
+    getAllEntries,
+    getAllNotebooks,
+    getAllTasks,
+    getMe,
+    getNotebook,
+    getProjectEntries,
+    getProjectNotebooks,
+    getProjectTasks,
+    getProjectTime,
+    getProjects,
+    getTask,
+    getTaskEntries,
+    getTaskListEntries,
+    getTaskListTime,
+    getTaskTime,
+    getTasklist,
+    getTasklists,
+    getTasks,
+    getTimeEntries,
+    getTimeEntry,
+    getUserId,
+    searchForTask,
+    sendTimeEntry,
+    teamworkDELETE,
     teamworkGET,
     teamworkPOST,
     teamworkPUT,
-    teamworkDELETE,
-    getMe,
-    getUserId,
-    getProjects,
-    getTasklists,
-    getTasklist,
-    getTasks,
-    getProjectTasks,
-    getAllTasks,
-    getTask,
-    getAllEntries,
-    getProjectEntries,
-    getTaskListEntries,
-    getTaskEntries,
-    addTask,
-    editTask,
-    deleteTask,
-    deleteTimeEntry,
-    getTimeEntry,
-    getTimeEntries,
-    sendTimeEntry,
     updateTimeEntry,
-    searchForTask,
-    getProjectTime,
-    getTaskListTime,
-    getTaskTime,
-    getProjectNotebooks,
-    getAllNotebooks,
-    getNotebook,
 };

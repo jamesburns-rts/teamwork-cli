@@ -52,6 +52,7 @@ const parseProgramArguments = (args) => {
     argList['task'] = getArgEntry('t', '[taskId]', 'Set the taskId to log to (see --tasks)', '');
     argList['start-time'] = getArgEntry('T', '[HH:MM]', 'Set the start time to log (default 09:00)', '09:00');
     argList['end-time'] = getArgEntry('O', '[HH:MM]', 'Set the length based on the start/end time (default empty)', '');
+    argList['tags'] = getArgEntry('z', '[tag1,tag2,tag3]', 'Adds a tag to the time entry. Surround list with quotes if it includes a space', '');
     argList['move'] = getArgEntry('c', '[EntryId]', 'Move the time entry to the task specified by --task', null);
 
     // persistence
@@ -336,7 +337,8 @@ const main = (args, interactiveCommands) => {
                         hours: hours,
                         minutes: minutes,
                         isbillable: argList['billable'].value,
-                        time: argList['start-time'].value
+                        time: argList['start-time'].value,
+                        tags: argList['tags'].value.split(','),
                     });
                     console.log(resp);
                 }

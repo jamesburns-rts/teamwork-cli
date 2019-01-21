@@ -962,7 +962,8 @@ const copyItem = (args) => {
                     date: dateFormat(new Date(), 'yyyymmdd'),
                     hours: entry.hours,
                     minutes: entry.minutes,
-                    isbillable: entry.isbillable
+                    isbillable: entry.isbillable,
+                    tags: entry.tags.map(t => t.name).join(','),
                 });
             }
             break;

@@ -252,13 +252,15 @@ const printPercentages = (date) => {
 };
 
 const moveTimeEntry = (entry, taskId) => {
+    console.log('tags: ', entry.tags);
     sendTimeEntry({
         taskId,
         description: entry.description,
         date: dateFormat(new Date(entry.date), 'yyyymmdd'),
         hours: entry.hours,
         minutes: entry.minutes,
-        isbillable: entry.isbillable
+        isbillable: entry.isbillable,
+        tags: entry.tags.map(t => t.name),
     });
     teamwork.deleteTimeEntry(entry.id);
 };
@@ -348,6 +350,9 @@ const sendTimeEntry = (entry) => {
     }
     if (!isDateString(entry.date)) {
         entry.date = getDateString(entry.date);
+    }
+    if (entry.tags) {
+        entry.tags = entry.tags.join(',');
     }
 
     return teamwork.sendTimeEntry(entry);

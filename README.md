@@ -118,6 +118,9 @@ OPTIONS
 	-O, --end-time [HH:MM]
 	Set the length based on the start/end time (default empty)
 
+	-z, --tags [tag1,tag2,tag3]
+	Adds a tag to the time entry. Surround list with quotes if it includes a space
+
 	-c, --move [EntryId]
 	Move the time entry to the task specified by --task
 
@@ -147,7 +150,8 @@ OPTIONS
 
 EXAMPLES
 
-    node hours.js --entry --task 6905921 --start-time "09:00" --hours 1 --minutes 30 --billable 0 --description "Friday Standup"
+    node hours.js --entry --task 6905921 --start-time "09:00" --hours 1 \
+        --minutes 30 --billable 0 --description "Friday Standup"
     Logs an hour and a half for a long Friday standup
 
     node hours.js -e -t 6905921 -T "09:00" -H 1 -M 30 -b 0 -m "Friday Standup"
@@ -156,7 +160,9 @@ EXAMPLES
 
 INTERACTIVE MODE
 
-This mode creates a quasi-terminal with a directory structure setup like teamwork. There is a top level "teamwork" directory containing a folder for each project, each project contains tasklists, and each tasklist contains tasks.
+This mode creates a quasi-terminal with a directory structure setup like teamwork. 
+There is a top level "teamwork" directory containing a folder for each project, 
+each project contains tasklists, and each tasklist contains tasks.
 
 Once in a task you can log time. You can also create tasks/tasklists.
 
@@ -184,8 +190,8 @@ Once in a task you can log time. You can also create tasks/tasklists.
     CREATE: create, mkdir, touch, make, add
     Create a new item in the entity (new task, tasklist, etc.)
 
-    HOURS: hours, print
-    Display infromation about time already logged
+    HOURS: hours, main
+    Normal hours command
 
     PATH: path, pwd
     Display the current path using the Ids.
