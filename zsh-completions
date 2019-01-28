@@ -28,8 +28,8 @@ _hours_arglist=(
     {'(--key)-k','(-k)--key'}'[\[key\]Set teamwork API key to use in the future]'
     {'(--url)-u','(-u)--url'}'[\[url\]Set teamwork URL to use in the future]'
     {'(--arrived)-a','(-a)--arrived'}'[\[HH:MM\]Record the time as when you arrived (default to now)]'
-    {'(--switch)-s','(-s)--switch'}'[\[timer\]Switch to a different timer (defaults to stop all)]:select timer:->timers'
-    {'(--startstop)-S','(-S)--startstop'}'[\[timer\]Start or stop a timer]:select timer:->timers'
+    {'(--switch)-s','(-s)--switch'}'[\[timer\]Switch to a different timer (defaults to stop all)]:select timer:->favs_and_timers'
+    {'(--startstop)-S','(-S)--startstop'}'[\[timer\]Start or stop a timer]:select timer:->favs_and_timers'
     {'(--delete-timer)-D','(-D)--delete-timer'}'[\[timer\]Delete a timer]:select timer:->timers'
     {'(--add-timer)-A','(-A)--add-timer'}'[\[timer\]Along with -H and -M adds time to a timer]:select timer:->timers'
     {'(--subtract-timer)-x','(-x)--subtract-timer'}'[\[timer\]Along with -H and -M subtract from a timer]:select timer:->timers'
@@ -58,7 +58,7 @@ _hours_favs=(
 )
 
 _hours_timers=(
-    $(hours --timers --favorites)
+    $(hours --timers)
 )
 
 # work block
@@ -68,14 +68,17 @@ _hours() {
         favs)
             _values 'fav' $_hours_favs
             ;;
+        timers)
+            _values 'timer' $_hours_timers
+            ;;
+        favs_and_timers)
+            _values 's' $_hours_favs $_hours_timers
+            ;;
         billables)
             _values 'b' $_hours_billables
             ;;
         days)
             _values 'day' $_hours_days
-            ;;
-        timers)
-            _values 'timer' $_hours_timers
             ;;
     esac
 }
