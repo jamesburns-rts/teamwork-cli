@@ -48,6 +48,15 @@ like `fav mytask` you can then use `mytask` anywhere you would normally use
 a task ID, such as `hours -E mytask` to log time. You can also navigate to the task when in 
 interactive move with `cd mytask` or jump right in with `hours -i mytask`.
 
+## Completions
+The zsh tab completion system confuses me but I belive if you copy the `zsh-completions` file as `_hours` into any of the
+directories in `$fpath` then you should get completions. For example
+```
+cp teamwork-cli/zsh-completions ~/.oh-my-zsh/completions/_hours
+autoload -U compinit # May not be necessary
+compinit # May not be necessary
+```
+
 ## Usage
 
 ```
