@@ -38,6 +38,7 @@ const parseProgramArguments = (args) => {
     argList['since'] = getArgEntry('Q', null, 'Print entries since date specified', 'week');
     argList['favorites'] = getArgEntry('f', null, 'Print the list of your favorites', false);
     argList['favorites-full'] = getArgEntry('F', null, 'Print the list of your favorites and their tasks', false);
+    argList['timers'] = getArgEntry('P', null, 'Prints list of timers', false);
     argList['percentages'] = getArgEntry('w', null, 'Print percentages of time logged', 'week');
     argList['get'] = getArgEntry('g', null, 'Print a peice of data', 'time-worked');
 
@@ -389,6 +390,10 @@ const main = (args, interactiveCommands) => {
 
                 if (argList['favorites-full'].provided) {
                     functions.listFavorites(true);
+                }
+
+                if (argList['timers'].provided) {
+                    functions.listTimers();
                 }
 
                 if (argList['interactive'].provided && interactiveMode) {

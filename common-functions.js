@@ -420,6 +420,15 @@ const listFavorites = (verbose) => {
     }
 };
 
+const listTimers = () => {
+
+    const {
+        timers
+    } = userData.get();
+
+    console.log(Object.keys(timers).join('\n'));
+};
+
 const parseDateYYYYMMDD = (str) => {
     if (!str || str.length !== 8) {
         return null;
@@ -464,19 +473,20 @@ const printItem = (str) => {
 };
 
 module.exports = {
-    sendTimeEntry,
+    getDurationString,
+    getSinceDate,
+    listFavorites,
+    listTimers,
+    modifyTimer,
     moveTimeEntry,
+    parseDateYYYYMMDD,
     printDateEntries,
+    printItem,
+    printPercentages,
     printPreviousTasks,
     printTimeLogged,
-    printPercentages,
+    searchForTask,
+    sendTimeEntry,
     startTimer,
     stopTimer,
-    modifyTimer,
-    getDurationString,
-    listFavorites,
-    getSinceDate,
-    parseDateYYYYMMDD,
-    printItem,
-    searchForTask
 };

@@ -1,0 +1,84 @@
+#compdef _hours hours
+
+# variables
+_hours_arglist=(
+    {'(--help)-h','(-h)--help'}'[Print help Screen]'
+    {'(--version)-v','(-v)--version'}'[Print version info]'
+    {'(--interactive)-i','(-i)--interactive'}'[\[path\] Enter interactive mode. Optionally add path to start in.]'
+    {'(--time-logged)-l','(-l)--time-logged'}'[Print time logged]'
+    {'(--tasks)-p','(-p)--tasks'}'[Print a list of previous entered tasks for the year]'
+    {'(--entries)-q','(-q)--entries'}'[Print entries of today or date specified]'
+    {'(--since)-Q','(-Q)--since'}'[Print entries since date specified]'
+    {'(--favorites)-f','(-f)--favorites'}'[Print the list of your favorites]'
+    {'(--favorites-full)-F','(-F)--favorites-full'}'[Print the list of your favorites and their tasks]'
+    {'(--percentages)-w','(-w)--percentages'}'[Print percentages of time logged]'
+    {'(--get)-g','(-g)--get'}'[Print a peice of data]'
+    {'(--interactive-entry)-E','(-E)--interactive-entry'}'[\[TaskId\]Enter time through questions for specified task]:select fav:->favs'
+    {'(--entry)-e','(-e)--entry'}'[Enter time with below options]'
+    {'(--billable)-b','(-b)--billable'}'[\[0/1\]If billable time (default 1)]:select b:->billables'
+    {'(--hours)-H','(-H)--hours'}'[\[hours\]Set hours to log (default 0)]'
+    {'(--minutes)-M','(-M)--minutes'}'[\[minutes\]Set minutes to log (default 0)]'
+    {'(--date)-d','(-d)--date'}'[\[yyyymmdd\]Set date to log for (default today)]:select day->days'
+    {'(--description)-m','(-m)--description'}'[\[message\]Set description to log (default empty)]'
+    {'(--task)-t','(-t)--task'}'[\[taskId\]Set the taskId to log to (see --tasks)]:select fav:->favs'
+    {'(--start-time)-T','(-T)--start-time'}'[\[HH:MM\]Set the start time to log (default 09:00)]'
+    {'(--end-time)-O','(-O)--end-time'}'[\[HH:MM\]Set the length based on the start/end time (default empty)]'
+    {'(--tags)-z','(-z)--tags'}'[\[tag1,tag2,tag3\]Adds a tag to the time entry. Surround list with quotes if it includes a space]'
+    {'(--move)-c','(-c)--move'}'[\[EntryId\]Move the time entry to the task specified by --task]'
+    {'(--key)-k','(-k)--key'}'[\[key\]Set teamwork API key to use in the future]'
+    {'(--url)-u','(-u)--url'}'[\[url\]Set teamwork URL to use in the future]'
+    {'(--arrived)-a','(-a)--arrived'}'[\[HH:MM\]Record the time as when you arrived (default to now)]'
+    {'(--switch)-s','(-s)--switch'}'[\[timer\]Switch to a different timer (defaults to stop all)]:select timer:->timers'
+    {'(--startstop)-S','(-S)--startstop'}'[\[timer\]Start or stop a timer]:select timer:->timers'
+    {'(--delete-timer)-D','(-D)--delete-timer'}'[\[timer\]Delete a timer]:select timer:->timers'
+    {'(--add-timer)-A','(-A)--add-timer'}'[\[timer\]Along with -H and -M adds time to a timer]:select timer:->timers'
+    {'(--subtract-timer)-x','(-x)--subtract-timer'}'[\[timer\]Along with -H and -M subtract from a timer]:select timer:->timers'
+)
+
+_hours_days=(
+    'yesterday'
+    'today'
+    'tomorrow'
+    'monday'
+    'tuesday'
+    'wednesday'
+    'thursday'
+    'friday'
+    'saturday'
+    'sunday'
+)
+
+_hours_billables=(
+    '0'
+    '1'
+)
+
+_hours_favs=(
+    $(hours --favorites)
+)
+
+_hours_timers=(
+    $(hours --timers --favorites)
+)
+
+# work block
+_hours() {
+    _arguments $_hours_arglist
+    case "$state" in
+        favs)
+            _values 'fav' $_hours_favs
+            ;;
+        billables)
+            _values 'b' $_hours_billables
+            ;;
+        days)
+            _values 'day' $_hours_days
+            ;;
+        timers)
+            _values 'timer' $_hours_timers
+            ;;
+    esac
+}
+
+_hours "$@" && return 0
+
