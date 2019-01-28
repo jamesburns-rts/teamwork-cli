@@ -60,7 +60,7 @@ compinit # May not be necessary
 ## Usage
 
 ```
-hours 1.1.17
+hours 1.1.18
 
 OPTIONS
 
