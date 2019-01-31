@@ -71,8 +71,6 @@ const ask = (prompt, defaultValue) => {
 
 /**
  * Refreshes prompt stored in state based on selected items
- *
- * @param state Current state of the terminal
  */
 const getPromptText = () => {
 
@@ -160,7 +158,7 @@ const ls = (args) => {
         originalDir = getCurrentDir();
 
         if (args[1] === '*') {
-            // TODO 
+            // TODO
         } else {
             cd(args);
         }
@@ -375,7 +373,9 @@ const getTimeEntryTime = (arg) => {
  * @param arg Search parameter
  */
 const findDirItem = (list, arg) => {
-    if (!isNaN(arg)) {
+    if (arg === "last" && list.length > 0) {
+        return list[list.length - 1];
+    } else if (!isNaN(arg)) {
         if (Number(arg) < list.length) {
             return list[Number(arg)];
         } else {
@@ -579,10 +579,23 @@ const logTimeInteractive = (task) => {
     return functions.sendTimeEntry({taskId, description, date, hours, minutes, isbillable});
 };
 
+const editTimeInteractive = (entry) => {
+
+    entry.description = ask('Description', entry.description);
+    entry.hours = ask('Hours', entry.hours);
+    entry.minutes = ask('Minutes', entry.minutes);
+    entry.date = ask('Date', entry.date);
+    entry.isbillable = ask('Is Billable', entry.isbillable);
+
+    entry.date = functions.getDateString(entry.date);
+
+    return teamwork.updateTimeEntry(entry);
+};
+
 /**
  * Overrides the terminal to create an time entry
  */
-const logTime = (args) => {
+const logTime = () => {
 
     switch (getDirLevel()) {
         case "task":
@@ -642,23 +655,14 @@ const editItem = (args) => {
         const resp = teamwork.editTask(task.id, alteredTask);
 
         prettyJson(resp);
-    }
-
-    else if (entry) {
-        const dateStr = dateFormat(new Date(entry.date), "yyyymmdd");
-
-        entry.description = ask('Description', entry.description);
-        entry.hours = ask('Hours', entry.hours);
-        entry.minutes = ask('Minutes', entry.minutes);
-        entry.date = ask('Date', dateStr);
-        entry.isbillable = ask('Is Billable', entry.isbillable);
-
-        teamwork.updateTimeEntry(entry);
+    } else if (entry) {
+        entry.date = dateFormat(new Date(entry.date), "yyyymmdd");
+        editTimeInteractive(entry);
         cd(['cd', '.']);
 
     } else {
         console.log('item not found');
-        return;
+
     }
 };
 
@@ -862,7 +866,7 @@ const listNotebooks = (args) => {
 /**
  * Print usage
  */
-const usage = (args) => {
+const usage = () => {
 
     console.log('This mode creates a quasi-terminal with a directory structure setup like teamwork. There is a top level "teamwork" directory containing a folder for each project, each project contains tasklists, and each tasklist contains tasks.');
 
@@ -996,7 +1000,7 @@ const commands = [
     },
     {
         name: 'edit',
-        aliases: ['edit'],
+        aliases: ['edit', 'e'],
         action: editItem,
         description: 'Update a time entry'
     },
@@ -1008,7 +1012,7 @@ const commands = [
     },
     {
         name: 'help',
-        aliases: ['help', 'h', 'pls', 'halp'],
+        aliases: ['help', 'pls', 'halp'],
         action: usage,
         description: 'Display this information.'
     },
@@ -1026,7 +1030,7 @@ const commands = [
     },
     {
         name: 'hours',
-        aliases: ['hours', 'main'],
+        aliases: ['hours', 'main', 'h'],
         action: (args) => main(['node', ...args], {logTimeInteractive, usage}),
         description: 'Normal hours command'
     },
@@ -1139,5 +1143,6 @@ const interactiveMode = (startingPath) => {
 module.exports = {
     interactiveMode,
     logTimeInteractive,
+    editTimeInteractive,
     usage
 };

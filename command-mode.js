@@ -1,4 +1,3 @@
-
 /************************************************************************************
  * Main script - parses arguments
  ************************************************************************************/
@@ -44,6 +43,7 @@ const parseProgramArguments = (args) => {
 
     // time logging
     argList['interactive-entry'] = getArgEntry('E', '[taskId]', 'Enter time through questions for specified task', '');
+    argList['edit-last'] = getArgEntry('L', '[taskId]', 'Edit last entered time entry for optionally specified task', '');
     argList['entry'] = getArgEntry('e', null, 'Enter time with below options', false);
     argList['billable'] = getArgEntry('b', '[0/1]', 'If billable time (default 1)', true);
     argList['hours'] = getArgEntry('H', '[hours]', 'Set hours to log (default 0)', 0);
@@ -147,8 +147,8 @@ const persistStartTime = (time) => {
     if (typeof time === 'string' && time !== 'now') {
         const overrides = time.split(':');
         const date = new Date();
-        date.setHours(overrides[0]);
-        date.setMinutes(overrides[1]);
+        date.setHours(Number(overrides[0]));
+        date.setMinutes(Number(overrides[1]));
 
         data.arrived = date;
     } else {
@@ -187,23 +187,21 @@ const getTimeDiff = (startTime, endTime) => {
 const main = (args, interactiveCommands) => {
     try {
 
-        const {interactiveMode, logTimeInteractive, usage} = interactiveCommands;
+        const {interactiveMode, logTimeInteractive, editTimeInteractive, usage} = interactiveCommands;
 
         const data = userData.get();
 
         // if no arguments, just print time logged
         if (args.length < 3) {
             functions.printTimeLogged();
-        }
-        else {
+        } else {
 
             const argList = parseProgramArguments(args);
 
             // do work
             if (argList['help'].provided) {
                 printUsage(usage);
-            }
-            else {
+            } else {
 
                 if (argList['key'].provided) {
                     persistKey(argList['key'].value);
@@ -315,8 +313,23 @@ const main = (args, interactiveCommands) => {
                 if (argList['interactive-entry'].provided) {
                     const resp = logTimeInteractive(argList['interactive-entry'].value);
                     console.log(resp);
-                }
-                else if (argList['entry'].provided) {
+
+                } else if (argList['edit-last'].provided) {
+
+                    const lastEntry = functions.getLastTask(argList['edit-last'].value);
+                    lastEntry.date = dateFormat(new Date(lastEntry.date), "yyyymmdd");
+                    ['description', 'date', 'hours', 'minutes'].forEach(key => {
+                        if (argList[key].provided) {
+                            lastEntry[key] = argList[key].value;
+                        }
+                    });
+                    if (argList['billable'].provided) {
+                        lastEntry.isbillable = argList['billable'].value;
+                    }
+                    const resp = editTimeInteractive(lastEntry);
+                    console.log(resp);
+
+                } else if (argList['entry'].provided) {
 
                     let hours = 0, minutes = 0;
                     if (argList['start-time'].provided && argList['end-time'].provided) {
@@ -342,8 +355,7 @@ const main = (args, interactiveCommands) => {
                         tags: argList['tags'].value.split(','),
                     });
                     console.log(resp);
-                }
-                else if (argList['tasks'].provided) {
+                } else if (argList['tasks'].provided) {
                     functions.printPreviousTasks();
 
                 } else if (argList['move'].provided && argList['task'].provided) {

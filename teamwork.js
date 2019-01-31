@@ -28,7 +28,7 @@ const init = () => {
     } else {
         TEAMWORK_URL = 'https://' + url;
     }
-    BASIC_AUTH_TOKEN = new Buffer(key + ":xxx").toString("base64");
+    BASIC_AUTH_TOKEN = Buffer.from(key + ":xxx").toString("base64");
     USER_ID = userId;
 };
 
@@ -44,6 +44,13 @@ const getTeamworkUrl = () => {
         init();
     }
     return TEAMWORK_URL;
+};
+
+const objToQueryParams = (obj) => {
+    return Object.keys(obj)
+        .filter(key => obj[key])
+        .map(k => `${encodeURIComponent(k)}=${encodeURIComponent(obj[k])}`)
+        .join('&');
 };
 
 
@@ -82,7 +89,7 @@ const teamworkPOST = (endpoint, body) => {
         json: body
     }).getBody('utf8');
     if (!resp) {
-        return;
+
     } else {
         return JSON.parse(resp);
     }
@@ -104,7 +111,7 @@ const teamworkPUT = (endpoint, body) => {
         json: body
     }).getBody('utf8');
     if (!resp) {
-        return;
+
     } else {
         return JSON.parse(resp);
     }
@@ -201,12 +208,17 @@ const getAllEntries = () => {
     let lastSize = 500;
     while (lastSize === 500) {
         console.log('requesting page ' + page + ' last size: ' + lastSize);
-        const result = teamworkGET(`/time_entries.json?pageSize=500&page=${page}`)['time-entries'];
+        const queryParams = objToQueryParams({
+            pageSize: 500,
+            page: page,
+            userId: userId
+        });
+        const result = teamworkGET(`/time_entries.json?${queryParams}`)['time-entries'];
         lastSize = result.length;
         page += 1;
         entries = entries.concat(result);
     }
-    return entries.filter(entry => entry['person-id'] === userId);
+    return entries;
 };
 
 /**
@@ -218,12 +230,17 @@ const getProjectEntries = (projectId) => {
     let page = 1;
     let lastSize = 500;
     while (lastSize === 500) {
-        const result = teamworkGET(`/projects/${projectId}/time_entries.json?pageSize=500&page=${page}`)['time-entries'];
+        const queryParams = objToQueryParams({
+            pageSize: 500,
+            page: page,
+            userId: userId
+        });
+        const result = teamworkGET(`/projects/${projectId}/time_entries.json?${queryParams}`)['time-entries'];
         lastSize = result.length;
         page += 1;
         entries = entries.concat(result);
     }
-    return entries.filter(entry => entry['person-id'] === userId);
+    return entries;
 };
 
 /**
@@ -244,6 +261,30 @@ const getTaskEntries = (taskId) => {
     const userId = getUserId();
     return teamworkGET(`/todo_items/${taskId}/time_entries.json`)['time-entries']
         .filter(entry => entry['person-id'] === userId);
+};
+
+const getLastTimeEntry = () => {
+    const userId = getUserId();
+    const queryParams = objToQueryParams({
+        page: 1,
+        pageSize: 1,
+        sortBy: 'dateupdated',
+        sortOrder: 'DESC',
+        userId: userId,
+    });
+    return teamworkGET(`/time_entries.json?${queryParams}`)['time-entries'][0];
+};
+
+const getLastTimeEntryForTask = (taskId) => {
+    const userId = getUserId();
+    const queryParams = objToQueryParams({
+        page: 1,
+        pageSize: 1,
+        sortBy: 'dateupdated',
+        sortOrder: 'DESC',
+        userId: userId,
+    });
+    return teamworkGET(`/tasks/${taskId}/time_entries.json?${queryParams}`)['time-entries'][0];
 };
 
 /**
@@ -356,11 +397,8 @@ const deleteTimeEntry = (entryId) => {
  */
 const getTimeEntries = (fromDate, toDate) => {
     const userId = getUserId();
-
-    const args = {userId, fromDate, toDate, pageSize: 500};
-    const argStr = Object.keys(args).filter(k => args[k]).map(k => k + '=' + args[k]).join('&');
-
-    return teamworkGET('/time_entries.json?' + argStr)['time-entries'];
+    const queryParams = objToQueryParams({userId, fromDate, toDate, pageSize: 500});
+    return teamworkGET(`/time_entries.json?${queryParams}`)['time-entries'];
 };
 
 /**
@@ -371,12 +409,13 @@ const getTimeEntries = (fromDate, toDate) => {
  */
 const searchForTask = (searchTerm, projectId, taskListId) => {
 
-    let args = 'searchTerm=' + searchTerm;
+    let args = {pageSize: 100, searchFor: 'tasks', searchTerm};
     if (projectId) {
-        args += '&projectId=' + projectId;
+        args.projectId = projectId;
     }
 
-    let results = teamworkGET('/search.json?pageSize=100&searchFor=tasks&' + args).searchResult.tasks;
+    const queryParams = objToQueryParams(args);
+    let results = teamworkGET(`/search.json?${queryParams}`).searchResult.tasks;
 
     if (taskListId) {
         results = results.filter(r => r.taskListId === taskListId);
@@ -492,6 +531,8 @@ module.exports = {
     getAllEntries,
     getAllNotebooks,
     getAllTasks,
+    getLastTimeEntry,
+    getLastTimeEntryForTask,
     getMe,
     getNotebook,
     getProjectEntries,

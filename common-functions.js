@@ -91,13 +91,13 @@ const printTimeLogged = () => {
 
             const entryHours = parseFloat(entry.hours) + (parseFloat(entry.minutes) / 60.0);
 
-            if (entry.isbillable == 0) {
+            if (Number(entry.isbillable) === 0) {
                 nonbillable += entryHours;
             } else {
                 billable += entryHours;
             }
 
-            if (entryDate.getDate() == today.getDate()) {
+            if (entryDate.getDate() === today.getDate()) {
                 todayHours += entryHours;
             }
         }
@@ -128,7 +128,7 @@ const printTimeLogged = () => {
     if (total > requiredHours) {
         console.log(`\nYou are ${total - requiredHours} over for today.`);
     } else {
-        console.log(`\nYou are ${requiredHours - total } short for today.`);
+        console.log(`\nYou are ${requiredHours - total} short for today.`);
     }
 };
 
@@ -165,7 +165,7 @@ const printDateEntries = (date) => {
         console.log(`    Project: ${t['project-name']}`);
         console.log(`    TaskName: ${t['todo-item-name']}`);
         console.log(`    TaskId: ${t['todo-item-id']}`);
-        console.log(`    Billable: ${t.isbillable == 1 ? "Yes" : "No"}`);
+        console.log(`    Billable: ${Number(t.isbillable) === 1 ? "Yes" : "No"}`);
         console.log(`    Hours: ${hours.toFixed(2)}`);
         total = total + hours;
     });
@@ -183,7 +183,7 @@ const logTable = (data) => {
     }
 
 
-    const lengths = data[0].map(d => 0);
+    const lengths = data[0].map(() => 0);
     data.forEach(row => {
         row.forEach((col, idx) => {
             if (lengths[idx] < col.length) {
@@ -280,13 +280,7 @@ const searchForTask = (searchTerm, projectId, taskListId) => {
  */
 const isDateString = (str) => {
     return /^\s*(20\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01]))\s*$/.test(str);
-}
-
-let getPreviousMonday = () => {
-    var date = new Date();
-    var day = date.getDay() || 7;
-    return new Date().setDate(date.getDate() - day);
-}
+};
 
 const DAYS_OF_WEEK = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 
@@ -304,9 +298,14 @@ const getOffsetOfPrevious = (dayOfWeek) => {
     }
 
     return offset;
-}
+};
 
 const getDateString = (str) => {
+
+    if (isDateString(str)) {
+        return str;
+    }
+
     str = str.trim().toLowerCase();
 
     let offset = 0;
@@ -337,7 +336,7 @@ const getDateString = (str) => {
     }
 
     return dateFormat(date, "yyyymmdd");
-}
+};
 
 /**
  * send time entry request - if taskID is not a number then it checks
@@ -348,14 +347,23 @@ const sendTimeEntry = (entry) => {
     if (isNaN(entry.taskId)) {
         entry.taskId = userData.get().favorites[entry.taskId];
     }
-    if (!isDateString(entry.date)) {
-        entry.date = getDateString(entry.date);
-    }
+    entry.date = getDateString(entry.date);
     if (entry.tags) {
         entry.tags = entry.tags.join(',');
     }
 
     return teamwork.sendTimeEntry(entry);
+};
+
+const getLastTask = (taskId) => {
+    if (!taskId) {
+        return teamwork.getLastTimeEntry();
+    } else {
+        if (isNaN(taskId)) {
+            taskId = userData.get().favorites[taskId];
+            return teamwork.getLastTimeEntryForTask(taskId);
+        }
+    }
 };
 
 const startTimer = (id) => {
@@ -459,12 +467,12 @@ const printItem = (str) => {
             if (timers) {
                 console.log(
                     Object.keys(timers)
-                    .filter(key => timers[key].running)
-                    .map(key => {
-                        const timer = timers[key];
-                        const duration = timer.duration + (new Date() - timer.started);
-                        return `${key}: ${getDurationString(duration)}`;
-                    }).join(', ')
+                        .filter(key => timers[key].running)
+                        .map(key => {
+                            const timer = timers[key];
+                            const duration = timer.duration + (new Date() - timer.started);
+                            return `${key}: ${getDurationString(duration)}`;
+                        }).join(', ')
                 );
             }
             break;
@@ -473,7 +481,9 @@ const printItem = (str) => {
 };
 
 module.exports = {
+    getDateString,
     getDurationString,
+    getLastTask,
     getSinceDate,
     listFavorites,
     listTimers,

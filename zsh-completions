@@ -14,11 +14,12 @@ _hours_arglist=(
     {'(--percentages)-w','(-w)--percentages'}'[Print percentages of time logged]'
     {'(--get)-g','(-g)--get'}'[Print a peice of data]'
     {'(--interactive-entry)-E','(-E)--interactive-entry'}'[\[TaskId\]Enter time through questions for specified task]:select fav:->favs'
+    {'(--edit-last)-L','(-L)--edit-last'}'[\[TaskId\]Edit last entered time entry for optionally specified task]:select fav:->favs'
     {'(--entry)-e','(-e)--entry'}'[Enter time with below options]'
     {'(--billable)-b','(-b)--billable'}'[\[0/1\]If billable time (default 1)]:select b:->billables'
     {'(--hours)-H','(-H)--hours'}'[\[hours\]Set hours to log (default 0)]'
     {'(--minutes)-M','(-M)--minutes'}'[\[minutes\]Set minutes to log (default 0)]'
-    {'(--date)-d','(-d)--date'}'[\[yyyymmdd\]Set date to log for (default today)]:select day->days'
+    {'(--date)-d','(-d)--date'}'[\[yyyymmdd\]Set date to log for (default today)]:select day:->days'
     {'(--description)-m','(-m)--description'}'[\[message\]Set description to log (default empty)]'
     {'(--task)-t','(-t)--task'}'[\[taskId\]Set the taskId to log to (see --tasks)]:select fav:->favs'
     {'(--start-time)-T','(-T)--start-time'}'[\[HH:MM\]Set the start time to log (default 09:00)]'
@@ -59,6 +60,8 @@ _hours_favs=(
 
 _hours_timers=(
     $(hours --timers)
+    lunch
+    break
 )
 
 # work block
