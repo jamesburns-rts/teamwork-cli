@@ -4,7 +4,7 @@
 _hours_arglist=(
     {'(--help)-h','(-h)--help'}'[Print help Screen]'
     {'(--version)-v','(-v)--version'}'[Print version info]'
-    {'(--interactive)-i','(-i)--interactive'}'[\[path\] Enter interactive mode. Optionally add path to start in.]'
+    {'(--interactive)-i','(-i)--interactive'}'[\[path\] Enter interactive mode. Optionally add path to start in.]:select timer:->favs'
     {'(--time-logged)-l','(-l)--time-logged'}'[Print time logged]'
     {'(--tasks)-p','(-p)--tasks'}'[Print a list of previous entered tasks for the year]'
     {'(--entries)-q','(-q)--entries'}'[Print entries of today or date specified]'
