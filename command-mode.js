@@ -34,7 +34,7 @@ const parseProgramArguments = (args) => {
     argList['time-logged'] = getArgEntry('l', null, 'Print time logged', false);
     argList['tasks'] = getArgEntry('p', null, 'Print a list of previous entered tasks for the year', '');
     argList['entries'] = getArgEntry('q', null, 'Print entries of today or date specified', dateFormat(new Date(), "yyyymmdd"));
-    argList['since'] = getArgEntry('Q', null, 'Print entries since date specified', 'week');
+    argList['since'] = getArgEntry('Q', null, 'Print entries since date specified', 'Monday');
     argList['favorites'] = getArgEntry('f', null, 'Print the list of your favorites', false);
     argList['favorites-full'] = getArgEntry('F', null, 'Print the list of your favorites and their tasks', false);
     argList['timers'] = getArgEntry('P', null, 'Prints list of timers', false);
@@ -382,11 +382,11 @@ const main = (args, interactiveCommands) => {
                 }
 
                 if (argList['entries'].provided) {
-                    functions.printDateEntries(argList['entries'].value);
+                    functions.printDateEntries(functions.getDateString(argList['entries'].value));
                 }
 
                 if (argList['since'].provided) {
-                    const dateStr = functions.getSinceDate(argList['since'].value);
+                    const dateStr = functions.getDateString(argList['since'].value);
                     const date = functions.parseDateYYYYMMDD(dateStr);
                     const today = new Date();
                     while (date < today) {

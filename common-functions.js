@@ -286,7 +286,7 @@ const DAYS_OF_WEEK = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 
 const getOffsetOfPrevious = (dayOfWeek) => {
     dayOfWeek = DAYS_OF_WEEK.indexOf(dayOfWeek.toLowerCase().substr(0, 3));
-    if (dayOfWeek <= 0) {
+    if (dayOfWeek < 0) {
         console.warn("Day of week must start with " + DAYS_OF_WEEK);
         return 0;
     }
