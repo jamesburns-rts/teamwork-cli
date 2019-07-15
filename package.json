@@ -29,7 +29,9 @@
     "dateformat": "^2.0.0",
     "html-to-text": "^4.0.0",
     "readline-sync": "^1.4.7",
-    "sync-request": "^4.1.0"
+    "sync-request": "^4.1.0",
+    "lodash": ">=4.17.13",
+    "lodash.merge": ">=4.6.2"
   },
   "scripts": {
     "start": "node hours.js --interactive"
